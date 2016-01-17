@@ -1,0 +1,32 @@
+<html>
+    
+    <head></head>
+    
+    <body>
+        
+        <div lc-controller="testCtrl">
+            <p>Value: <span lc-text="test"></span></p>
+            <p>
+                <input type="text" lc-model="test">
+            </p>
+        </div>
+        
+        <lc-aa></lc-aa>
+        <lc-bb></lc-bb>
+        
+        
+     <script>
+         
+         var allDoms = document.getElementsByTagName("*");
+         console.log(allDoms);
+         
+         var lcDoms = document.querySelectorAll("*[lc-^]")
+         console.log(lcDoms)
+         
+     </script>
+        
+        
+    </body>
+    
+    
+</html>
