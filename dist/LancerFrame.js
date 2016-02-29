@@ -12,6 +12,7 @@
     // Definition: 常量定义区.
     // =================================
     LancerFrame.VERSION = "0.0.1";
+    LancerFrame.AUTHOR = "LancerComet";
     
     
     // Definition: 静态方法定义区.
@@ -22,8 +23,24 @@
     
     root.LancerFrame = root.lc = LancerFrame;
     
+    lc.define("Person", function () {
+                function Person () {
+                    this.name = "LancerComet";
+                    this.age = 25;
+                }
+                
+                Person.prototype.growUp = function () {
+                    this.age++;
+                };
+                
+                return Person;
+            });
+    
+    var parseElement = require("./parse-element/parse-element");
+    parseElement(document.getElementById("test"), "Person");
+    
 })(window);
-},{"./module-func/module-func":2}],2:[function(require,module,exports){
+},{"./module-func/module-func":2,"./parse-element/parse-element":5}],2:[function(require,module,exports){
 /*
  *  "Module Define" module By LancerComet at 16:52, 2016.02.29.
  *  # Carry Your World #
@@ -103,4 +120,140 @@ function moduleRequire (name) {
     
     return targetModule.entity;  // 返回模块 entity 属性而非本身.
 };
-},{}]},{},[1])
+},{}],3:[function(require,module,exports){
+/*
+ *  Elements Parsing module By LancerComet at 18:52, 2016.02.29.
+ *  # Carry Your World #
+ *  ---
+ *  Binder.
+ *  
+ *  Inspired By http://www.ituring.com.cn/article/48463.
+ */
+
+var Binder = {
+    $watch: function (key, watcher) {
+        
+        if (!this.$watchers[key]) {
+            this.$watchers[key] = {
+                value: this[key],
+                list: []
+            }
+        }
+        
+        Object.defineProperty(this, key, {
+            set: function (value) {
+                var oldValue = thi.$watchers[key].value;
+                this.$watchers[key].value = value;
+                
+                for (var i = 0, length = this.$watchers[key].list.length; i < length; i++) {
+                    this.$watchers[key].list[i](value, oldValue);
+                }
+                
+            },
+            get: function () {
+                return this.$watchers[key].value;
+            }
+        });
+        
+        this.$watchers[key].list.push(watcher);
+    }
+};
+
+module.exports = Binder;
+},{}],4:[function(require,module,exports){
+/*
+ *  Elements Parsing module By LancerComet at 18:37, 2016.02.29.
+ *  # Carry Your World #
+ *  ---
+ *  lc-model 处理函数.
+ *  
+ *  Inspired By http://www.ituring.com.cn/article/48463.
+ */
+
+module.exports = function (element, key, ctrl) {
+    
+    // 监视 key 属性, 自动更新节点数值.
+    ctrl.$watch(key, function (newVal, oldVal) {
+        element.value = newVal || "";
+    });
+    
+    // 从节点中数据更新控制器中的属性.
+    element.onkeyup = function () {
+        ctrl[key] = element.value;
+    };
+    
+    element.onpaste = function () {
+        ctrl[key] = element.value;
+    };
+    
+};
+},{}],5:[function(require,module,exports){
+/*
+ *  Elements Parsing module By LancerComet at 18:18, 2016.02.29.
+ *  # Carry Your World #
+ *  ---
+ *  框架节点处理方法.
+ *  
+ *  Inspired By http://www.ituring.com.cn/article/48463.
+ */
+Object.prototype.extend = function (object) {
+    var self = this;
+    for (var i in object) {
+        if (object.hasOwnProperty(i)) {
+            self[i] = object[i];
+        }
+    }
+};
+
+
+function parseElement (element, controller) {
+    var ctrl = controller;
+    
+    if (element.getAttribute("lc-controller")) {
+        ctrl = createController(element.getAttribute("lc-controller"));
+    }
+    
+    for (var i = 0, length = element.attributes.length; i < length; i++) {
+        parseAttribute(element, element.attributes[i], ctrl);
+    }
+    
+    for (var i = 0, length = element.children.length; i < length; i++) {
+        parseElement(element.children[i], ctrl);
+    }
+    
+}
+
+function createController (ctrlName) {
+    var ctrl = lc.require(ctrlName, true);
+    var instance = new ctrl().extend(require("./Binder"));
+    instance.$watchers = {};
+    return instance;
+}
+
+function parseAttribute (element, attr, ctrl) {
+    if (attr.name.indexOf("lc-") == 0) {
+        var type = attr.name.slice("3");
+        switch (type) {
+            case "init":  // lc-init
+            break;
+            case "model":
+                require("./attr-bind/lc-model")(element, attr.value, ctrl);
+            break;
+            case "click":
+            break;
+            case "enable":
+            break;
+            case "disable":
+            break;
+            case "visible":
+            break;
+            case "invisible":
+            break;
+            case "element":
+            break;            
+        }
+    }
+}
+
+module.exports = parseElement;
+},{"./Binder":3,"./attr-bind/lc-model":4}]},{},[1])

@@ -11,6 +11,7 @@
     // Definition: 常量定义区.
     // =================================
     LancerFrame.VERSION = "0.0.1";
+    LancerFrame.AUTHOR = "LancerComet";
     
     
     // Definition: 静态方法定义区.
@@ -20,5 +21,21 @@
     
     
     root.LancerFrame = root.lc = LancerFrame;
+    
+    lc.define("Person", function () {
+                function Person () {
+                    this.name = "LancerComet";
+                    this.age = 25;
+                }
+                
+                Person.prototype.growUp = function () {
+                    this.age++;
+                };
+                
+                return Person;
+            });
+    
+    var parseElement = require("./parse-element/parse-element");
+    parseElement(document.getElementById("test"), "Person");
     
 })(window);
