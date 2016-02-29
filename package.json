@@ -1,0 +1,24 @@
+{
+  "name": "lancerframe",
+  "version": "1.0.0",
+  "description": "A Lightweight framework.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.coding.net/LancerComet/LancerFrame.git"
+  },
+  "keywords": [
+    "framework",
+    "frontend",
+    "web"
+  ],
+  "author": "LancerComet",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-browserify": "^0.5.1"
+  }
+}
