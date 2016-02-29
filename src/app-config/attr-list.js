@@ -3,11 +3,10 @@
  *  # Carry Your World # 
  */
 
-
-export function AttrList () : string[] {
-    return [
+module.exports = {
+    attrList: [
         "lc-controller",
         "lc-model",
         "lc-text"
-    ];
-}
+    ]
+};
