@@ -4,9 +4,7 @@
 (function (root, undefined) {
     "use strict";
 
-    var LancerFrame = function () {
-
-    };
+    var LancerFrame = {};
     
     // Definition: 常量定义区.
     // =================================
@@ -16,15 +14,16 @@
     
     // Definition: 静态方法定义区.
     // =================================    
-    LancerFrame.define = require("./module-func/module-func").define;  // 模块定义方法.
-    LancerFrame.require = require("./module-func/module-func").require;  // 模块引用方法.
+    LancerFrame.controller = require("./module-func/module-func").controller;  // 模块定义方法.
     
+    // Definition: 框架初始化.
+    // =================================    
     
     root.LancerFrame = root.lc = LancerFrame;
-
-
-
-    var parseElement = require("./parse-element/parse-element");
-    parseElement(document.getElementById("test"), "Person");
+    
+    window.onload = function () {
+        LancerFrame.init = require("./init/init").bind(null, LancerFrame);        
+        LancerFrame.init();
+    };
 
 })(window);

@@ -7,9 +7,9 @@
         
         
         <div lc-controller="Person" id="test">
-            <input type="text" lc-model="name">
             <input type="text" lc-model="age">
-            <button lc-click="growUp">Click to grow up</button>
+            <input type="text" lc-model="age">
+            <p lc-text="age"></p>
         </div>
         
         <script src="../dist/LancerFrame.js"></script>
@@ -17,22 +17,11 @@
         
         <script>
 
-            lc.define("Person", function () {
-                function Person() {
-                    this.name = "LancerComet";
-                    this.age = 25;
-                }
-
-                Person.prototype.growUp = function () {
-                    this.age++;
-                };
-
-                return Person;
+            lc.controller("Person", function (scope) {
+                scope.name = "This is name";
+                scope.age = 10;
             });
-
-            lc.use("Person");
-            
-            
+             
         </script>
         
         
