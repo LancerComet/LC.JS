@@ -20,7 +20,7 @@ module.exports = {
 
 /* Definition goes below. */
 
-var moduleMaps = {};
+var moduleMaps = {};  // 存储所有定义模块.
 
 // Definition: 框架模块定义函数.
 // lc.define("someModule", ["moduleA", "moduleB"], function (moduleA, moduleB) {})
@@ -28,21 +28,20 @@ function moduleDefine (name, dependencies, initFunc) {
     // @ params: 模块名称, 依赖模块, 模块初始化函数.
     
     if (!module[name]) {
-        
+
         // 如果没有指定依赖则交换参数.
         if (typeof dependencies === "function") {
             initFunc = dependencies;
             dependencies = [];
         }
-        
-        var newModule = {
+
+        // 建立新模块.
+        moduleMaps[name] = {
             name: name,
             dependencies: dependencies,
             initFunc: initFunc
         };
-        
-        moduleMaps[name] = newModule;
-        
+
     }
     
     return moduleMaps[name];
@@ -76,4 +75,4 @@ function moduleRequire (name) {
     }
     
     return targetModule.entity;  // 返回模块 entity 属性而非本身.
-};
+}

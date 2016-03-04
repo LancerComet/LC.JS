@@ -19,7 +19,7 @@ var Binder = {
         
         Object.defineProperty(this, key, {
             set: function (value) {
-                var oldValue = thi.$watchers[key].value;
+                var oldValue = this.$watchers[key].value;
                 this.$watchers[key].value = value;
                 
                 for (var i = 0, length = this.$watchers[key].list.length; i < length; i++) {

@@ -16,7 +16,21 @@
         
         
         <script>
-            
+
+            lc.define("Person", function () {
+                function Person() {
+                    this.name = "LancerComet";
+                    this.age = 25;
+                }
+
+                Person.prototype.growUp = function () {
+                    this.age++;
+                };
+
+                return Person;
+            });
+
+            lc.use("Person");
             
             
         </script>

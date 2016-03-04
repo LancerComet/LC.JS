@@ -7,10 +7,9 @@
  *  Inspired By http://www.ituring.com.cn/article/48463.
  */
 Object.prototype.extend = function (object) {
-    var self = this;
     for (var i in object) {
         if (object.hasOwnProperty(i)) {
-            self[i] = object[i];
+            this[i] = object[i];
         }
     }
 };
@@ -23,20 +22,25 @@ function parseElement (element, controller) {
         ctrl = createController(element.getAttribute("lc-controller"));
     }
     
-    for (var i = 0, length = element.attributes.length; i < length; i++) {
-        parseAttribute(element, element.attributes[i], ctrl);
-    }
+    (function () {
+        for (var i = 0, length = element.attributes.length; i < length; i++) {
+            parseAttribute(element, element.attributes[i], ctrl);
+        }
+    })();
     
-    for (var i = 0, length = element.children.length; i < length; i++) {
-        parseElement(element.children[i], ctrl);
-    }
+    (function () {
+        for (var i = 0, length = element.children.length; i < length; i++) {
+            parseElement(element.children[i], ctrl);
+        }
+    })();
     
 }
 
 function createController (ctrlName) {
     var ctrl = lc.require(ctrlName, true);
-    var instance = new ctrl().extend(require("./Binder"));
+    var instance = new ctrl();
     instance.$watchers = {};
+    instance.extend(require("./Binder"));
     return instance;
 }
 
@@ -45,22 +49,22 @@ function parseAttribute (element, attr, ctrl) {
         var type = attr.name.slice("3");
         switch (type) {
             case "init":  // lc-init
-            break;
+                break;
             case "model":
                 require("./attr-bind/lc-model")(element, attr.value, ctrl);
-            break;
+                break;
             case "click":
-            break;
+                break;
             case "enable":
-            break;
+                break;
             case "disable":
-            break;
+                break;
             case "visible":
-            break;
+                break;
             case "invisible":
-            break;
+                break;
             case "element":
-            break;            
+                break;
         }
     }
 }

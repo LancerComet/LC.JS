@@ -4,9 +4,9 @@
 
 (function (root, undefined) {
     "use strict";
-    
+
     var LancerFrame = function () {
-        
+
     };
     
     // Definition: 常量定义区.
@@ -22,23 +22,23 @@
     
     
     root.LancerFrame = root.lc = LancerFrame;
-    
+
     lc.define("Person", function () {
-                function Person () {
-                    this.name = "LancerComet";
-                    this.age = 25;
-                }
-                
-                Person.prototype.growUp = function () {
-                    this.age++;
-                };
-                
-                return Person;
-            });
-    
+        function Person() {
+            this.name = "LancerComet";
+            this.age = 25;
+        }
+
+        Person.prototype.growUp = function () {
+            this.age++;
+        };
+
+        return Person;
+    });
+
     var parseElement = require("./parse-element/parse-element");
     parseElement(document.getElementById("test"), "Person");
-    
+
 })(window);
 },{"./module-func/module-func":2,"./parse-element/parse-element":5}],2:[function(require,module,exports){
 /*
@@ -77,14 +77,13 @@ function moduleDefine (name, dependencies, initFunc) {
             initFunc = dependencies;
             dependencies = [];
         }
-        
-        var newModule = {
+
+        // 建立新模块.
+        moduleMaps[name] = {
             name: name,
             dependencies: dependencies,
             initFunc: initFunc
         };
-        
-        moduleMaps[name] = newModule;
         
     }
     
@@ -142,7 +141,7 @@ var Binder = {
         
         Object.defineProperty(this, key, {
             set: function (value) {
-                var oldValue = thi.$watchers[key].value;
+                var oldValue = this.$watchers[key].value;
                 this.$watchers[key].value = value;
                 
                 for (var i = 0, length = this.$watchers[key].list.length; i < length; i++) {
@@ -197,10 +196,9 @@ module.exports = function (element, key, ctrl) {
  *  Inspired By http://www.ituring.com.cn/article/48463.
  */
 Object.prototype.extend = function (object) {
-    var self = this;
     for (var i in object) {
         if (object.hasOwnProperty(i)) {
-            self[i] = object[i];
+            this[i] = object[i];
         }
     }
 };
@@ -225,8 +223,9 @@ function parseElement (element, controller) {
 
 function createController (ctrlName) {
     var ctrl = lc.require(ctrlName, true);
-    var instance = new ctrl().extend(require("./Binder"));
+    var instance = new ctrl();
     instance.$watchers = {};
+    instance.extend(require("./Binder"));
     return instance;
 }
 
