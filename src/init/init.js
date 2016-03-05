@@ -6,7 +6,9 @@
  */
 
 // Definition: 所有控制器存储对象.
-var controllerMaps = require("./../module-func/module-func").controllerMaps;
+var controllerMaps = require("./../module-func/controller").controllerMaps;
+var bindLcModel = require("./../directives/lc-model/lc-model").bindLcModel;
+var bindLcText = require("./../directives/lc-text/lc-text").bindLcText;
 
 
 module.exports = function (lc) {
@@ -41,43 +43,4 @@ module.exports = function (lc) {
 
     }
 
-}
-
-// Definition: lc-model 指令绑定.
-function bindLcModel (children, ctrlData) {    
-    for (var i = 0, length = children.length; i < length; i++) {
-        var child = children[i];    
-        console.log(child)
-        if (child.attributes["lc-model"]) {
-            var keyName = child.attributes["lc-model"].value;
-            child.value = ctrlData[keyName] ? ctrlData[keyName] : "";
-        }
-        
-        // OnInput 时候进行双向数据绑定.
-        child.addEventListener("input", function (event) {
-            var target = event.target || event.srcElement;
-            console.log(ctrlData);
-            console.log(keyName)
-            ctrlData[keyName] = target.value;
-        }, false);  
-
-        var grandChildren = child.children;
-        if (grandChildren.length > 0) {
-            bindLcModel(grandChildren, ctrlData);
-        }
-
-    }
-}
-
-// Definition: lc-text 指令绑定.
-function bindLcText (children, ctrlData) {
-    for (var i = 0, length = children.length; i < length; i++) {
-        var child = children[i];
-        if (!child.attributes["lc-text"]) continue;    
-        
-        var value = ctrlData[child.attributes["lc-text"].value];
-        child.innerText = value;
-        
-        // lc-text 不允许有子元素所以不进行子元素递归.
-    }
 }

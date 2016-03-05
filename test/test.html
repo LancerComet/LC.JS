@@ -7,9 +7,19 @@
         
         
         <div lc-controller="Person" id="test">
-            <input type="text" lc-model="age">
-            <input type="text" lc-model="age">
-            <p lc-text="age"></p>
+            <div>
+                <p>name: <span lc-text="name"></span></p>
+                <p>
+                    <input type="text" lc-model="name">                    
+                </p>
+            </div>
+            <div>
+                <p>age: <span lc-text="age"></span></p>
+                <p>
+                    <input type="text" lc-model="age">
+                    <input type="text" lc-model="age">                                        
+                </p>
+            </div>
         </div>
         
         <script src="../dist/LancerFrame.js"></script>
