@@ -7,8 +7,9 @@
 
 // Definition: 所有控制器存储对象.
 var controllerMaps = require("./../module-func/controller").controllerMaps;
-var bindLcModel = require("./../directives/lc-model/lc-model").bindLcModel;
-var bindLcText = require("./../directives/lc-text/lc-text").bindLcText;
+var bindLcModel = require("./../directives/lc-model/lc-model");
+var bindLcText = require("./../directives/lc-text/lc-text");
+var bindLcClick = require("./../directives/lc-click/lc-click");
 
 
 module.exports = function (lc) {
@@ -33,13 +34,14 @@ module.exports = function (lc) {
          *  }
          * 
          */
-        var ctrlData = controllerMaps[ctrlName];
-        console.log(ctrlData)
+        var scopeObj = controllerMaps[ctrlName];
+        console.log(scopeObj)
         
         // Step3. 在子元素中开始初始化指令.
         var children = $ctrl.children;
-        bindLcModel(children, ctrlData);
-        bindLcText(children, ctrlData);
+        bindLcModel(children, scopeObj);
+        bindLcText(children, scopeObj);
+        bindLcClick(children, scopeObj);
 
     }
 

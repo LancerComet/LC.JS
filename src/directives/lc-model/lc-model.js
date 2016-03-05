@@ -5,31 +5,26 @@
  *  lc-model 指令模块.
  */
 
-module.exports = {
-    bindLcModel: bindLcModel
-};
-
 // Definition: lc-model 指令绑定.
-function bindLcModel (children, ctrlData) {    
+module.exports = function bindLcModel (children, scopeObj) {    
     for (var i = 0, length = children.length; i < length; i++) {
         var child = children[i];
         
         if (!child.attributes["lc-model"]) {
-            child.children.length > 0 && bindLcModel(child.children, ctrlData);
+            child.children.length > 0 && bindLcModel(child.children, scopeObj);
             continue;
         }
             
         var keyName = child.attributes["lc-model"].value;
-        child.value = ctrlData[keyName] ? ctrlData[keyName] : "";
+        child.value = scopeObj[keyName] ? scopeObj[keyName] : "";
         
         // OnInput 时候进行双向数据绑定.
         child.addEventListener("input", function (event) {
             var target = event.target || event.srcElement;
-            console.log(ctrlData);
+            console.log(scopeObj);
             console.log(keyName)
-            ctrlData[keyName] = target.value;
+            scopeObj[keyName] = target.value;
         }, false);  
-  
 
     }
-}
+};

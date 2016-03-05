@@ -7,6 +7,8 @@
 
 var gulp = require("gulp");
 var browserify = require("gulp-browserify");
+var uglify = require("gulp-uglify");
+var rename = require("gulp-rename");
 
 gulp.task("default", ["build"]);
 
@@ -17,6 +19,12 @@ gulp.task("default", ["build"]);
     gulp.task("build-package", function () {
         gulp.src("./src/LancerFrame.js")
             .pipe(browserify())
+            .pipe(gulp.dest("./dist/"))
+            .pipe(uglify({
+                compress: true,
+                mangle: true
+            }))
+            .pipe(rename({ suffix: ".min" }))
             .pipe(gulp.dest("./dist/"))
     });
     

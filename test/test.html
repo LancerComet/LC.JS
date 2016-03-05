@@ -17,9 +17,14 @@
                 <p>age: <span lc-text="age"></span></p>
                 <p>
                     <input type="text" lc-model="age">
-                    <input type="text" lc-model="age">                                        
+                    <input type="text" lc-model="age">
+                    <button lc-click="addAge">Add Age</button>                                        
                 </p>
             </div>
+        </div>
+        
+        <div lc-controller="Person">
+            <span lc-text="age"></span>
         </div>
         
         <script src="../dist/LancerFrame.js"></script>
@@ -30,6 +35,9 @@
             lc.controller("Person", function (scope) {
                 scope.name = "This is name";
                 scope.age = 10;
+                scope.addAge = function () {
+                    scope.age++;
+                };
             });
              
         </script>

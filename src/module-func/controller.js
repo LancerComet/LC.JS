@@ -24,7 +24,7 @@ module.exports = {
 /* Definition goes below. */
 
 // Definition: 框架控制器定义函数.
-// lc.define("someModule", ["moduleA", "moduleB"], function (moduleA, moduleB) {})
+// lc.controller("ctrlName", ["moduleA"], function (scope) {})
 function controllerDefine (ctrlName, dependencies, initFunc) {
     // @ params: 模块名称, 依赖模块, 模块初始化函数.
     
@@ -41,26 +41,27 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
 
     initFunc && (function () {
         initFunc(controllerMaps[ctrlName]);  // 将对象带入初始化函数中进行初始化.
-        // 在 controllerMaps[ctrlName] 初始化完成后, 遍历每个用户设定的属性并设置为 getter / setter 进行双向数据绑定.
+        // 在 controllerMaps[ctrlName] 初始化完成后, 遍历每个用户设定的属性并设置 getter / setter.
         
         var scope = controllerMaps[ctrlName];  // Definition: 此控制器对象.
         
         // 之后为每个用户定义的属性中设置 getter / setter.
-        for (var item in scope) {
-            if (!scope.hasOwnProperty(item) || item === "$controllerCtrlName") { continue; }
+        for (var prop in scope) {
+            if (!scope.hasOwnProperty(prop) || prop === "$controllerCtrlName") { continue; }
             
             // 在自执行函数中创建闭包来保留每个属性的 key 与 value 的各自引用 itemKey, itemValue 以避免属性相互干扰.
             (function () {
-                var itemKey = item;                
-                var itemValue = scope[item];
+                var itemKey = prop;                
+                var itemValue = scope[prop];
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
+                        console.log(scope)                        
                         return itemValue;
                     },
                     set: function (newValue) {
-                        console.log(ctrlName + "." + itemKey + " 从 " + itemValue + " 修改为 " + newValue);                                                
+                        console.log(ctrlName + "." + itemKey + " 从 " + itemValue + " 修改为 " + newValue);
                         itemValue = newValue;
-                        syncData(ctrlName, itemKey, newValue)  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
+                        syncData(ctrlName, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
                     }
                 });
             })();
