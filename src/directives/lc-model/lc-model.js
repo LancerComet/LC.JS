@@ -19,12 +19,28 @@ module.exports = function bindLcModel (children, scopeObj) {
         child.value = scopeObj[keyName] ? scopeObj[keyName] : "";
         
         // OnInput 时候进行双向数据绑定.
-        child.addEventListener("input", function (event) {
-            var target = event.target || event.srcElement;
-            console.log(scopeObj);
-            console.log(keyName)
-            scopeObj[keyName] = target.value;
-        }, false);  
+        // Windows 8 的 IE11 下存在输入法无法输入中文的问题, 这里使用 KeyUp 加清理计时器的方式进行.
+        var ua = navigator.userAgent;
+        var exp = /Windows NT 6.3.*.Trident\/7.0/;
+        if (ua.match(exp)) {
+            var inputTimeout = null;
+            child.addEventListener("keydown", function (event) {
+                clearTimeout(inputTimeout);
+                inputTimeout = setTimeout(function () {
+                    var target = event.target || event.srcElement;
+                    scopeObj[keyName] = target.value;
+                }, 200);
+            });
+        } else {
+            child.addEventListener("input", function (event) {
+                console.log(event)
+                var target = event.target || event.srcElement;
+                console.log(scopeObj);
+                console.log(keyName)
+                scopeObj[keyName] = target.value;
+            }, false);
+        }
+
 
     }
 };

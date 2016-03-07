@@ -115,12 +115,28 @@ module.exports = function bindLcModel (children, scopeObj) {
         child.value = scopeObj[keyName] ? scopeObj[keyName] : "";
         
         // OnInput 时候进行双向数据绑定.
-        child.addEventListener("input", function (event) {
-            var target = event.target || event.srcElement;
-            console.log(scopeObj);
-            console.log(keyName)
-            scopeObj[keyName] = target.value;
-        }, false);  
+        // Windows 8 的 IE11 下存在输入法无法输入中文的问题, 这里使用 KeyUp 加清理计时器的方式进行.
+        var ua = navigator.userAgent;
+        var exp = /Windows NT 6.3.*.Trident\/7.0/;
+        if (ua.match(exp)) {
+            var inputTimeout = null;
+            child.addEventListener("keydown", function (event) {
+                clearTimeout(inputTimeout);
+                inputTimeout = setTimeout(function () {
+                    var target = event.target || event.srcElement;
+                    scopeObj[keyName] = target.value;
+                }, 200);
+            });
+        } else {
+            child.addEventListener("input", function (event) {
+                console.log(event)
+                var target = event.target || event.srcElement;
+                console.log(scopeObj);
+                console.log(keyName)
+                scopeObj[keyName] = target.value;
+            }, false);
+        }
+
 
     }
 };
@@ -168,14 +184,30 @@ module.exports = function bindLcText (children, scopeObj) {
     LancerFrame.controller = require("./module-func/controller").controller;  // 模块定义方法.
     
     // Definition: 框架初始化.
-    // =================================    
-    
-    root.LancerFrame = root.lc = LancerFrame;
-    
-    window.onload = function () {
-        LancerFrame.init = require("./init/init").bind(null, LancerFrame);        
+    // =================================
+    // 让框架在 DomContentLoaded 时进行初始化.
+    // 如果没赶上, 则在 window.onload 时进行.
+    // 如果还没赶上, 检测 document.readyState 是否为 complete, 是则直接执行.
+    LancerFrame.inited = false;
+    LancerFrame.init = require("./init/init").bind(null, LancerFrame);
+    window.addEventListener("DOMContentLoaded", function () {
+        console.log("Init at DOMContentLoaded");
         LancerFrame.init();
-    };
+    });
+    window.addEventListener("load", function () {
+        if (LancerFrame.inited) return;
+        LancerFrame.init();
+    });
+    setTimeout(function () {
+        if (LancerFrame.inited) return;
+        document.readyState === "complete" && LancerFrame.init();
+    }, 1);
+
+
+
+    // Definition: 将 LancerFrame 挂载至全局环境.
+    // =================================
+    root.LancerFrame = root.lc = LancerFrame;
 
 })(window);
 },{"./init/init":6,"./module-func/controller":7}],6:[function(require,module,exports){
@@ -195,8 +227,7 @@ var bindLcClick = require("./../directives/lc-click/lc-click");
 
 module.exports = function (lc) {
     console.log("init")
-    console.log(controllerMaps)
-    
+
     // Step1. 获取所有对象并提取 lc-controller 对象.
     var $ctrls = document.querySelectorAll("[lc-controller]");
     
@@ -226,7 +257,9 @@ module.exports = function (lc) {
 
     }
 
-}
+    LancerFrame.inited = true;
+
+};
 },{"./../directives/lc-click/lc-click":2,"./../directives/lc-model/lc-model":3,"./../directives/lc-text/lc-text":4,"./../module-func/controller":7}],7:[function(require,module,exports){
 /*
  *  "Module Define" module By LancerComet at 16:52, 2016.02.29.

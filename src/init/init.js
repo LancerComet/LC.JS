@@ -14,8 +14,7 @@ var bindLcClick = require("./../directives/lc-click/lc-click");
 
 module.exports = function (lc) {
     console.log("init")
-    console.log(controllerMaps)
-    
+
     // Step1. 获取所有对象并提取 lc-controller 对象.
     var $ctrls = document.querySelectorAll("[lc-controller]");
     
@@ -45,4 +44,6 @@ module.exports = function (lc) {
 
     }
 
-}
+    LancerFrame.inited = true;
+
+};
