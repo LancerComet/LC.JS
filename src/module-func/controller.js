@@ -55,6 +55,7 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
                 var itemValue = scope[prop];
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
+                        console.log("scope:")
                         console.log(scope)                        
                         return itemValue;
                     },

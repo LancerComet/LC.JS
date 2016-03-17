@@ -13,29 +13,31 @@ module.exports = {
 // Definition: 数据绑定函数.
 // 将在 getter / setter 中调用以进行如 lc-model、lc-text 等指令的数据同步.
 function syncData (ctrlName, key, newValue) {
-    var ctrlDom = document.querySelector("[lc-controller=" + ctrlName + "]");
 
-    (function bindData(children) {
+    // 获取所有控制器节点.
+    var ctrlDom = document.querySelectorAll("[lc-controller=" + ctrlName + "]");
 
-        for (var i = 0, length = children.length; i < length; i++) {
-            var child = children[i];
+    // 循环控制器节点.
+    for (var i = 0, length = ctrlDom.length; i < length; i++) {
 
-            if (!child.attributes["lc-text"] && !child.attributes["lc-model"]) {
-                child.children.length > 0 && bindData(child.children);
-                continue;
-            };
-            
-            if (child.attributes["lc-text"] && child.attributes["lc-text"].value === key) console.log(child)
-            if (child.attributes["lc-model"] && child.attributes["lc-model"].value === key) console.log(child)
-            
-            if (child.attributes["lc-text"] && child.attributes["lc-text"].value === key) lcText(child, newValue);
-            if (child.attributes["lc-model"] && child.attributes["lc-model"].value === key) lcModel(child, newValue);
-        }
+        // 在每个控制器节点中初始化各指令.
+        (function bindData(children) {
+            for (var i = 0, length = children.length; i < length; i++) {
+                var child = children[i];
 
-    })(ctrlDom.children);
-    
-    
-    
+                if (!child.attributes["lc-text"] && !child.attributes["lc-model"]) {
+                    child.children.length > 0 && bindData(child.children);
+                    continue;
+                }
+
+                // 开始初始化指令.
+                (child.attributes["lc-text"] && child.attributes["lc-text"].value === key) && lcText(child, newValue);
+                (child.attributes["lc-model"] && child.attributes["lc-model"].value === key) && lcModel(child, newValue);
+            }
+        })(ctrlDom[i].children);
+
+    }
+
     // TODO: 观察在函数中创建函数是否引起内存溢出问题.
     // 进行 lc-text 的数据绑定.
     function lcText (target, newValue) {
@@ -188,20 +190,22 @@ module.exports = function bindLcText (children, scopeObj) {
     // 让框架在 DomContentLoaded 时进行初始化.
     // 如果没赶上, 则在 window.onload 时进行.
     // 如果还没赶上, 检测 document.readyState 是否为 complete, 是则直接执行.
-    LancerFrame.inited = false;
-    LancerFrame.init = require("./init/init").bind(null, LancerFrame);
-    window.addEventListener("DOMContentLoaded", function () {
-        console.log("Init at DOMContentLoaded");
-        LancerFrame.init();
-    });
-    window.addEventListener("load", function () {
-        if (LancerFrame.inited) return;
-        LancerFrame.init();
-    });
-    setTimeout(function () {
-        if (LancerFrame.inited) return;
-        document.readyState === "complete" && LancerFrame.init();
-    }, 1);
+    (function () {
+        LancerFrame.inited = false;
+        LancerFrame.init = require("./init/init").bind(null, LancerFrame);
+        window.addEventListener("DOMContentLoaded", function () {
+            console.log("Init at DOMContentLoaded");
+            LancerFrame.init();
+        });
+        window.addEventListener("load", function () {
+            if (LancerFrame.inited) return;
+            LancerFrame.init();
+        });
+        setTimeout(function () {
+            if (LancerFrame.inited) return;
+            document.readyState === "complete" && LancerFrame.init();
+        }, 1);
+    })();
 
 
 
@@ -220,9 +224,9 @@ module.exports = function bindLcText (children, scopeObj) {
 
 // Definition: 所有控制器存储对象.
 var controllerMaps = require("./../module-func/controller").controllerMaps;
-var bindLcModel = require("./../directives/lc-model/lc-model");
-var bindLcText = require("./../directives/lc-text/lc-text");
-var bindLcClick = require("./../directives/lc-click/lc-click");
+var bindLcModel = require("./../directives/lc-model");
+var bindLcText = require("./../directives/lc-text");
+var bindLcClick = require("./../directives/lc-click");
 
 
 module.exports = function (lc) {
@@ -260,7 +264,7 @@ module.exports = function (lc) {
     LancerFrame.inited = true;
 
 };
-},{"./../directives/lc-click/lc-click":2,"./../directives/lc-model/lc-model":3,"./../directives/lc-text/lc-text":4,"./../module-func/controller":7}],7:[function(require,module,exports){
+},{"./../directives/lc-click":2,"./../directives/lc-model":3,"./../directives/lc-text":4,"./../module-func/controller":7}],7:[function(require,module,exports){
 /*
  *  "Module Define" module By LancerComet at 16:52, 2016.02.29.
  *  # Carry Your World #
@@ -318,6 +322,7 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
                 var itemValue = scope[prop];
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
+                        console.log("scope:")
                         console.log(scope)                        
                         return itemValue;
                     },

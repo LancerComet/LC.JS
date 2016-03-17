@@ -7,9 +7,9 @@
 
 // Definition: 所有控制器存储对象.
 var controllerMaps = require("./../module-func/controller").controllerMaps;
-var bindLcModel = require("./../directives/lc-model/lc-model");
-var bindLcText = require("./../directives/lc-text/lc-text");
-var bindLcClick = require("./../directives/lc-click/lc-click");
+var bindLcModel = require("./../directives/lc-model");
+var bindLcText = require("./../directives/lc-text");
+var bindLcClick = require("./../directives/lc-click");
 
 
 module.exports = function (lc) {

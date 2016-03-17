@@ -25,9 +25,10 @@
         
         <div lc-controller="Person">
             <span lc-text="age"></span>
+            <button lc-click="addAge">Add Age</button>
         </div>
         
-        <script src="../dist/LancerFrame.js"></script>
+        <script src="/dist/LancerFrame.js"></script>
         
         
         <script>
@@ -35,6 +36,13 @@
             lc.controller("Person", function (scope) {
                 scope.name = "This is name";
                 scope.age = 10;
+                scope.addAge = function () {
+                    scope.age++;
+                };
+            });
+
+            lc.controller("Person2", function (scope) {
+                scope.age = 20;
                 scope.addAge = function () {
                     scope.age++;
                 };
