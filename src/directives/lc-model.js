@@ -5,42 +5,68 @@
  *  lc-model 指令模块.
  */
 
-// Definition: lc-model 指令绑定.
-module.exports = function bindLcModel (children, scopeObj) {    
+var directiveName = "lc-model";
+
+module.exports = {
+    init: initLcModel,
+    syncData: setData
+};
+
+// Definition: lc-model 指令绑定（初始化）.
+function initLcModel (children, scopeObj, LancerFrame) {
+
     for (var i = 0, length = children.length; i < length; i++) {
         var child = children[i];
-        
-        if (!child.attributes["lc-model"]) {
-            child.children.length > 0 && bindLcModel(child.children, scopeObj);
+
+        if (!child.attributes[directiveName]) {
+            child.children.length > 0 && initLcModel(child.children, scopeObj, LancerFrame);
             continue;
         }
-            
-        var keyName = child.attributes["lc-model"].value;
-        child.value = scopeObj[keyName] ? scopeObj[keyName] : "";
-        
-        // OnInput 时候进行双向数据绑定.
-        // Windows 8 的 IE11 下存在输入法无法输入中文的问题, 这里使用 KeyUp 加清理计时器的方式进行.
-        var ua = navigator.userAgent;
-        var exp = /Windows NT 6.3.*.Trident\/7.0/;
-        if (ua.match(exp)) {
-            var inputTimeout = null;
-            child.addEventListener("keydown", function (event) {
-                clearTimeout(inputTimeout);
-                inputTimeout = setTimeout(function () {
-                    var target = event.target || event.srcElement;
-                    scopeObj[keyName] = target.value;
-                }, 200);
-            });
-        } else {
-            child.addEventListener("input", function (event) {
-                console.log(event)
-                var target = event.target || event.srcElement;
-                console.log(scopeObj);
-                console.log(keyName)
-                scopeObj[keyName] = target.value;
-            }, false);
-        }
 
+        var keyName = child.attributes[directiveName].value;
+        child.value = scopeObj[keyName] ? scopeObj[keyName] : "";
+
+        (function (keyName, child) {
+            var imeIgnored = false;  // 忽略输入法状态控制标识.
+
+            // 进入输入法输入状态时锁定控制标识.
+            child.addEventListener("compositionstart", function () {
+                imeIgnored = true;
+            });
+
+            // 当输入法状态恢复时释放控制标识.
+            child.addEventListener("compositionend", function () {
+                imeIgnored = false;
+            });
+
+            child.addEventListener("input", inputEvent, false);
+
+            // Fixing: IE9 在 Backspace / Delete / 剪切时不触发 input 事件.
+            // http://frontenddev.org/article/compatible-with-processing-and-chinese-input-method-to-optimize-the-input-events.html
+            if (LancerFrame.BROWSER === "IE 9") {
+                child.addEventListener("cut", function () {
+                    console.log("cut event");
+                    setTimeout(inputEvent, 1);  // 必须放置在任务队列中才生效.
+                });
+
+                child.addEventListener("keyup", function (event) {
+                    console.log("keyup event");
+                    event = event || window.event;
+                    (event.keyCode === 46 || event.keyCode === 8) && inputEvent();
+                });
+            }
+
+            function inputEvent () {
+                if (imeIgnored) { return; }
+                scopeObj[keyName] = child.value;
+            }
+
+        })(keyName, child);
 
     }
-};
+}
+
+// Definition: lc-model 双向数据绑定 set 中执行函数.
+function setData (element, value) {
+    element.value = value;
+}

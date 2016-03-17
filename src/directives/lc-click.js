@@ -5,17 +5,23 @@
  *  lc-click 指令模块.
  */
 
-module.exports = function bindLcClick (elements, scopeObj) {
+var directiveName = "lc-click";
+
+module.exports = {
+    init: initLcClick
+};
+
+function initLcClick (elements, scopeObj) {
     for (var i = 0, length = elements.length; i < length; i++) {
         var element = elements[i];
-        
-        if (!element.attributes["lc-click"]) {
-            element.children.length && bindLcClick(element.children, scopeObj);
-            continue; 
+
+        if (!element.attributes[directiveName]) {
+            element.children.length && initLcClick(element.children, scopeObj);
+            continue;
         }
-        
-        var clickEvent = scopeObj[element.attributes["lc-click"].value];
+
+        var clickEvent = scopeObj[element.attributes[directiveName].value];
         element.addEventListener("click", clickEvent, false);
-        
+
     }
 }

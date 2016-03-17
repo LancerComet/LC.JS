@@ -53,16 +53,16 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
             (function () {
                 var itemKey = prop;                
                 var itemValue = scope[prop];
+                var ctrlDom = null;  // 控制器节点. 放置此处以进行缓存.
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
-                        console.log("scope:")
-                        console.log(scope)                        
                         return itemValue;
                     },
                     set: function (newValue) {
+                        if (!ctrlDom) { ctrlDom = document.querySelectorAll("[lc-controller=" + ctrlName + "]"); }  // 获取控制器.
                         console.log(ctrlName + "." + itemKey + " 从 " + itemValue + " 修改为 " + newValue);
                         itemValue = newValue;
-                        syncData(ctrlName, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
+                        syncData(ctrlDom, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
                     }
                 });
             })();

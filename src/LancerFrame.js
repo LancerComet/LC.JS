@@ -10,6 +10,7 @@
     // =================================
     LancerFrame.VERSION = "0.0.1";
     LancerFrame.AUTHOR = "LancerComet";
+    LancerFrame.BROWSER = require("./init/browser-detective")();
     
     
     // Definition: 静态方法定义区.
@@ -23,18 +24,18 @@
     // 如果还没赶上, 检测 document.readyState 是否为 complete, 是则直接执行.
     (function () {
         LancerFrame.inited = false;
-        LancerFrame.init = require("./init/init").bind(null, LancerFrame);
+        LancerFrame.init = require("./init/init");
         window.addEventListener("DOMContentLoaded", function () {
             console.log("Init at DOMContentLoaded");
-            LancerFrame.init();
+            LancerFrame.init(LancerFrame);
         });
         window.addEventListener("load", function () {
             if (LancerFrame.inited) return;
-            LancerFrame.init();
+            LancerFrame.init(LancerFrame);
         });
         setTimeout(function () {
             if (LancerFrame.inited) return;
-            document.readyState === "complete" && LancerFrame.init();
+            document.readyState === "complete" && LancerFrame.init(LancerFrame);
         }, 1);
     })();
 

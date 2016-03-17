@@ -7,13 +7,16 @@
 
 // Definition: 所有控制器存储对象.
 var controllerMaps = require("./../module-func/controller").controllerMaps;
-var bindLcModel = require("./../directives/lc-model");
-var bindLcText = require("./../directives/lc-text");
-var bindLcClick = require("./../directives/lc-click");
+var initDirectives = [
+    require("./../directives/lc-model").init,
+    require("./../directives/lc-text").init,
+    require("./../directives/lc-html").init,
+    require("./../directives/lc-click").init
+];
 
 
-module.exports = function (lc) {
-    console.log("init")
+module.exports = function (LancerFrame) {
+    console.log("init");
 
     // Step1. 获取所有对象并提取 lc-controller 对象.
     var $ctrls = document.querySelectorAll("[lc-controller]");
@@ -34,14 +37,15 @@ module.exports = function (lc) {
          * 
          */
         var scopeObj = controllerMaps[ctrlName];
-        console.log(scopeObj)
+        console.log(scopeObj);
         
         // Step3. 在子元素中开始初始化指令.
         var children = $ctrl.children;
-        bindLcModel(children, scopeObj);
-        bindLcText(children, scopeObj);
-        bindLcClick(children, scopeObj);
-
+        (function () {
+            for (var i = 0, length = initDirectives.length; i < length; i++) {
+                initDirectives[i](children, scopeObj, LancerFrame);
+            }
+        })();
     }
 
     LancerFrame.inited = true;
