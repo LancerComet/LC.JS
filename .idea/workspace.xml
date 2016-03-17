@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4c55dad9-e828-4b3b-b161-0bf6991f69c5" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/directives/dom-events/lc-mouseenter.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/directives/dom-events/lc-mouseleave.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/LancerFrame.js" afterPath="$PROJECT_DIR$/dist/LancerFrame.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/LancerFrame.min.js" afterPath="$PROJECT_DIR$/dist/LancerFrame.min.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/LancerFrame.js" afterPath="$PROJECT_DIR$/src/LancerFrame.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/directives/_common/common.js" afterPath="$PROJECT_DIR$/src/directives/_common/common.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/init/init.js" afterPath="$PROJECT_DIR$/src/init/init.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/index.html" afterPath="$PROJECT_DIR$/test/index.html" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/directives/lc-click.js" afterPath="$PROJECT_DIR$/src/directives/dom-events/lc-click.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/directives/lc-html.js" afterPath="$PROJECT_DIR$/src/directives/data-bind/lc-html.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/directives/lc-model.js" afterPath="$PROJECT_DIR$/src/directives/data-bind/lc-model.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/directives/lc-text.js" afterPath="$PROJECT_DIR$/src/directives/data-bind/lc-text.js" />
     </list>
     <ignored path="LancerFrame.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -62,11 +50,12 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.801214">
-              <caret line="70" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.92716235">
+              <caret line="74" column="13" selection-start-line="74" selection-start-column="13" selection-end-line="74" selection-end-column="13" />
               <folding>
                 <element signature="n#style#0;n#div#1;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <marker date="1458208404075" expanded="true" signature="1966:1976" placeholder="..." />
+                <element signature="n#style#0;n#span#0;n#p#0;n#div#2;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <marker date="1458209125180" expanded="true" signature="2049:2059" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -749,11 +738,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.801214">
-          <caret line="70" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.92716235">
+          <caret line="74" column="13" selection-start-line="74" selection-start-column="13" selection-end-line="74" selection-end-column="13" />
           <folding>
             <element signature="n#style#0;n#div#1;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <marker date="1458208404075" expanded="true" signature="1966:1976" placeholder="..." />
+            <element signature="n#style#0;n#span#0;n#p#0;n#div#2;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <marker date="1458209125180" expanded="true" signature="2049:2059" placeholder="..." />
           </folding>
         </state>
       </provider>
