@@ -185,6 +185,15 @@ function initLcModel (children, scopeObj, LancerFrame) {
                 });
             }
 
+            if (LancerFrame.BROWSER.indexOf("IE") > -1) {
+                child.addEventListener("keyup", function (event) {
+                    console.log("keyup event");
+                    event = event || window.event;
+                    if (event.keyCode === 17 || event.keyCode === 18 || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+                    inputEvent();
+                });
+            }
+
             function inputEvent () {
                 if (imeIgnored) { return; }
                 scopeObj[keyName] = child.value;
