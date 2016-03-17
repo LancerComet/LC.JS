@@ -8,10 +8,13 @@
 // Definition: 所有控制器存储对象.
 var controllerMaps = require("./../module-func/controller").controllerMaps;
 var initDirectives = [
-    require("./../directives/lc-model").init,
-    require("./../directives/lc-text").init,
-    require("./../directives/lc-html").init,
-    require("./../directives/lc-click").init
+    require("./../directives/data-bind/lc-model").init,
+    require("./../directives/data-bind/lc-text").init,
+    require("./../directives/data-bind/lc-html").init,
+
+    require("./../directives/dom-events/lc-click").init,
+    require("./../directives/dom-events/lc-mouseenter").init,
+    require("./../directives/dom-events/lc-mouseleave").init
 ];
 
 
@@ -34,7 +37,6 @@ module.exports = function (LancerFrame) {
          *      key2: value,
          *      ...
          *  }
-         * 
          */
         var scopeObj = controllerMaps[ctrlName];
         console.log(scopeObj);

@@ -9,9 +9,9 @@ module.exports = {
     syncData: syncData
 };
 
-var lcText = require('../lc-text'),
-    lcHtml = require('../lc-html'),
-    lcModel = require('../lc-model');
+var lcText = require('../data-bind/lc-text'),
+    lcHtml = require('../data-bind/lc-html'),
+    lcModel = require('../data-bind/lc-model');
 
 
 // Definition: 数据绑定函数.

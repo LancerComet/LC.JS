@@ -29,5 +29,5 @@ function initLcText (children, scopeObj) {
 }
 
 function setData (element, value) {
-    element.innerText = value;
+    element.innerText ? element.innerText = value : element.textContent = value;  // textContent for Firefox.
 }

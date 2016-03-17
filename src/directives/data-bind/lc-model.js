@@ -56,6 +56,7 @@ function initLcModel (children, scopeObj, LancerFrame) {
                 });
             }
 
+            // IE 下使用 KeyUp 进行数据绑定来避免输入法无效问题.
             if (LancerFrame.BROWSER.indexOf("IE") > -1) {
                 child.addEventListener("keyup", function (event) {
                     console.log("keyup event");

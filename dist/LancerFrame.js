@@ -10,9 +10,9 @@ module.exports = {
     syncData: syncData
 };
 
-var lcText = require('../lc-text'),
-    lcHtml = require('../lc-html'),
-    lcModel = require('../lc-model');
+var lcText = require('../data-bind/lc-text'),
+    lcHtml = require('../data-bind/lc-html'),
+    lcModel = require('../data-bind/lc-model');
 
 
 // Definition: 数据绑定函数.
@@ -66,35 +66,7 @@ function findChildren (parent, attr, value) {
      
      return result;     
 }
-},{"../lc-html":3,"../lc-model":4,"../lc-text":5}],2:[function(require,module,exports){
-/*
- *  LancerFrame Click directive By LancerComet at 2:11, 2016.03.06.
- *  # Carry Your World #
- *  ---
- *  lc-click 指令模块.
- */
-
-var directiveName = "lc-click";
-
-module.exports = {
-    init: initLcClick
-};
-
-function initLcClick (elements, scopeObj) {
-    for (var i = 0, length = elements.length; i < length; i++) {
-        var element = elements[i];
-
-        if (!element.attributes[directiveName]) {
-            element.children.length && initLcClick(element.children, scopeObj);
-            continue;
-        }
-
-        var clickEvent = scopeObj[element.attributes[directiveName].value];
-        element.addEventListener("click", clickEvent, false);
-
-    }
-}
-},{}],3:[function(require,module,exports){
+},{"../data-bind/lc-html":2,"../data-bind/lc-model":3,"../data-bind/lc-text":4}],2:[function(require,module,exports){
 /*
  *  LancerFrame HTML directive By LancerComet at 12:13, 2016.03.17.
  *  # Carry Your World #
@@ -126,7 +98,7 @@ function initLcHTML (children, scopeObj) {
 function setData (element, value) {
     element.innerHTML = value;
 }
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /*
  *  LancerFrame Model directive By LancerComet at 15:10, 2016.03.05.
  *  # Carry Your World #
@@ -185,6 +157,7 @@ function initLcModel (children, scopeObj, LancerFrame) {
                 });
             }
 
+            // IE 下使用 KeyUp 进行数据绑定来避免输入法无效问题.
             if (LancerFrame.BROWSER.indexOf("IE") > -1) {
                 child.addEventListener("keyup", function (event) {
                     console.log("keyup event");
@@ -208,7 +181,7 @@ function initLcModel (children, scopeObj, LancerFrame) {
 function setData (element, value) {
     element.value = value;
 }
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*
  *  LancerFrame Text directive By LancerComet at 15:03, 2016.03.05.
  *  # Carry Your World #
@@ -240,14 +213,100 @@ function initLcText (children, scopeObj) {
 }
 
 function setData (element, value) {
-    element.innerText = value;
+    element.innerText ? element.innerText = value : element.textContent = value;  // textContent for Firefox.
+}
+},{}],5:[function(require,module,exports){
+/*
+ *  LancerFrame Click directive By LancerComet at 2:11, 2016.03.06.
+ *  # Carry Your World #
+ *  ---
+ *  lc-click 指令模块.
+ */
+
+var directiveName = "lc-click";
+
+module.exports = {
+    init: initLcClick
+};
+
+function initLcClick (elements, scopeObj) {
+    for (var i = 0, length = elements.length; i < length; i++) {
+        var element = elements[i];
+
+        if (!element.attributes[directiveName]) {
+            element.children.length && initLcClick(element.children, scopeObj);
+            continue;
+        }
+
+        var clickEvent = scopeObj[element.attributes[directiveName].value];
+        element.addEventListener("click", clickEvent, false);
+
+    }
 }
 },{}],6:[function(require,module,exports){
+/*
+ *  LancerFrame MouseEnter directive By LancerComet at 17:17, 2016.03.17.
+ *  # Carry Your World #
+ *  ---
+ *  lc-mouseenter 指令模块.
+ */
+
+var directiveName = "lc-mouseenter";
+
+module.exports = {
+    init: initLcMouseEnter
+};
+
+function initLcMouseEnter (elements, scopeObj) {
+    for (var i = 0, length = elements.length; i < length; i++) {
+        var element = elements[i];
+
+        if (!element.attributes[directiveName]) {
+            element.children.length && initLcMouseEnter(element.children, scopeObj);
+            continue;
+        }
+
+        var event = scopeObj[element.attributes[directiveName].value];
+        element.addEventListener("mouseenter", event, false);
+
+    }
+}
+},{}],7:[function(require,module,exports){
+/*
+ *  LancerFrame MouseLeave directive By LancerComet at 17:17, 2016.03.17.
+ *  # Carry Your World #
+ *  ---
+ *  lc-mouseleave 指令模块.
+ */
+
+var directiveName = "lc-mouseleave";
+
+module.exports = {
+    init: initLcMouseLeave
+};
+
+function initLcMouseLeave (elements, scopeObj) {
+    for (var i = 0, length = elements.length; i < length; i++) {
+        var element = elements[i];
+
+        if (!element.attributes[directiveName]) {
+            element.children.length && initLcMouseLeave(element.children, scopeObj);
+            continue;
+        }
+
+        var event = scopeObj[element.attributes[directiveName].value];
+        element.addEventListener("mouseleave", event, false);
+
+    }
+}
+},{}],8:[function(require,module,exports){
 // Lancer Frame V0.0.1 By LancerComet at 16:44, 2016.02.29.
 // # Carry Your World #
 
 (function (root, undefined) {
     "use strict";
+    var startTime = performance.now();
+    console.log("StartTime: " + startTime);
 
     var LancerFrame = {};
     
@@ -273,6 +332,9 @@ function setData (element, value) {
         window.addEventListener("DOMContentLoaded", function () {
             console.log("Init at DOMContentLoaded");
             LancerFrame.init(LancerFrame);
+            var endTime = performance.now();
+            console.log("EndTime: " + endTime);
+            console.log("Init takes " + (endTime - startTime));
         });
         window.addEventListener("load", function () {
             if (LancerFrame.inited) return;
@@ -290,8 +352,9 @@ function setData (element, value) {
     // =================================
     root.LancerFrame = root.lc = LancerFrame;
 
+
 })(window);
-},{"./init/browser-detective":7,"./init/init":8,"./module-func/controller":9}],7:[function(require,module,exports){
+},{"./init/browser-detective":9,"./init/init":10,"./module-func/controller":11}],9:[function(require,module,exports){
 /*
  *   Explorer Detective By LancerComet at 11:30, 2015/11/25.
  *   # Carry Your World #
@@ -346,7 +409,7 @@ function explorerDetective () {
     return browser.myBrowser;
 }
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*
  *  "Module Define" module By LancerComet at 17:29, 2016.03.04.
  *  # Carry Your World #
@@ -357,10 +420,13 @@ function explorerDetective () {
 // Definition: 所有控制器存储对象.
 var controllerMaps = require("./../module-func/controller").controllerMaps;
 var initDirectives = [
-    require("./../directives/lc-model").init,
-    require("./../directives/lc-text").init,
-    require("./../directives/lc-html").init,
-    require("./../directives/lc-click").init
+    require("./../directives/data-bind/lc-model").init,
+    require("./../directives/data-bind/lc-text").init,
+    require("./../directives/data-bind/lc-html").init,
+
+    require("./../directives/dom-events/lc-click").init,
+    require("./../directives/dom-events/lc-mouseenter").init,
+    require("./../directives/dom-events/lc-mouseleave").init
 ];
 
 
@@ -383,7 +449,6 @@ module.exports = function (LancerFrame) {
          *      key2: value,
          *      ...
          *  }
-         * 
          */
         var scopeObj = controllerMaps[ctrlName];
         console.log(scopeObj);
@@ -400,7 +465,7 @@ module.exports = function (LancerFrame) {
     LancerFrame.inited = true;
 
 };
-},{"./../directives/lc-click":2,"./../directives/lc-html":3,"./../directives/lc-model":4,"./../directives/lc-text":5,"./../module-func/controller":9}],9:[function(require,module,exports){
+},{"./../directives/data-bind/lc-html":2,"./../directives/data-bind/lc-model":3,"./../directives/data-bind/lc-text":4,"./../directives/dom-events/lc-click":5,"./../directives/dom-events/lc-mouseenter":6,"./../directives/dom-events/lc-mouseleave":7,"./../module-func/controller":11}],11:[function(require,module,exports){
 /*
  *  "Module Define" module By LancerComet at 16:52, 2016.02.29.
  *  # Carry Your World #
@@ -476,4 +541,4 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
 
 }
 
-},{"./../directives/_common/common":1}]},{},[6])
+},{"./../directives/_common/common":1}]},{},[8])

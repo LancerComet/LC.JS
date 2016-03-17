@@ -3,6 +3,8 @@
 
 (function (root, undefined) {
     "use strict";
+    var startTime = performance.now();
+    console.log("StartTime: " + startTime);
 
     var LancerFrame = {};
     
@@ -28,6 +30,9 @@
         window.addEventListener("DOMContentLoaded", function () {
             console.log("Init at DOMContentLoaded");
             LancerFrame.init(LancerFrame);
+            var endTime = performance.now();
+            console.log("EndTime: " + endTime);
+            console.log("Init takes " + (endTime - startTime));
         });
         window.addEventListener("load", function () {
             if (LancerFrame.inited) return;
@@ -44,5 +49,6 @@
     // Definition: 将 LancerFrame 挂载至全局环境.
     // =================================
     root.LancerFrame = root.lc = LancerFrame;
+
 
 })(window);
