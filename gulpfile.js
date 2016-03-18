@@ -5,12 +5,13 @@
  *  LancerFrame 构建任务.
  */
 
-var gulp = require("gulp");
-var browserify = require("gulp-browserify");
-var uglify = require("gulp-uglify");
-var rename = require("gulp-rename");
+const gulp = require("gulp");
+const browserify = require("gulp-browserify");
+const uglify = require("gulp-uglify");
+const rename = require("gulp-rename");
+const webserver = require("gulp-webserver");  // https://www.npmjs.com/package/gulp-webserver
 
-gulp.task("default", ["build"]);
+gulp.task("default", ["build", "testServer"]);
 
 (function buildTasks () {
     
@@ -32,4 +33,20 @@ gulp.task("default", ["build"]);
         gulp.watch("./src/**/*.js", ["build-package"]);
     });
     
+})();
+
+
+(function testServer () {
+
+    gulp.task("testServer", function () {
+        gulp.src("./")  // Root Path.
+            .pipe(webserver({
+                host: "0.0.0.0",
+                parth: "/",
+                port: 8080,
+                livereload: false,
+                directoryListing: false
+            }));
+    });
+
 })();

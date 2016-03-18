@@ -51,18 +51,18 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
             
             // 在自执行函数中创建闭包来保留每个属性的 key 与 value 的各自引用 itemKey, itemValue 以避免属性相互干扰.
             (function () {
-                var itemKey = prop;                
+                var itemKey = prop;
                 var itemValue = scope[prop];
-                var ctrlDom = null;  // 控制器节点. 放置此处以进行缓存.
+                var ctrlDoms = null;  // 控制器节点. 放置此处以进行缓存.
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
                         return itemValue;
                     },
                     set: function (newValue) {
-                        if (!ctrlDom) { ctrlDom = document.querySelectorAll("[lc-controller=" + ctrlName + "]"); }  // 获取控制器.
+                        !ctrlDoms && (ctrlDoms = document.querySelectorAll("[lc-controller=" + ctrlName + "]"));  // 获取控制器.
                         console.log(ctrlName + "." + itemKey + " 从 " + itemValue + " 修改为 " + newValue);
                         itemValue = newValue;
-                        syncData(ctrlDom, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
+                        syncData(ctrlDoms, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
                     }
                 });
             })();

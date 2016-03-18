@@ -14,7 +14,9 @@ var initDirectives = [
 
     require("./../directives/dom-events/lc-click").init,
     require("./../directives/dom-events/lc-mouseenter").init,
-    require("./../directives/dom-events/lc-mouseleave").init
+    require("./../directives/dom-events/lc-mouseleave").init,
+
+    require("./../directives/style-edit/lc-css").init
 ];
 
 
@@ -22,12 +24,12 @@ module.exports = function (LancerFrame) {
     console.log("init");
 
     // Step1. 获取所有对象并提取 lc-controller 对象.
-    var $ctrls = document.querySelectorAll("[lc-controller]");
+    var ctrls = document.querySelectorAll("[lc-controller]");
     
     // Step2. 遍历所有控制器节点, 并在相应的控制器中带入 controllerMaps 中的控制器数据对象并进行绑定.
-    for (var i = 0, length = $ctrls.length; i < length; i++) {
-        var $ctrl = $ctrls[i];
-        var ctrlName = $ctrl.attributes["lc-controller"].value;
+    for (var i = 0, length = ctrls.length; i < length; i++) {
+        var ctrl = ctrls[i];
+        var ctrlName = ctrl.attributes["lc-controller"].value;
         
         // Definition: 控制器数据对象.
         /*
@@ -42,7 +44,7 @@ module.exports = function (LancerFrame) {
         console.log(scopeObj);
         
         // Step3. 在子元素中开始初始化指令.
-        var children = $ctrl.children;
+        var children = ctrl.children;
         (function () {
             for (var i = 0, length = initDirectives.length; i < length; i++) {
                 initDirectives[i](children, scopeObj, LancerFrame);

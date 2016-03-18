@@ -17,7 +17,7 @@
     
     // Definition: 静态方法定义区.
     // =================================    
-    LancerFrame.controller = require("./module-func/controller").controller;  // 模块定义方法.
+    LancerFrame.controller = require("./module-func/controller").controller;  // 控制器定义方法.
     
     // Definition: 框架初始化.
     // =================================

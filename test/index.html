@@ -44,9 +44,15 @@
 
         <hr>
 
+        <div lc-controller="styleTest">
+            <h2>controller: styleTest</h2>
+            <div lc-css-width="width" lc-css-height="height" lc-css-background="background" lc-css-color="color"></div>
+            <button lc-click="changeStyle">Change Style</button>
+        </div>
+
         <script src="/dist/LancerFrame.js"></script>
-        
-        
+
+
         <script>
 
             lc.controller("Person", function (scope) {
@@ -71,6 +77,18 @@
                     var element = event.target || event.srcElement;
                     element.innerHTML = "MouseLeave"
                 };
+            });
+
+            lc.controller("styleTest", function (scope) {
+                scope.width = "200px";
+                scope.height = "100px";
+                scope.background = "red";
+                scope.color = "blue";
+                scope.changeStyle = function () {
+                    var temp = scope.background;
+                    scope.background = scope.color;
+                    scope.color = temp;
+                }
             });
              
         </script>

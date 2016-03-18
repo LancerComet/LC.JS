@@ -12,7 +12,8 @@ module.exports = {
 
 var lcText = require('../data-bind/lc-text'),
     lcHtml = require('../data-bind/lc-html'),
-    lcModel = require('../data-bind/lc-model');
+    lcModel = require('../data-bind/lc-model'),
+    lcCSS = require("../style-edit/lc-css");
 
 
 // Definition: 数据绑定函数.
@@ -23,19 +24,22 @@ function syncData (ctrlDom, key, newValue) {
     for (var i = 0, length = ctrlDom.length; i < length; i++) {
 
         // 在每个控制器节点中初始化各指令.
-        (function bindData(children) {
+        (function bindData(children) {  // children 为每个控制器节点下的后代元素.
             for (var i = 0, length = children.length; i < length; i++) {
                 var child = children[i];
 
+                // 如果没有这些修改 innerHTML 的指令.
                 if (!child.attributes["lc-text"] && !child.attributes["lc-model"] && !child.attributes["lc-html"]) {
                     child.children.length > 0 && bindData(child.children);
-                    continue;
+                } else {
+                    // 会修改 innerHTML 的指令.
+                    // 开始进行数据绑定.
+                    (child.attributes["lc-text"] && child.attributes["lc-text"].value === key) && lcText.syncData(child, newValue);
+                    (child.attributes["lc-model"] && child.attributes["lc-model"].value === key) && lcModel.syncData(child, newValue);
+                    (child.attributes["lc-html"] && child.attributes["lc-html"].value === key) && lcHtml.syncData(child, newValue);
                 }
 
-                // 开始进行数据绑定.
-                (child.attributes["lc-text"] && child.attributes["lc-text"].value === key) && lcText.syncData(child, newValue);
-                (child.attributes["lc-model"] && child.attributes["lc-model"].value === key) && lcModel.syncData(child, newValue);
-                (child.attributes["lc-html"] && child.attributes["lc-html"].value === key) && lcHtml.syncData(child, newValue);
+                lcCSS.setCSS(child, key, newValue);  // lc-css 的过滤将在函数内部进行.
             }
         })(ctrlDom[i].children);
 
@@ -66,7 +70,7 @@ function findChildren (parent, attr, value) {
      
      return result;     
 }
-},{"../data-bind/lc-html":2,"../data-bind/lc-model":3,"../data-bind/lc-text":4}],2:[function(require,module,exports){
+},{"../data-bind/lc-html":2,"../data-bind/lc-model":3,"../data-bind/lc-text":4,"../style-edit/lc-css":8}],2:[function(require,module,exports){
 /*
  *  LancerFrame HTML directive By LancerComet at 12:13, 2016.03.17.
  *  # Carry Your World #
@@ -300,6 +304,54 @@ function initLcMouseLeave (elements, scopeObj) {
     }
 }
 },{}],8:[function(require,module,exports){
+/*
+ *  LC-CSS Directive By LancerComet at 10:38, 2016/3/18.
+ *  # Carry Your World #
+ *  ---
+ *  lc-css directive.
+ */
+
+module.exports = {
+    init: initLcCSS,
+    setCSS: setCSS
+};
+
+var directivePriefx = "lc-css";
+
+// Definition: 指令初始化函数.
+function initLcCSS (children, scopeObj) {
+    // @ children: 控制器下的后代元素.
+    // @ scopeObj: 控制器的 scope 对象.
+
+    for (var i = 0, length = children.length; i < length; i++) {
+        setCSS(children[i], null, null, scopeObj);
+    }
+
+}
+
+// Definition: 双向数据绑定的样式同步函数.
+function setCSS (element, key, value, scopeObj) {
+    for (var i = 0, length = element.attributes.length; i < length; i++) {
+        var attr = element.attributes[i];  // 遍历的当前属性.
+        var attrName = attr.name;  // 属性名称: "lc-css-XXX" || 其他.
+
+        if (attrName.indexOf(directivePriefx) < 0 || (key && attr.value !== key)) { continue; }  // 如果不是 "lc-css" 则继续循环.
+
+        // 如果传来 scopeObj 则为初始化阶段调取.
+        if (scopeObj) {
+            value = scopeObj[attr.value];
+        }
+
+        var propName = attrName.substr(directivePriefx.length + 1);  // "从 lc-css-XXX" 获取 "XXX".
+        cssModify(element, propName, value);  // 操作 CSS.
+    }
+}
+
+// Definition: CSS 操作方法.
+function cssModify (element, cssProp, value) {
+    element.style[cssProp] = value;
+}
+},{}],9:[function(require,module,exports){
 // Lancer Frame V0.0.1 By LancerComet at 16:44, 2016.02.29.
 // # Carry Your World #
 
@@ -319,7 +371,7 @@ function initLcMouseLeave (elements, scopeObj) {
     
     // Definition: 静态方法定义区.
     // =================================    
-    LancerFrame.controller = require("./module-func/controller").controller;  // 模块定义方法.
+    LancerFrame.controller = require("./module-func/controller").controller;  // 控制器定义方法.
     
     // Definition: 框架初始化.
     // =================================
@@ -354,7 +406,7 @@ function initLcMouseLeave (elements, scopeObj) {
 
 
 })(window);
-},{"./init/browser-detective":9,"./init/init":10,"./module-func/controller":11}],9:[function(require,module,exports){
+},{"./init/browser-detective":10,"./init/init":11,"./module-func/controller":12}],10:[function(require,module,exports){
 /*
  *   Explorer Detective By LancerComet at 11:30, 2015/11/25.
  *   # Carry Your World #
@@ -409,7 +461,7 @@ function explorerDetective () {
     return browser.myBrowser;
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*
  *  "Module Define" module By LancerComet at 17:29, 2016.03.04.
  *  # Carry Your World #
@@ -426,7 +478,9 @@ var initDirectives = [
 
     require("./../directives/dom-events/lc-click").init,
     require("./../directives/dom-events/lc-mouseenter").init,
-    require("./../directives/dom-events/lc-mouseleave").init
+    require("./../directives/dom-events/lc-mouseleave").init,
+
+    require("./../directives/style-edit/lc-css").init
 ];
 
 
@@ -434,12 +488,12 @@ module.exports = function (LancerFrame) {
     console.log("init");
 
     // Step1. 获取所有对象并提取 lc-controller 对象.
-    var $ctrls = document.querySelectorAll("[lc-controller]");
+    var ctrls = document.querySelectorAll("[lc-controller]");
     
     // Step2. 遍历所有控制器节点, 并在相应的控制器中带入 controllerMaps 中的控制器数据对象并进行绑定.
-    for (var i = 0, length = $ctrls.length; i < length; i++) {
-        var $ctrl = $ctrls[i];
-        var ctrlName = $ctrl.attributes["lc-controller"].value;
+    for (var i = 0, length = ctrls.length; i < length; i++) {
+        var ctrl = ctrls[i];
+        var ctrlName = ctrl.attributes["lc-controller"].value;
         
         // Definition: 控制器数据对象.
         /*
@@ -454,7 +508,7 @@ module.exports = function (LancerFrame) {
         console.log(scopeObj);
         
         // Step3. 在子元素中开始初始化指令.
-        var children = $ctrl.children;
+        var children = ctrl.children;
         (function () {
             for (var i = 0, length = initDirectives.length; i < length; i++) {
                 initDirectives[i](children, scopeObj, LancerFrame);
@@ -465,7 +519,7 @@ module.exports = function (LancerFrame) {
     LancerFrame.inited = true;
 
 };
-},{"./../directives/data-bind/lc-html":2,"./../directives/data-bind/lc-model":3,"./../directives/data-bind/lc-text":4,"./../directives/dom-events/lc-click":5,"./../directives/dom-events/lc-mouseenter":6,"./../directives/dom-events/lc-mouseleave":7,"./../module-func/controller":11}],11:[function(require,module,exports){
+},{"./../directives/data-bind/lc-html":2,"./../directives/data-bind/lc-model":3,"./../directives/data-bind/lc-text":4,"./../directives/dom-events/lc-click":5,"./../directives/dom-events/lc-mouseenter":6,"./../directives/dom-events/lc-mouseleave":7,"./../directives/style-edit/lc-css":8,"./../module-func/controller":12}],12:[function(require,module,exports){
 /*
  *  "Module Define" module By LancerComet at 16:52, 2016.02.29.
  *  # Carry Your World #
@@ -519,18 +573,18 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
             
             // 在自执行函数中创建闭包来保留每个属性的 key 与 value 的各自引用 itemKey, itemValue 以避免属性相互干扰.
             (function () {
-                var itemKey = prop;                
+                var itemKey = prop;
                 var itemValue = scope[prop];
-                var ctrlDom = null;  // 控制器节点. 放置此处以进行缓存.
+                var ctrlDoms = null;  // 控制器节点. 放置此处以进行缓存.
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
                         return itemValue;
                     },
                     set: function (newValue) {
-                        if (!ctrlDom) { ctrlDom = document.querySelectorAll("[lc-controller=" + ctrlName + "]"); }  // 获取控制器.
+                        !ctrlDoms && (ctrlDoms = document.querySelectorAll("[lc-controller=" + ctrlName + "]"));  // 获取控制器.
                         console.log(ctrlName + "." + itemKey + " 从 " + itemValue + " 修改为 " + newValue);
                         itemValue = newValue;
-                        syncData(ctrlDom, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
+                        syncData(ctrlDoms, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
                     }
                 });
             })();
@@ -541,4 +595,4 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
 
 }
 
-},{"./../directives/_common/common":1}]},{},[8])
+},{"./../directives/_common/common":1}]},{},[9])
