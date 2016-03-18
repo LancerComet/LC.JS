@@ -42,7 +42,7 @@ gulp.task("default", ["build", "testServer"]);
         gulp.src("./")  // Root Path.
             .pipe(webserver({
                 host: "0.0.0.0",
-                parth: "/",
+                path: "/",
                 port: 8080,
                 livereload: false,
                 directoryListing: false

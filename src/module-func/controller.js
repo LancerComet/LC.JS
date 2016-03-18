@@ -50,16 +50,32 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
             if (!scope.hasOwnProperty(prop) || prop === "$controllerCtrlName") { continue; }
             
             // 在自执行函数中创建闭包来保留每个属性的 key 与 value 的各自引用 itemKey, itemValue 以避免属性相互干扰.
+            // 同时保存各自的其他指令依赖的变量.
             (function () {
                 var itemKey = prop;
                 var itemValue = scope[prop];
-                var ctrlDoms = null;  // 控制器节点. 放置此处以进行缓存.
+
+                var ctrlDoms = null,  // 控制器节点. 放置此处以进行缓存.
+                    lcIfNodes = null;  // lc-if 节点, 保存此属性控制的 lc-if 节点.
+
+
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
                         return itemValue;
                     },
                     set: function (newValue) {
-                        !ctrlDoms && (ctrlDoms = document.querySelectorAll("[lc-controller=" + ctrlName + "]"));  // 获取控制器.
+                        // 获取控制器节点.
+                        !ctrlDoms && (ctrlDoms = document.querySelectorAll("[lc-controller=" + ctrlName + "]"));
+
+                        // 获取 lc-if 节点.
+                        !lcIfNodes && (function () {
+                            if (newValue) {
+
+                            } else {
+
+                            }
+                        })();
+
                         console.log(ctrlName + "." + itemKey + " 从 " + itemValue + " 修改为 " + newValue);
                         itemValue = newValue;
                         syncData(ctrlDoms, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.

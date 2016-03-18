@@ -38,6 +38,7 @@ function setCSS (element, key, value, scopeObj) {
 
         var propName = attrName.substr(directivePriefx.length + 1);  // "从 lc-css-XXX" 获取 "XXX".
         cssModify(element, propName, value);  // 操作 CSS.
+        // TODO: 去除页面指令依赖.
     }
 }
 

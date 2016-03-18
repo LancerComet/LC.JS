@@ -7,7 +7,7 @@
  */
 
 module.exports = {
-    syncData: syncData
+    syncData: syncDataInSetter
 };
 
 var lcText = require('../data-bind/lc-text'),
@@ -18,7 +18,7 @@ var lcText = require('../data-bind/lc-text'),
 
 // Definition: 数据绑定函数.
 // 将在 getter / setter 中调用以进行如 lc-model、lc-text 等指令的数据同步.
-function syncData (ctrlDom, key, newValue) {
+function syncDataInSetter (ctrlDom, key, newValue) {
 
     // 循环控制器节点.
     for (var i = 0, length = ctrlDom.length; i < length; i++) {
@@ -45,30 +45,6 @@ function syncData (ctrlDom, key, newValue) {
 
     }
 
-}
-
-// Definition: children 节点扫描函数.
-// 返回 Array.
-function findChildren (parent, attr, value) {
-    var children = parent.children;
-    var result = [];
-
-     for (var i = 0, length = children.length; i < length; i++) {
-         var child = children[i];
-         
-         // 如果匹配到了 attr = value.
-         console.log(child.attributes[attr] ? child.attributes[attr].value : "no this attr")
-         if (child.attributes[attr] && child.attributes[attr].value === value) {
-             result.push(child);
-         }
-         
-         if (child.children.length) {
-             result = result.concat(findChildren(child, attr, value));
-         }
-         
-     }
-     
-     return result;     
 }
 },{"../data-bind/lc-html":2,"../data-bind/lc-model":3,"../data-bind/lc-text":4,"../style-edit/lc-css":8}],2:[function(require,module,exports){
 /*
@@ -344,6 +320,7 @@ function setCSS (element, key, value, scopeObj) {
 
         var propName = attrName.substr(directivePriefx.length + 1);  // "从 lc-css-XXX" 获取 "XXX".
         cssModify(element, propName, value);  // 操作 CSS.
+        // TODO: 去除页面指令依赖.
     }
 }
 
@@ -372,6 +349,9 @@ function cssModify (element, cssProp, value) {
     // Definition: 静态方法定义区.
     // =================================    
     LancerFrame.controller = require("./module-func/controller").controller;  // 控制器定义方法.
+    LancerFrame.domFuncs = {
+        findChildrenByAttr: require("./static-func/find-children-by-attr")  // 使用属性扫描后代元素方法.
+    };
     
     // Definition: 框架初始化.
     // =================================
@@ -406,7 +386,7 @@ function cssModify (element, cssProp, value) {
 
 
 })(window);
-},{"./init/browser-detective":10,"./init/init":11,"./module-func/controller":12}],10:[function(require,module,exports){
+},{"./init/browser-detective":10,"./init/init":11,"./module-func/controller":12,"./static-func/find-children-by-attr":13}],10:[function(require,module,exports){
 /*
  *   Explorer Detective By LancerComet at 11:30, 2015/11/25.
  *   # Carry Your World #
@@ -572,16 +552,32 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
             if (!scope.hasOwnProperty(prop) || prop === "$controllerCtrlName") { continue; }
             
             // 在自执行函数中创建闭包来保留每个属性的 key 与 value 的各自引用 itemKey, itemValue 以避免属性相互干扰.
+            // 同时保存各自的其他指令依赖的变量.
             (function () {
                 var itemKey = prop;
                 var itemValue = scope[prop];
-                var ctrlDoms = null;  // 控制器节点. 放置此处以进行缓存.
+
+                var ctrlDoms = null,  // 控制器节点. 放置此处以进行缓存.
+                    lcIfNodes = null;  // lc-if 节点, 保存此属性控制的 lc-if 节点.
+
+
                 Object.defineProperty(scope, itemKey, {
                     get: function () {
                         return itemValue;
                     },
                     set: function (newValue) {
-                        !ctrlDoms && (ctrlDoms = document.querySelectorAll("[lc-controller=" + ctrlName + "]"));  // 获取控制器.
+                        // 获取控制器节点.
+                        !ctrlDoms && (ctrlDoms = document.querySelectorAll("[lc-controller=" + ctrlName + "]"));
+
+                        // 获取 lc-if 节点.
+                        !lcIfNodes && (function () {
+                            if (newValue) {
+
+                            } else {
+
+                            }
+                        })();
+
                         console.log(ctrlName + "." + itemKey + " 从 " + itemValue + " 修改为 " + newValue);
                         itemValue = newValue;
                         syncData(ctrlDoms, itemKey, newValue);  // 更新控制器下所有 lc-text 和 lc-model 节点数据.
@@ -595,4 +591,42 @@ function controllerDefine (ctrlName, dependencies, initFunc) {
 
 }
 
-},{"./../directives/_common/common":1}]},{},[9])
+},{"./../directives/_common/common":1}],13:[function(require,module,exports){
+/*
+ *  Find Children By Attribute By LancerComet at 17:01, 2016/3/18.
+ *  # Carry Your World #
+ */
+
+module.exports = function (parent, attr, value) {
+    var children = parent.children;
+    var result = [];
+
+    for (var i = 0, length = children.length; i < length; i++) {
+        var child = children[i];
+
+        // 如果匹配到了 attr = value.
+        console.log(child.attributes[attr] ? child.attributes[attr].value : "no this attr")
+
+        // 如果提供了 value 参数则匹配 value.
+        if (value) {
+            if (child.attributes[attr] && child.attributes[attr].value === value) {
+                result.push(child);
+            }
+            if (child.children.length) {
+                result = result.concat(findChildren(child, attr, value));
+            }
+        } else {  // 没有提供则不做 value 匹配.
+            if (child.attributes[attr]) {
+                result.push(child);
+            }
+            if (child.children.length) {
+                result = result.concat(findChildren(child, attr, value));
+            }
+        }
+
+    }
+
+    return result;
+};
+
+},{}]},{},[9])

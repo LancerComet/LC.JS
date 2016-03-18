@@ -18,6 +18,9 @@
     // Definition: 静态方法定义区.
     // =================================    
     LancerFrame.controller = require("./module-func/controller").controller;  // 控制器定义方法.
+    LancerFrame.domFuncs = {
+        findChildrenByAttr: require("./static-func/find-children-by-attr")  // 使用属性扫描后代元素方法.
+    };
     
     // Definition: 框架初始化.
     // =================================
