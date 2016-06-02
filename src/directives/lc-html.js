@@ -8,12 +8,12 @@ export {lcHTML}
 function lcHTML ($lc) {
     
     $lc.directive("html", {
-        $init: function (element, initValue) {
-            element.innerHTML = initValue;
-        },
-        $update: function (element, newValue) {
-            element.innerHTML = newValue;
-        }
+        $done: func,
+        $update: func
     });
+    
+    function func (value) {
+        this.$element.innerHTML = value;        
+    }
     
 }

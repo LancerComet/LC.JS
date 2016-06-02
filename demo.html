@@ -7,20 +7,31 @@
     <body>
         
         <div lc-controller="testCtrl">
-            <h2 lc-text="a"></h2>
-            <input type="text" lc-model="a">
+            <h2>TestCtrl</h2>
+            <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
+            <label>firstname: <input type="text" lc-model="firstname"></label>
+            <label>lastname: <input type="text" lc-model="lastname"></label>
+            <button lc-click="changeName">Change my name!</button>
         </div>
         
         <hr>
+        
         <div lc-controller="testCtrl">
-            <h4 lc-text="a"></h4>
+            <h2>Still TestCtrl!</h2>
+            <p>I'm here again, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
         </div>
         
         <script src="/dist/LancerFrame.js"></script>
         <script>
             $lc.controller("testCtrl", function (scope) {
-                scope.a = "This is a value a.";
-                scope.b = "This is a value b."
+                scope.firstname = "Lancer";
+                scope.lastname = "Comet";
+                
+                scope.changeName = function () {
+                    scope.firstname = "啊♂";
+                    scope.lastname = "哲♂学";
+                };
+                
             });          
         </script>
         

@@ -9,6 +9,7 @@ import {directive} from "./directive"
 import {lcText} from "./lc-text"
 import {lcModel} from "./lc-model"    
 import {lcHTML} from "./lc-html"
+import {lcClick} from "./lc-click"
 
 function directiveMain ($lc) {
     
@@ -23,5 +24,6 @@ function directiveMain ($lc) {
     lcModel($lc);
     lcText($lc);
     lcHTML($lc);
+    lcClick($lc);
     
 }

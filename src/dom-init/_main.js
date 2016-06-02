@@ -77,26 +77,33 @@ function domInit ($lc) {
     
     // Definition: 初始化控制器内的子节点指令.
     function initController (ctrlDom, scope) {
-        var ctrlChildren = ctrlDom.children;
         
-        for (let i = 0, length = ctrlChildren.length; i < length; i++) {
-            var child = ctrlChildren[i];
+        (function initChilden (ctrlChildren) {
             
-            // 获取节点上注册的指令.
-            for (let i = 0, length = child.attributes.length; i < length; i++) {
-                const direcitveName = child.attributes[i].name,  // 指令名称.
-                      directiveExpr = child.attributes[i].value;  // 指令对应的 scope 属性.
+            for (let i = 0, length = ctrlChildren.length; i < length; i++) {
+                var child = ctrlChildren[i];
                 
-                if (direcitveName.indexOf("lc-") < 0) { continue; }
+                if (child.children.length > 0) {
+                    initChilden(child.children);  // 多层嵌套子元素.
+                } else {
+                    // 获取节点上注册的指令.
+                    for (let i = 0, length = child.attributes.length; i < length; i++) {
+                        const direcitveName = child.attributes[i].name,  // 指令名称.
+                            directiveExpr = child.attributes[i].value;  // 指令对应的 scope 属性.
+                        
+                        if (direcitveName.indexOf("lc-") < 0) { continue; }
 
-                // 如果 $lc.directives 中有相应指令则初始化指令.
-                if ($lc.directives[direcitveName] && directiveExpr) {
-                    scope.$directives.push(new $lc.directives[direcitveName](child, scope));
+                        // 如果 $lc.directives 中有相应指令则初始化指令.
+                        if ($lc.directives[direcitveName] && directiveExpr) {
+                            scope.$directives.push(new $lc.directives[direcitveName](child, scope));
+                        }
+                        
+                    }
                 }
                 
             }
             
-        }
+        })(ctrlDom.children);
         
     }
     

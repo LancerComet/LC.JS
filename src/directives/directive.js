@@ -78,7 +78,7 @@ function directive (name, options) {
         
         // 删除节点指令标识.
         $removeDirective () {
-            this.element.removeAttr(this.$directiveName);
+            this.$element.removeAttribute(this.$directiveName);
         }
         
     }
