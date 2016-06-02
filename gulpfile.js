@@ -27,7 +27,7 @@ gulp.task("default", ["build", "dev-server"]);
     
     gulp.task("build", ["build-package"]);
     
-    var bundler = browserify("./src/LancerFrame.js", {
+    var bundler = browserify("./src/LancerFrame-main.js", {
         debug: true,
         cache: {},
         packageCache: {},
