@@ -3,19 +3,12 @@
 
 export {initFunc}
 
-import {setStaticFunc} from "./static-func/_main"  
 import {directiveMain} from "./directives/_main"   
 import {domInit} from "./dom-init/_main"  
 
 function initFunc ($lc) {
     
-    // 设置静态方法.
-    setStaticFunc($lc);
-        
-    // 指令逻辑初始化.
-    directiveMain($lc);
-    
-    // 扫描文档结构.
-    domInit($lc);
+    directiveMain($lc);  // 指令逻辑初始化.
+    domInit($lc);  // 扫描文档结构.
     
 }

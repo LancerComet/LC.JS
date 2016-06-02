@@ -3,16 +3,17 @@
 // ---
 // lc-text.
 
-export {lcHTML}
+export {lcText}
 
-function lcHTML ($lc) {
+function lcText ($lc) {
     
     $lc.directive("text", {
-        $init: function (element, initValue) {
-            element.innerText = initValue;
+        $done: function () {
+            this.$element.innerText = this.$scope[this.$expr];
         },
-        $update: function (element, newValue) {
-            element.innerText = newValue;
+        $update: function (newValue) {
+            console.log("lc-text on $update: newValue = " + newValue)
+            this.$element.innerText = newValue;
         }
     });
     

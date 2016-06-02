@@ -17,7 +17,7 @@ function directiveMain ($lc) {
     $lc.directives = {};
 
     // 定义 directive 指令定义方法.
-    $lc.directive = directive($lc);
+    $lc.directive = directive;
     
     // 初始化内置指令.
     lcModel($lc);

@@ -1,0 +1,32 @@
+<html>
+    
+    <head>
+        <meta charset="utf-8">
+    </head>
+    
+    <body>
+        
+        <div lc-controller="testCtrl">
+            <h2 lc-text="a"></h2>
+            <input type="text" lc-model="a">
+        </div>
+        
+        <hr>
+        <div lc-controller="testCtrl">
+            <h4 lc-text="a"></h4>
+        </div>
+        
+        <script src="/dist/LancerFrame.js"></script>
+        <script>
+            $lc.controller("testCtrl", function (scope) {
+                scope.a = "This is a value a.";
+                scope.b = "This is a value b."
+            });          
+        </script>
+        
+        
+    </body>
+    
+    
+    
+</html>

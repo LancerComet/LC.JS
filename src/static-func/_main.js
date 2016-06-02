@@ -3,9 +3,14 @@
 
 export { staticFunc as setStaticFunc }
 
+import {css} from "./css"
+import {on} from "./on-off"
+import {off} from "./on-off"
 import {controller} from "./controller"
-import {directive} from "./directive"
 
 function staticFunc ($lc) {
-    controller($lc);  // 初始化控制器函数.
+    controller($lc);  // $lc.controller.
+    css($lc);  // $lc.css.
+    on($lc); // $lc.on.
+    off($lc);  // $lc.off.
 }
