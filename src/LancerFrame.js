@@ -51,7 +51,7 @@
 
     // Definition: 将 LancerFrame 挂载至全局环境.
     // =================================
-    root.LancerFrame = root.lc = LancerFrame;
+    root.LancerFrame = root.$lc = LancerFrame;
 
 
 })(window);

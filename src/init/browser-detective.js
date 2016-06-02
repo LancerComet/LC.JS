@@ -20,7 +20,7 @@
 module.exports = explorerDetective;
 
 function explorerDetective () {
-    var userAgent = window.navigator.userAgent;
+    var userAgent = window.navigator.appVersion;
     var browser = {
         myBrowser : "unknown",
         database: [

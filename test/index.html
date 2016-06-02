@@ -55,7 +55,7 @@
 
         <script>
 
-            lc.controller("Person", function (scope) {
+            $lc.controller("Person", function (scope) {
                 scope.name = "This is name";
                 scope.age = 10;
                 scope.addAge = function () {
@@ -63,7 +63,7 @@
                 };
             });
 
-            lc.controller("Test", function (scope) {
+            $lc.controller("Test", function (scope) {
                 scope.age = 20;
                 scope.addAge = function () {
                     scope.age++;
@@ -79,7 +79,7 @@
                 };
             });
 
-            lc.controller("styleTest", function (scope) {
+            $lc.controller("styleTest", function (scope) {
                 scope.width = "200px";
                 scope.height = "100px";
                 scope.background = "red";

@@ -4,48 +4,71 @@
  *  ---
  *  LancerFrame 构建任务.
  */
-
 const gulp = require("gulp");
-const browserify = require("gulp-browserify");
-const uglify = require("gulp-uglify");
+const util = require("gulp-util");
 const rename = require("gulp-rename");
-const webserver = require("gulp-webserver");  // https://www.npmjs.com/package/gulp-webserver
 
-gulp.task("default", ["build", "testServer"]);
+const browserify = require("browserify");
+const sourcemaps = require("gulp-sourcemaps");
+const watchify = require("watchify");
+const uglify = require("gulp-uglify");
+
+const stylus = require("gulp-stylus");
+
+const webserver = require("gulp-webserver");
+
+const source = require("vinyl-source-stream");
+const buffer = require("vinyl-buffer");
+
+
+gulp.task("default", ["build", "dev-server"]);
 
 (function buildTasks () {
     
-    gulp.task("build", ["build-package", "build-watch"]);
+    gulp.task("build", ["build-package"]);
     
-    gulp.task("build-package", function () {
-        gulp.src("./src/LancerFrame.js")
-            .pipe(browserify())
-            .pipe(gulp.dest("./dist/"))
-            .pipe(uglify({
-                compress: true,
-                mangle: true
-            }))
-            .pipe(rename({ suffix: ".min" }))
-            .pipe(gulp.dest("./dist/"))
-    });
+    var bundler = browserify("./src/LancerFrame.js", {
+        debug: true,
+        cache: {},
+        packageCache: {},
+        plugin: [watchify]
+    }).transform("babelify", { presets: ["es2015"] });
     
-    gulp.task("build-watch", function () {
-        gulp.watch("./src/**/*.js", ["build-package"]);
-    });
+    bundler.on("update", bundle);
+    bundler.on("log", util.log);
+    
+    gulp.task("build-package", bundle);
+    
+     function bundle () {
+         var compress = process.env.NODE_ENV === "production";
+         return bundler
+             .bundle()
+             .on("error", function (err) {
+                 console.error(err.toString());
+                 this.emit("end");
+             })
+             .pipe(source("LancerFrame.js"))
+             .pipe(buffer())
+             .pipe(sourcemaps.init({ loadMaps: true }))
+             .pipe(uglify({
+                 compress: compress, mangle: compress
+             }))
+             .pipe(sourcemaps.write("."))
+             .pipe(gulp.dest("./dist"));
+    }
     
 })();
 
 
-(function testServer () {
+(function devServer () {
 
-    gulp.task("testServer", function () {
+    gulp.task("dev-server", function () {
         gulp.src("./")  // Root Path.
             .pipe(webserver({
                 host: "0.0.0.0",
-                path: "/",
                 port: 8080,
-                livereload: false,
-                directoryListing: false
+                livereload: true,
+                directoryListing: true
             }));
     });
 
