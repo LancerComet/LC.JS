@@ -12,6 +12,19 @@
             <label>firstname: <input type="text" lc-model="firstname"></label>
             <label>lastname: <input type="text" lc-model="lastname"></label>
             <button lc-click="changeName">Change my name!</button>
+            
+            <div lc-controller="testCtrl2">
+                <h4>TestCtrl2 in TestCtrl</h4>           
+                <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
+                <label>firstname: <input type="text" lc-model="firstname"></label>
+                <label>lastname: <input type="text" lc-model="lastname"></label>                     
+            </div>
+            
+            
+            <div lc-controller="testCtrl3">
+                <h4>TestCtrl3 in TestCtrl</h4>           
+                <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>                     
+            </div>
         </div>
         
         <hr>
@@ -32,7 +45,19 @@
                     scope.lastname = "哲♂学";
                 };
                 
-            });          
+            });        
+            
+            
+            $lc.controller("testCtrl2", function (scope) {
+                scope.firstname = "11";
+                scope.lastname = "22";
+            });  
+            
+            $lc.controller("testCtrl3", function (scope) {
+                scope.firstname = "33";
+                scope.lastname = "44";
+            });  
+            
         </script>
         
         
