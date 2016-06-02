@@ -10,6 +10,7 @@ import {lcText} from "./lc-text"
 import {lcModel} from "./lc-model"    
 import {lcHTML} from "./lc-html"
 import {lcClick} from "./lc-click"
+import {lcMouseEvents} from "./lc-mouse-event"
 
 function directiveMain ($lc) {
     
@@ -25,5 +26,6 @@ function directiveMain ($lc) {
     lcText($lc);
     lcHTML($lc);
     lcClick($lc);
+    lcMouseEvents($lc);
     
 }
