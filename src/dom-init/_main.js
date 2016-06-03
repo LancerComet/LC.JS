@@ -11,8 +11,10 @@ function domInit ($lc) {
     
     // 初始化所有控制器节点.
     for (let controller in $lc.controllers) {
+        if (!$lc.controllers.hasOwnProperty(controller)) continue;
+
         (() => {
-            var ctrl = controller;  // 创建闭包修复嵌套控制器初始化问题.
+            const ctrl = controller;  // 创建闭包修复嵌套控制器初始化问题.
             var scope = $lc.controllers[ctrl];
             /*
             * @ scope: {
@@ -74,7 +76,7 @@ function domInit ($lc) {
             for (let i = 0, length = scope.$ctrlDoms.length; i < length; i++) {
                 initController(scope.$ctrlDoms[i], scope);
                 
-                // 控制器节点处理完之后修改 lc-controller.
+                // 控制器节点处理完之后修改 lc-controller. 就是方便查看是不是初始化完毕了.
                 scope.$ctrlDoms[i].setAttribute("lc-ctrl", scope.$name);
                 scope.$ctrlDoms[i].removeAttribute("lc-controller");
             }
@@ -98,7 +100,7 @@ function domInit ($lc) {
                     // 获取节点上注册的指令.
                     for (let i = 0, length = child.attributes.length; i < length; i++) {
                         const direcitveName = child.attributes[i].name,  // 指令名称.
-                                directiveExpr = child.attributes[i].value;  // 指令对应的 scope 属性.
+                              directiveExpr = child.attributes[i].value;  // 指令对应的 scope 属性.
 
                         if (direcitveName.indexOf("lc-") < 0) { continue; }
 
@@ -119,9 +121,7 @@ function domInit ($lc) {
     // Definition: 控制器数据同步函数.
     // 在 get / set 中调用.
     function syncController (scope, expr, newValue) {
-        scope.$directives.forEach((directiveObj, index, $directives) => {
-            if (directiveObj.$expr === expr) directiveObj.$update(newValue);
-        });
+        scope.$directives.forEach((directiveObj, index, $directives) => directiveObj.$expr === expr && directiveObj.$update(newValue));
     }
      
 }

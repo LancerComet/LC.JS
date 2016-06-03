@@ -61,9 +61,11 @@
                 scope.lastname = "22";
             });  
             
-            $lc.controller("testCtrl3", function (scope) {
+            $lc.controller("testCtrl3", ["ajax"], function (scope) {
                 scope.firstname = "33";
                 scope.lastname = "44";
+
+                console.log(ajax)
             });  
             
         </script>
