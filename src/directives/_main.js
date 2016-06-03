@@ -5,17 +5,9 @@
 
 export {directiveMain}
 
-import {directive} from "./directive"
 import {internalDirectives} from "./internal-directives"
 
 function directiveMain ($lc) {
-    
-    // 定义指令存储数组.
-    // {name: options}
-    $lc.directives = {};
-
-    // 定义 directive 指令定义方法.
-    $lc.directive = directive;
     
     // 初始化内置指令.
     internalDirectives($lc);

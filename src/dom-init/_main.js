@@ -39,11 +39,11 @@ function domInit ($lc) {
             // 设置双向数据绑定.
             scope.$initFunc && (() => {
 
-                // 引入依赖.
+                // 引入依赖控制器.
                 var $dependencies = [];  // 依赖存放数组.
                 if (scope.$dependencies) {
                     scope.$dependencies.forEach((dependency, index, dependencies) => {
-                        $dependencies[index] = $lc.controllers[dependency] ?　$lc.controllers[dependency] : {};
+                        $dependencies[index] = $lc.controllers[dependency] ?　$lc.controllers[dependency] : null;  // 不存在该控制器时返回 null.
                     });
                 }
 
@@ -118,7 +118,7 @@ function domInit ($lc) {
                         if (direcitveName.indexOf("lc-") < 0) { continue; }
 
                         // 如果 $lc.directives 中有相应指令则初始化指令.
-                        if ($lc.directives[direcitveName] && directiveExpr) {
+                        if ($lc.directives[direcitveName]/* && directiveExpr*/) {  // 暂时取消 expr 的强制判断, 否则必须制定 expr, 有时候指令可能不想或不需要制定 expr, 观察功能是否正常.
                             scope.$directives.push(new $lc.directives[direcitveName](child, scope));
                         }
                         

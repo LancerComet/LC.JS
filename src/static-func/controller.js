@@ -12,8 +12,6 @@ function controller ($lc) {
     $lc.controllers = {};
     $lc.controller = function (ctrlName, dependencies, initFunc) {
         // @ params: 模块名称, 依赖模块, 模块初始化函数.
-        console.log("$lc.controller");
-    
         if (_.typeof(dependencies) !== "array") {
             initFunc = dependencies;
             dependencies = [];

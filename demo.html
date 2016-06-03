@@ -5,7 +5,7 @@
     </head>
     
     <body>
-        
+
         <div lc-controller="testCtrl">
             <h2>TestCtrl</h2>
             <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
@@ -13,24 +13,24 @@
             <label>lastname: <input type="text" lc-model="lastname"></label>
             <button lc-click="changeName">Change my name!</button>
             <button lc-click="changeEvent"><-- Change this event</button>
-            
+
             <div lc-controller="testCtrl2">
-                <h4>TestCtrl2 in TestCtrl</h4>           
+                <h4>TestCtrl2 in TestCtrl</h4>
                 <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
                 <label>firstname: <input type="text" lc-model="firstname"></label>
-                <label>lastname: <input type="text" lc-model="lastname"></label>                     
+                <label>lastname: <input type="text" lc-model="lastname"></label>
             </div>
-            
-            
+
+
             <div lc-controller="testCtrl3">
                 <h4>TestCtrl3 in TestCtrl, and it required "TestCtrl"</h4>
                 <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
                 <button lc-click="changeEvent">Change testCtrl.firstname to "Amazing!"</button>
             </div>
         </div>
-        
+
         <hr>
-        
+
         <div lc-controller="testCtrl">
             <h2>Still TestCtrl!</h2>
             <p>I'm here again, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
@@ -41,7 +41,7 @@
             $lc.controller("testCtrl", function (scope) {
                 scope.firstname = "Lancer";
                 scope.lastname = "Comet";
-                
+
                 scope.changeName = function () {
                     scope.firstname = "啊♂";
                     scope.lastname = "哲♂学";
@@ -53,16 +53,16 @@
                         alert("Event has been changed!");
                     };
                 };
-                
-            });        
-            
-            
+
+            });
+
+
             $lc.controller("testCtrl2", function (scope) {
                 scope.firstname = "11";
                 scope.lastname = "22";
-            });  
-            
-            $lc.controller("testCtrl3", ["testCtrl"], function (scope, testCtrl) {
+            });
+
+            $lc.controller("testCtrl3", ["testCtrl", "DOESNT_EXIST", "testCtrl2"], function (scope, testCtrl, DOESNT_EXIST, testCtrl2) {
                 scope.firstname = "33";
                 scope.lastname = "44";
 
@@ -70,11 +70,56 @@
                     testCtrl.firstname = "Amazing!";
                 };
 
+                console.log(DOESNT_EXIST);
+                console.log(testCtrl2);
+
             });
-            
+
         </script>
-        
-        
+
+        <hr>
+
+        <div lc-controller="customDirective">
+            <h2>Custom Directive</h2>
+            <p lc-text="info"></p>
+            <div lc-alert></div>
+        </div>
+
+        <script>
+
+            $lc.controller("customDirective", function (scope) {
+                scope.info = "Well here comes the info.";
+            });
+
+            $lc.directive("alert", {
+                $init: function () {
+
+                },
+
+                $done: function () {
+                    var self = this;
+                    setTimeout(function (){
+                        self.$scope.info = "Now it has been changed!";
+                        self.$element.innerHTML = "Hahahaha!"
+                        alert("Hahahaha!");
+                    }, 2000);
+                },
+
+                $update: function () {
+
+                },
+
+                $destory: function () {
+
+                }
+            })
+
+
+
+
+        </script>
+
+
     </body>
     
     

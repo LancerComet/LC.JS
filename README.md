@@ -1,9 +1,91 @@
 # LancerFrame
 A simple Web Frontend MVVM Framework. Still under construction.
 
-造个轮子。
+造个轮子，还在制造中。
 
-## 已完成：
+## Simple Introduction.
+### Using Controller.
+1. Define a controller.
+	```
+	<div lc-controller="demoCtrl">
+	    <p lc-text="greeting"></p>	    
+	</div>
+	
+	<script>
+	    $lc.controller("demoCtrl", function (scope) {
+	        scope.greeting = "Hello LancerFrame!";    
+	    });
+	</script>
+	```
+
+2. Define a controller by requiring another controller.
+	```
+	<div lc-controller="ctrl1"></div>
+	<div lc-controller="ctrl2"></div>
+	
+	<script>
+	    $lc.controller("ctrl1", function (scope) {
+	        scope.name = "LancerComet";    
+	    });
+	
+		$lc.controller("ctrl2", ["ctrl1"], function (scope, ctrl1) {
+			// "ctrl1" is required.
+	        scope.name = "Craig Mullins";
+	        console.log(ctrl1.name);  // LancerComet    
+	    });
+	</script>
+	```
+
+### Duplex data binding.
+```
+<div lc-controller="demoCtrl">
+    <p lc-text="greeting"></p>
+	<input type="text" lc-model="greeting">	    
+</div>
+
+<script>
+    $lc.controller("demoCtrl", function (scope) {
+        scope.greeting = "Hello LancerFrame!";    
+    });
+</script>
+```
+
+### Using custom directives.
+```
+<div lc-controller="testCtrl">
+	<div lc-alert></div>
+</div>
+
+<script>
+	$lc.controller("testCtrl", function (scope) {
+		scope.alertInited = false;
+	});
+
+	// Example: lc-alert.
+	$lc.directive("alert", {
+		$init: function () {
+			console.log("Start to init lc-alert.");
+		},
+		$done: function () {
+			// Will be called when initization is done.
+			this.$element.innerHTML = "Wow!";  // "this.$element" is the dom element of this directive.
+			this.$scope.alertInited = true;  // "this.$scope" is the scope of the controller that this directive belongs to.
+			alert("Wow! Alert!"); 
+		},
+		$update: funciton () {
+			// When "this.$scope[this.$expr]" has been changed, "$update" will be called.
+			// For example, if you use this directive as "<div lc-alert="alert1"></div>", then "this.$expr" is "alert1". If value of "scope.alert1" is going to be changed, "$update" will be called.
+			// For now, there is no "$expr" provided (because "lc-alert" equals nothing) and $update will never be called.
+		},
+		$destory: function () {
+
+		}
+	});
+</script>
+```
+
+
+## Directive finished.
  - lc-controller
  - lc-model
  - lc-text
