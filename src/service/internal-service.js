@@ -6,5 +6,33 @@
  */
 
 export function internalSerivces ($lc) {
-    
+
+    // $q.
+    // 基于 Promise, 不做任何兼容处理.
+    (() => {
+        if (!window.Promise) return;
+        $lc.service("$q", function () {
+            return function (asyncFunc) {
+                return new Promise (function (resolve, reject) {
+                    asyncFunc && asyncFunc(resolve, reject);
+                });
+            }
+        });
+    })();
+
+
+    // $http.
+    $lc.service("$http", function () {
+        return {
+            get: (url, data) => {
+
+            },
+            post: (url, data) => {
+
+            },
+            jsonp: (url, data, callbackName, callback) => {
+
+            }
+        }
+    });
 }

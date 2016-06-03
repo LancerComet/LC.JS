@@ -43,7 +43,7 @@ function domInit ($lc) {
                 var $dependencies = [];  // 依赖存放数组.
                 if (scope.$dependencies) {
                     scope.$dependencies.forEach((dependency, index, dependencies) => {
-                        $dependencies[index] = $lc.controllers[dependency] ?　$lc.controllers[dependency] : null;  // 不存在该控制器时返回 null.
+                        $dependencies[index] = $lc.controllers[dependency] ?　$lc.controllers[dependency] : ($lc.services[dependency] ? $lc.services[dependency] : null);  // 控制器 > 服务 > null.
                     });
                 }
 

@@ -1,8 +1,9 @@
 // Lancer Frame V0.0.1 By LancerComet at 16:44, 2016.02.29.
 // # Carry Your World #
 
+import {_} from "./_/_"
 import {setStaticFunc} from "./static-func/_main"  
-import {initFunc} from "./LancerFrame-init.js"
+import {initFunc} from "./init.js"
 
 (function (root, undefined) {
     "use strict";
@@ -13,15 +14,14 @@ import {initFunc} from "./LancerFrame-init.js"
     // =================================
     $lc.VERSION = "0.0.1";
     $lc.AUTHOR = "LancerComet";
-    $lc.BROWSER = "";  // TODO: 检测浏览器.
-    
-    
+    $lc.BROWSER = _.browser();
+
+
     // Definition: 静态方法定义区.
     // =================================
     setStaticFunc($lc);  // 设置静态方法.
     
-    
-    
+
     // Definition: 框架初始化.
     // =================================
     // 让框架在 DomContentLoaded 时进行初始化.
@@ -47,7 +47,7 @@ import {initFunc} from "./LancerFrame-init.js"
         setTimeout(() => {
             document.readyState === "complete" && (() => {
                 if ($lc.inited) return;        
-                console.log("Init at readyState = complete")        
+                console.log("Init at readyState = complete");
                 initFunc($lc);
                 $lc.inited = true;
             })();

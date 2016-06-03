@@ -13,18 +13,6 @@ export function service ($lc) {
         $lc.services[name] = initFunc();
     };
 
-    $lc.service("ajax", function () {
-        return {
-            get: function () {
-                console.log("get func")
-            },
-
-            post: function () {
-                console.log("post func")
-            }
-        }
-    });
-
 }
 
 

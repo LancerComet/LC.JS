@@ -62,7 +62,7 @@
                 scope.lastname = "22";
             });
 
-            $lc.controller("testCtrl3", ["testCtrl", "DOESNT_EXIST", "testCtrl2"], function (scope, testCtrl, DOESNT_EXIST, testCtrl2) {
+            $lc.controller("testCtrl3", ["testCtrl", "testCtrl2", "$q"], function (scope, testCtrl, testCtrl2, $q) {
                 scope.firstname = "33";
                 scope.lastname = "44";
 
@@ -70,8 +70,8 @@
                     testCtrl.firstname = "Amazing!";
                 };
 
-                console.log(DOESNT_EXIST);
                 console.log(testCtrl2);
+                console.log($q);
 
             });
 

@@ -6,7 +6,7 @@ export { staticFunc as setStaticFunc }
 import {css} from "./css"
 import {on} from "./on-off"
 import {off} from "./on-off"
-import {controller} from "./controller"
+import {controller} from "../controller/controller"
 import {directive} from "../directives/directive"
 
 function staticFunc ($lc) {
