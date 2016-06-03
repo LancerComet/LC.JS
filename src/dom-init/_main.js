@@ -72,7 +72,7 @@ function domInit ($lc) {
             
             // 初始化控制器节点与其子节点, 建立指令对象并推入 $directives.
             for (let i = 0, length = scope.$ctrlDoms.length; i < length; i++) {
-                initController(scope.$ctrlDoms[i], scope)
+                initController(scope.$ctrlDoms[i], scope);
                 
                 // 控制器节点处理完之后修改 lc-controller.
                 scope.$ctrlDoms[i].setAttribute("lc-ctrl", scope.$name);

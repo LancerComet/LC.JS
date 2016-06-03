@@ -12,6 +12,7 @@
             <label>firstname: <input type="text" lc-model="firstname"></label>
             <label>lastname: <input type="text" lc-model="lastname"></label>
             <button lc-click="changeName">Change my name!</button>
+            <button lc-click="changeEvent"><-- Change this event</button>
             
             <div lc-controller="testCtrl2">
                 <h4>TestCtrl2 in TestCtrl</h4>           
@@ -43,6 +44,13 @@
                 scope.changeName = function () {
                     scope.firstname = "啊♂";
                     scope.lastname = "哲♂学";
+                };
+
+                scope.changeEvent = function () {
+                    this.innerText = "Event has been changed!"
+                    scope.changeName = function () {
+                        alert("Event has been changed!");
+                    };
                 };
                 
             });        

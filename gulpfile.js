@@ -13,8 +13,6 @@ const sourcemaps = require("gulp-sourcemaps");
 const watchify = require("watchify");
 const uglify = require("gulp-uglify");
 
-const stylus = require("gulp-stylus");
-
 const webserver = require("gulp-webserver");
 
 const source = require("vinyl-source-stream");

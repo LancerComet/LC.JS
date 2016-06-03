@@ -6,11 +6,7 @@
 export {directiveMain}
 
 import {directive} from "./directive"
-import {lcText} from "./lc-text"
-import {lcModel} from "./lc-model"    
-import {lcHTML} from "./lc-html"
-import {lcClick} from "./lc-click"
-import {lcMouseEvents} from "./lc-mouse-event"
+import {internalDirectives} from "./internal-directives"
 
 function directiveMain ($lc) {
     
@@ -22,10 +18,6 @@ function directiveMain ($lc) {
     $lc.directive = directive;
     
     // 初始化内置指令.
-    lcModel($lc);
-    lcText($lc);
-    lcHTML($lc);
-    lcClick($lc);
-    lcMouseEvents($lc);
+    internalDirectives($lc);
     
 }
