@@ -23,8 +23,9 @@
             
             
             <div lc-controller="testCtrl3">
-                <h4>TestCtrl3 in TestCtrl</h4>           
-                <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>                     
+                <h4>TestCtrl3 in TestCtrl, and it required "TestCtrl"</h4>
+                <p>Hello, <span lc-text="firstname"></span> <span lc-text="lastname"></span>!</p>
+                <button lc-click="changeEvent">Change testCtrl.firstname to "Amazing!"</button>
             </div>
         </div>
         
@@ -47,7 +48,7 @@
                 };
 
                 scope.changeEvent = function () {
-                    this.innerText = "Event has been changed!"
+                    this.innerText = "Event has been changed!";
                     scope.changeName = function () {
                         alert("Event has been changed!");
                     };
@@ -61,12 +62,15 @@
                 scope.lastname = "22";
             });  
             
-            $lc.controller("testCtrl3", ["ajax"], function (scope) {
+            $lc.controller("testCtrl3", ["testCtrl"], function (scope, testCtrl) {
                 scope.firstname = "33";
                 scope.lastname = "44";
 
-                console.log(ajax)
-            });  
+                scope.changeEvent = function () {
+                    testCtrl.firstname = "Amazing!";
+                };
+
+            });
             
         </script>
         

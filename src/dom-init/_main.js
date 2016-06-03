@@ -34,10 +34,20 @@ function domInit ($lc) {
                 scope.$directives = [];            
             }
             
-            
+
+            // 初始化控制器对象.
             // 设置双向数据绑定.
-            scope.$initFunc && (() => {         
-                scope.$initFunc.apply(scope, [scope]);  // 将控制器对象放入 initFunc 中执行. 将加载用户属性.
+            scope.$initFunc && (() => {
+
+                // 引入依赖.
+                var $dependencies = [];  // 依赖存放数组.
+                if (scope.$dependencies) {
+                    scope.$dependencies.forEach((dependency, index, dependencies) => {
+                        $dependencies[index] = $lc.controllers[dependency] ?　$lc.controllers[dependency] : {};
+                    });
+                }
+
+                scope.$initFunc.apply(scope, [scope].concat($dependencies));  // 将控制器对象放入 initFunc 中执行. 将加载用户属性.
                 
                 // 为每个用户定义的属性设置 get / set.
                 for (let prop in scope) {
@@ -45,7 +55,9 @@ function domInit ($lc) {
                         || prop === "$name" 
                         || prop === "$directives" 
                         || prop === "$initFunc"
-                        || prop === "$ctrlDoms") { continue; }
+                        || prop === "$ctrlDoms"
+                        || prop === "$dependencies"
+                    ) { continue; }
                     
                     // 在自执行函数中创建闭包来保留每个属性的 key 与 value 的各自引用 propKey, propValue 以避免属性相互干扰.
                     (() => {
@@ -80,6 +92,7 @@ function domInit ($lc) {
                 scope.$ctrlDoms[i].setAttribute("lc-ctrl", scope.$name);
                 scope.$ctrlDoms[i].removeAttribute("lc-controller");
             }
+
         })();
     }
     
