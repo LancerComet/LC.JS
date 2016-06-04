@@ -3,6 +3,7 @@
 // ---
 // 节点初始化逻辑.
 
+import {$directivesDataSync} from "../controller/$directives-data-sync"
 export {domInit}
  
 // 开始初始化页面节点.
@@ -60,7 +61,7 @@ function domInit ($lc) {
                     ) { continue; }
                     
                     // 监视 scope 中的属性.
-                    $lc.observe(scope, prop, null, syncController);
+                    $lc.observe(scope, prop, null, $directivesDataSync);
                 }
         
             })();
@@ -100,7 +101,7 @@ function domInit ($lc) {
 
                         // 如果 $lc.directives 中有相应指令则初始化指令.
                         if ($lc.directives[direcitveName]/* && directiveExpr*/) {  // 暂时取消 expr 的强制判断, 否则必须制定 expr, 有时候指令可能不想或不需要制定 expr, 观察功能是否正常.
-                            scope.$directives.push(new $lc.directives[direcitveName](child, scope));
+                            scope.$directives.push(new $lc.directives[direcitveName](child, scope));  // 创建指令对象并推入控制器下的 $directives.
                         }
                         
                     }
@@ -110,13 +111,5 @@ function domInit ($lc) {
         })(ctrlDom.children);
         
     }
-    
-    
-    // Definition: 控制器数据同步函数.
-    // 在 get / set 中调用.
-    function syncController (scope, expr, oldValue, newValue) {
-        console.log(`${scope.$name}.${expr} 从 ${oldValue} 修改为 ${newValue}`);
-        scope.$directives.forEach((directiveObj, index, $directives) => directiveObj.$expr === expr && directiveObj.$update(newValue));
-    }
-     
+
 }
