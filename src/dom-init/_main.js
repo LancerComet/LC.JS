@@ -59,27 +59,8 @@ function domInit ($lc) {
                         || prop === "$dependencies"
                     ) { continue; }
                     
-                    // 在自执行函数中创建闭包来保留每个属性的 key 与 value 的各自引用 propKey, propValue 以避免属性相互干扰.
-                    (() => {
-                        
-                        var propKey = prop,
-                            propValue = scope[prop];
-                            
-                        Object.defineProperty(scope, propKey, {
-                            get: function () {
-                                return propValue;
-                            },
-                            
-                            set: function (newValue) {
-                                console.log(`${scope.$name}.${propKey} 从 ${propValue} 修改为 ${newValue}`);
-                                propValue = newValue;  // 用户修改值之后进行更新.
-                                syncController(scope, propKey, propValue);  // 同步页面中所有此控制器节点中的数据.
-                            }
-                            
-                        });
-                        
-                    })();
-                    
+                    // 监视 scope 中的属性.
+                    $lc.observe(scope, prop, null, syncController);
                 }
         
             })();
@@ -133,7 +114,8 @@ function domInit ($lc) {
     
     // Definition: 控制器数据同步函数.
     // 在 get / set 中调用.
-    function syncController (scope, expr, newValue) {
+    function syncController (scope, expr, oldValue, newValue) {
+        console.log(`${scope.$name}.${expr} 从 ${oldValue} 修改为 ${newValue}`);
         scope.$directives.forEach((directiveObj, index, $directives) => directiveObj.$expr === expr && directiveObj.$update(newValue));
     }
      

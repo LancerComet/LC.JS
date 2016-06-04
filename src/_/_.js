@@ -24,5 +24,6 @@ export const _ = {
         }
 
         return result;
-    }
+    },
+    strip: (str, target) => str.replace(new RegExp(`${target}`, "g"), "")
 };

@@ -1,5 +1,5 @@
 /*
- *  LancerFrame on Function By LancerComet at 22:58, 2016.03.05.
+ *  LancerFrame on Function By LancerComet at 01:22, 2016.06.03.
  *  # Carry Your World #
  *  ---
  *  $lc.on

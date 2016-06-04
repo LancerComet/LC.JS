@@ -57,9 +57,9 @@
             });
 
 
-            $lc.controller("testCtrl2", function (scope) {
-                scope.firstname = "11";
-                scope.lastname = "22";
+            $lc.controller("testCtrl2", function () {
+                this.firstname = "11";
+                this.lastname = "22";
             });
 
             $lc.controller("testCtrl3", ["testCtrl", "testCtrl2", "$q"], function (scope, testCtrl, testCtrl2, $q) {
@@ -69,9 +69,6 @@
                 scope.changeEvent = function () {
                     testCtrl.firstname = "Amazing!";
                 };
-
-                console.log(testCtrl2);
-                console.log($q);
 
             });
 

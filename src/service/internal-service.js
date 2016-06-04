@@ -7,8 +7,7 @@
 
 export function internalSerivces ($lc) {
 
-    // $q.
-    // 基于 Promise, 不做任何兼容处理.
+    // $q. Promise 封装, 暂不做任何兼容处理.
     (() => {
         if (!window.Promise) return;
         $lc.service("$q", function () {

@@ -4,20 +4,33 @@
  *  ---
  *  内置指令定义.
  */
-
+import {_} from "../_/_"
 export {internalDirectives}
 
-function internalDirectives ($lc) {
+function internalDirectives ($lc, undefined) {
 
     // lc-text
-    $lc.directive("text", {
-        $done: function () {
-            this.$element.innerText = this.$scope[this.$expr];
-        },
-        $update: function (newValue) {
-            this.$element.innerText = newValue;
+    (() => {
+        $lc.directive("text", {
+            $init: function () {
+                setInnterText.call(this);
+            },
+            $update: function (newValue) {
+                setInnterText.call(this, newValue);
+            }
+        });
+
+        function setInnterText (value) {
+            if (value === undefined) {
+                value = this.$scope[this.$expr] || "";
+            }
+            if (this.$element.textContent !== undefined) {
+                this.$element.textContent = value;
+            } else {
+                this.$element.innerText = value;
+            }
         }
-    });
+    })();
 
     // lc-html
     (() => {

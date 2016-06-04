@@ -3,13 +3,16 @@
 
 export { staticFunc as setStaticFunc }
 
+
+import {observe} from "./observe"
+import {controller} from "../controller/controller"
+import {directive} from "../directives/directive"
 import {css} from "./css"
 import {on} from "./on-off"
 import {off} from "./on-off"
-import {controller} from "../controller/controller"
-import {directive} from "../directives/directive"
 
 function staticFunc ($lc) {
+    observe($lc);  // $lc.observe.
     controller($lc);  // $lc.controller.
     directive($lc);  // $lc.directive.
     css($lc);  // $lc.css.
