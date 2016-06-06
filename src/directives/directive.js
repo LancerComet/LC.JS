@@ -85,7 +85,11 @@ function directive ($lc) {
                 this.$element.removeAttribute(this.$directiveName);
             }
 
-        }
+        };
+
+        // 设置优先级.
+        // 优先级为 10000 的指令仅仅初始化其自身, 无视其他指令.
+        $lc.directives["lc-" + name].priority = options.priority || 1;
 
     }
 

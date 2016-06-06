@@ -2,7 +2,6 @@
 // # Carry Your World #
 // ---
 // 节点初始化逻辑.
-
 import {$directivesDataSync} from "../controller/$directives-data-sync"
 export {domInit}
  
@@ -68,6 +67,16 @@ function domInit ($lc) {
             
             // 初始化控制器节点与其子节点, 建立指令对象并推入 $directives.
             for (let i = 0, length = scope.$ctrlDoms.length; i < length; i++) {
+                var directivesOfCtrl = $lc.getDirectives(scope.$ctrlDoms[i]);
+
+                // 处理控制器上的额外指令.
+                if (directivesOfCtrl) {
+                    console.log("控制器上的指令: " + directivesOfCtrl);
+                    directivesOfCtrl.forEach((directive, index, directives) => {
+                        $lc.directives[directive] && new $lc.directives[directive](scope.$ctrlDoms[i])
+                    });
+                }
+
                 initController(scope.$ctrlDoms[i], scope);
                 
                 // 控制器节点处理完之后修改 lc-controller. 就是方便查看是不是初始化完毕了.
@@ -82,7 +91,7 @@ function domInit ($lc) {
     function initController (ctrlDom, scope) {
         
         (function initChilden (ctrlChildren) {
-            
+
             for (let i = 0, length = ctrlChildren.length; i < length; i++) {
                 var child = ctrlChildren[i];
                 
@@ -93,20 +102,21 @@ function domInit ($lc) {
                     initChilden(child.children);  // 多层嵌套子元素.
                 } else {
                     // 获取节点上注册的指令.
-                    for (let i = 0, length = child.attributes.length; i < length; i++) {
-                        const direcitveName = child.attributes[i].name,  // 指令名称.
-                              directiveExpr = child.attributes[i].value;  // 指令对应的 scope 属性.
+                    var directiveList = $lc.getDirectives(child);
 
-                        if (direcitveName.indexOf("lc-") < 0) { continue; }
+                    // 初始化指令.
+                    for (let i = 0, length = directiveList.length; i < length; i++) {
+                        scope.$directives.push(new $lc.directives[directiveList[i]](child, scope));  // 创建指令对象并推入控制器下的 $directives.
 
-                        // 如果 $lc.directives 中有相应指令则初始化指令.
-                        if ($lc.directives[direcitveName]/* && directiveExpr*/) {  // 暂时取消 expr 的强制判断, 否则必须制定 expr, 有时候指令可能不想或不需要制定 expr, 观察功能是否正常.
-                            scope.$directives.push(new $lc.directives[direcitveName](child, scope));  // 创建指令对象并推入控制器下的 $directives.
+                        // 当出现优先级为 10000 的指令时仅仅初始化自身, 中止执行.
+                        if ($lc.directives[directiveList[i]].priority === 10000) {
+                            break;
                         }
-                        
                     }
                 }
             }
+
+            // 初始化指令.
             
         })(ctrlDom.children);
         

@@ -9,6 +9,19 @@ export {internalDirectives}
 
 function internalDirectives ($lc, undefined) {
 
+    // lc-skip
+    $lc.directive("skip", {
+        priority: 10000
+    });
+
+    // lc-cloak
+    $lc.directive("cloak", {
+        priority: 0,
+        $done: function () {
+            this.$element.removeAttribute(this.$directiveName);
+        }
+    });
+
     // lc-text
     (() => {
         $lc.directive("text", {
@@ -40,6 +53,7 @@ function internalDirectives ($lc, undefined) {
         });
 
         function func (value) {
+            if (_.typeof(value) === "undefined") value = "";
             this.$element.innerHTML = value;
         }
     })();
