@@ -71,17 +71,18 @@ function domInit ($lc) {
 
                 // 处理控制器上的额外指令.
                 if (directivesOfCtrl) {
-                    console.log("控制器上的指令: " + directivesOfCtrl);
                     directivesOfCtrl.forEach((directive, index, directives) => {
+                        if (directive === "lc-cloak") return;  // lc-cloak 放至最后处理.
                         $lc.directives[directive] && new $lc.directives[directive](scope.$ctrlDoms[i])
                     });
                 }
 
                 initController(scope.$ctrlDoms[i], scope);
-                
+
                 // 控制器节点处理完之后修改 lc-controller. 就是方便查看是不是初始化完毕了.
                 scope.$ctrlDoms[i].setAttribute("lc-ctrl", scope.$name);
                 scope.$ctrlDoms[i].removeAttribute("lc-controller");
+                scope.$ctrlDoms[i].removeAttribute("lc-cloak");
             }
 
         })();
@@ -89,7 +90,7 @@ function domInit ($lc) {
     
     // Definition: 初始化控制器内的子节点指令.
     function initController (ctrlDom, scope) {
-        
+
         (function initChilden (ctrlChildren) {
 
             for (let i = 0, length = ctrlChildren.length; i < length; i++) {

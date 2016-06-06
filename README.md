@@ -92,3 +92,5 @@ A simple Web Frontend MVVM Framework. Still under construction.
  - lc-click
  - lc-mouseenter
  - lc-mouseleave
+ - lc-skip
+ - lc-cloak

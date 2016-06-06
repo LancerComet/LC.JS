@@ -2,13 +2,18 @@
     
     <head>
         <meta charset="utf-8">
+        <style>
+            [lc-cloak] {
+                display: none;
+            }
+        </style>
     </head>
     
     <body>
 
-        <div lc-controller="testCtrl" lc-cloak lc-html="a">
+        <div lc-controller="testCtrl" lc-cloak>
             <h2>TestCtrl</h2>
-            <p>Hello, <span lc-text="firstname" lc-click="firstnameClick" lc-skip></span> <span lc-text="lastname"></span>!</p>
+            <p>Hello, <span lc-text="firstname" lc-click="firstnameClick"></span> <span lc-text="lastname"></span>!</p>
             <label>firstname: <input type="text" lc-model="firstname"></label>
             <label>lastname: <input type="text" lc-model="lastname"></label>
             <button lc-click="changeName">Change my name!</button>
@@ -117,6 +122,23 @@
 
 
 
+        </script>
+
+        <hr>
+
+        <div lc-controller="brandNewCtrl">
+            <h2>Brand New Controller</h2>
+            <div lc-text="info"></div>
+            <div>
+                <p>lc-skip (Nothing will appear after colon.): <span lc-text="nothingHere" lc-skip></span></p>
+            </div>
+        </div>
+
+        <script>
+            $lc.controller("brandNewCtrl", function () {
+                this.info = 'You can use "this" instead of "scope" in controller definition.';
+                this.nothingHere = "This element will be filled with nothing.";
+            });
         </script>
 
 
