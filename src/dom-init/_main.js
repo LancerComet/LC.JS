@@ -95,25 +95,27 @@ function domInit ($lc) {
 
             for (let i = 0, length = ctrlChildren.length; i < length; i++) {
                 var child = ctrlChildren[i];
-                
+
                 // 避开嵌套控制器.
                 if (child.attributes["lc-controller"]) { return; }
-                
+
+                // 获取节点上注册的指令.
+                var directiveList = $lc.getDirectives(child);
+                console.log(child);
+                console.log(directiveList);
+
+                // 初始化指令.
+                for (let i = 0, length = directiveList.length; i < length; i++) {
+                    scope.$directives.push(new $lc.directives[directiveList[i]](child, scope));  // 创建指令对象并推入控制器下的 $directives.
+
+                    // 当出现优先级为 10000 的指令时仅仅初始化自身, 中止执行.
+                    if ($lc.directives[directiveList[i]].priority === 10000) {
+                        break;
+                    }
+                }
+
                 if (child.children.length > 0) {
                     initChilden(child.children);  // 多层嵌套子元素.
-                } else {
-                    // 获取节点上注册的指令.
-                    var directiveList = $lc.getDirectives(child);
-
-                    // 初始化指令.
-                    for (let i = 0, length = directiveList.length; i < length; i++) {
-                        scope.$directives.push(new $lc.directives[directiveList[i]](child, scope));  // 创建指令对象并推入控制器下的 $directives.
-
-                        // 当出现优先级为 10000 的指令时仅仅初始化自身, 中止执行.
-                        if ($lc.directives[directiveList[i]].priority === 10000) {
-                            break;
-                        }
-                    }
                 }
             }
 
