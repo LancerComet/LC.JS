@@ -101,8 +101,6 @@ function domInit ($lc) {
 
                 // 获取节点上注册的指令.
                 var directiveList = $lc.getDirectives(child);
-                console.log(child);
-                console.log(directiveList);
 
                 // 初始化指令.
                 for (let i = 0, length = directiveList.length; i < length; i++) {

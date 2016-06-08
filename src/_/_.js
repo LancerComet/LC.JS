@@ -25,5 +25,12 @@ export const _ = {
 
         return result;
     },
-    strip: (str, target) => str.replace(new RegExp(`${target}`, "g"), "")
+    strip: (str, target) => str.replace(new RegExp(`${target}`, "g"), ""),
+    findFilter: directive => {
+        directive = _.strip(directive, " ");
+        directive = directive.match(/\|\S*/);
+        if (_.typeof(directive) === "array" && directive[0]) directive = directive[0].replace("|", "");
+        return directive;
+    },
+    removeFilter: directive => directive.substr(0, directive.indexOf("|") - 1)
 };

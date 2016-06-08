@@ -162,14 +162,53 @@ function internalDirectives ($lc, undefined) {
 
     // lc-click
     $lc.directive("click", {
+        $init: function () {
+            // 处理事件委托属性.
+            if (this.$expr.indexOf("|") > -1) {
+                this.$delegatedElement = _.findFilter(this.$expr);
+                this.$expr = _.removeFilter(this.$expr);
+            }
+            console.log(this)
+        },
         $done: function () {
-            this.$clickEvent = this.$scope[this.$expr];
+            const self = this;
+
+            // 事件委托.
+            if (this.$delegatedElement) {
+                this.$clickEvent = function (event) {
+                    event = window.event || event;
+                    var target = event.target || event.srcElement;
+                    if (target === self.$element) return;  // 如果点击到了委托容器则退出.
+                    self.$scope[self.$expr].apply(event.target, arguments);
+                };
+
+            // 无委托.
+            } else {
+                this.$clickEvent = function () { self.$scope[self.$expr].apply(this, arguments); };
+            }
+
             $lc.on(this.$element, "click", this.$clickEvent);
         },
 
         $update: function (newValue) {
             $lc.off(this.$element, "click", this.$clickEvent);
-            this.$clickEvent = newValue;
+
+            const self = this;
+
+            // 事件委托.
+            if (this.$delegatedElement) {
+                this.$clickEvent = function (event) {
+                    event = window.event || event;
+                    var target = event.target || event.srcElement;
+                    if (target === self.$element) return;
+                    self.$scope[self.$expr].apply(event.target, arguments);
+                };
+
+            // 无委托.
+            } else {
+                this.$clickEvent = function () { newValue.apply(this, arguments); };
+            }
+
             $lc.on(this.$element, "click", this.$clickEvent);
         }
     });
