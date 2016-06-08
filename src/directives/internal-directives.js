@@ -169,7 +169,6 @@ function internalDirectives ($lc, undefined) {
                 this.$expr = _.removeFilter(this.$expr);
                 this.$targets = this.$element.querySelectorAll(this.$delegatedElement);
             }
-            console.log(this)
         },
         $done: function () {
             const self = this;
@@ -178,27 +177,15 @@ function internalDirectives ($lc, undefined) {
             if (this.$delegatedElement) {
 
                 this.$clickEvent = function (event) {
-                    var start = performance.now();
                     event = window.event || event;
-                    var target = event.target || event.srcElement,
-                        targetThis = null;  // 目标元素.
+                    var target = event.target || event.srcElement;
 
-                    // 判断 target 是不是想要的元素.
-                    (function findTarget (target) {
-                        var found = false;
-                        for (let i = 0, length = self.$targets.length; i < length; i++) {
-                            if (target !== self.$targets[i]) continue;
-                            found = true;
-                            targetThis = target;
-                            break;
-                        }
-                        if (!found) findTarget(target.parentNode);
-                    })(target);
+                    // 判断 target 是不是想要的元素并返回结果.
+                    var targetThis = targetChecking.call(self, target);
 
-                    if (target === self.$element) return;  // 如果点击到了委托容器则退出.
+                    if (target === self.$element || targetThis === false) return;  // 如果点击到了委托容器 || 循环到了委托容器则退出.
                     self.$scope[self.$expr].apply(targetThis, arguments);
-                    var end = performance.now();
-                    console.log(`time takes ${end - start}`);  // 十五层节点嵌套大概需要 0.2 秒.
+                    // console.log(`time takes ${end - start}`);  // 十五层节点嵌套大概需要 0.2 秒.
                 };
 
             // 无委托.
@@ -207,12 +194,10 @@ function internalDirectives ($lc, undefined) {
             }
 
             $lc.on(this.$element, "click", this.$clickEvent);
-
         },
 
         $update: function (newValue) {
             $lc.off(this.$element, "click", this.$clickEvent);
-
             const self = this;
 
             // 事件委托.
@@ -220,22 +205,12 @@ function internalDirectives ($lc, undefined) {
 
                 this.$clickEvent = function (event) {
                     event = window.event || event;
-                    var target = event.target || event.srcElement,
-                        targetThis = null;  // 目标元素.
+                    var target = event.target || event.srcElement;
 
-                    // 判断 target 是不是想要的元素.
-                    (function findTarget (target) {
-                        var found = false;
-                        for (let i = 0, length = self.$targets.length; i < length; i++) {
-                            if (target !== self.$targets[i]) continue;
-                            found = true;
-                            targetThis = target;
-                            break;
-                        }
-                        if (!found) findTarget(target.parentNode);
-                    })(target);
+                    // 判断 target 是不是想要的元素并返回结果.
+                    var targetThis = targetChecking.call(self, target);
 
-                    if (target === self.$element) return;  // 如果点击到了委托容器则退出.
+                    if (target === self.$element || targetThis === false) return;  // 如果点击到了委托容器则退出.
                     newValue.apply(targetThis, arguments);
                 };
 
@@ -249,4 +224,16 @@ function internalDirectives ($lc, undefined) {
     });
 
 
+}
+
+// 判断点击事件是否为需要的元素.
+function targetChecking (target) {
+    if (target === this.$element) return false;  // 如果递归到 lc-click 指令元素本身则退出.
+    var found = false;
+    for (let i = 0, length = this.$targets.length; i < length; i++) {
+        if (target !== this.$targets[i]) continue;
+        found = true;
+        return target;
+    }
+    if (!found) return targetChecking.call(this, target.parentNode);
 }

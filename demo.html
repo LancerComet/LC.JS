@@ -156,15 +156,15 @@
                 <li>3333333333333</li>
             </ul>
             <p>With delegation: Click event has been set to li.</p>
-            <ul lc-click="clickFunc2 | li" class="test-ul">
+            <ul lc-click="clickFunc2 | .clickable" class="test-ul">
                 <li>
-                    <div>
+                    <div class="clickable">
                         <span>1111111111111</span>
                     </div>
                 </li>
-                <li>2222222222222</li>
-                <li>3333333333333</li>
-                <h4>Nothing happened.</h4>
+                <li class="clickable">2222222222222</li>
+                <li class="clickable">3333333333333</li>
+                <h4>Nothing will happen if you click me.</h4>
             </ul>
         </div>
 
@@ -174,7 +174,7 @@
                     alert(this.innerHTML);  // ul
                 };
                 scope.clickFunc2 = function () {
-                    alert(this.tagName); // li
+                    alert("You clicked " + this.tagName + ": " + this.innerHTML); // li
                 };
                 
                 scope.changeEvent = function () {
