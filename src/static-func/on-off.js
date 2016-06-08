@@ -6,9 +6,9 @@
  */
 
 export function on ($lc) {
-    $lc.on = function (element, eventType, eventHanler) {
+    $lc.on = function (element, eventType, eventHanler, useCapture) {
         if (element.addEventListener) {
-            element.addEventListener(eventType, eventHanler, false);
+            element.addEventListener(eventType, eventHanler, useCapture || false);
         } else if (element.attachEvent) {
             element.attachEvent(`on${eventType}`, eventHanler);
         } else {
@@ -18,9 +18,9 @@ export function on ($lc) {
 }
 
 export function off ($lc) {
-    $lc.off = function (element, eventType, eventHanler) {
+    $lc.off = function (element, eventType, eventHanler, useCapture) {
         if (element.removeEventListener) {
-            element.removeEventListener(eventType, eventHanler, false);
+            element.removeEventListener(eventType, eventHanler, useCapture || false);
         } else if (element.detachEvent) {
             element.detachEvent(`on${eventType}`, eventHanler);
         } else {

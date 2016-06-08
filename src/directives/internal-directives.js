@@ -171,15 +171,31 @@ function internalDirectives ($lc, undefined) {
             console.log(this)
         },
         $done: function () {
-            const self = this;
+            const self = this,
+                  targets = this.$element.querySelectorAll(this.$delegatedElement);
 
             // 事件委托.
             if (this.$delegatedElement) {
+
                 this.$clickEvent = function (event) {
                     event = window.event || event;
-                    var target = event.target || event.srcElement;
+                    var target = event.target || event.srcElement,
+                        targetThis = null;  // 目标元素.
+
+                    // 判断 target 是不是想要的元素.
+                    (function findTarget (target) {
+                        var found = false;
+                        for (let i = 0, length = targets.length; i < length; i++) {
+                            if (target !== targets[i]) continue;
+                            found = true;
+                            targetThis = target;
+                            break;
+                        }
+                        if (!found) findTarget(target.parentNode);
+                    })(target);
+
                     if (target === self.$element) return;  // 如果点击到了委托容器则退出.
-                    self.$scope[self.$expr].apply(event.target, arguments);
+                    self.$scope[self.$expr].apply(targetThis, arguments);
                 };
 
             // 无委托.
@@ -188,20 +204,37 @@ function internalDirectives ($lc, undefined) {
             }
 
             $lc.on(this.$element, "click", this.$clickEvent);
+
         },
 
         $update: function (newValue) {
             $lc.off(this.$element, "click", this.$clickEvent);
 
-            const self = this;
+            const self = this,
+                  targets = this.$element.querySelectorAll(this.$delegatedElement);
 
             // 事件委托.
             if (this.$delegatedElement) {
+
                 this.$clickEvent = function (event) {
                     event = window.event || event;
-                    var target = event.target || event.srcElement;
-                    if (target === self.$element) return;
-                    self.$scope[self.$expr].apply(event.target, arguments);
+                    var target = event.target || event.srcElement,
+                        targetThis = null;  // 目标元素.
+
+                    // 判断 target 是不是想要的元素.
+                    (function findTarget (target) {
+                        var found = false;
+                        for (let i = 0, length = targets.length; i < length; i++) {
+                            if (target !== targets[i]) continue;
+                            found = true;
+                            targetThis = target;
+                            break;
+                        }
+                        if (!found) findTarget(target.parentNode);
+                    })(target);
+
+                    if (target === self.$element) return;  // 如果点击到了委托容器则退出.
+                    newValue.apply(targetThis, arguments);
                 };
 
             // 无委托.
