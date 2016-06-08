@@ -167,17 +167,18 @@ function internalDirectives ($lc, undefined) {
             if (this.$expr.indexOf("|") > -1) {
                 this.$delegatedElement = _.findFilter(this.$expr);
                 this.$expr = _.removeFilter(this.$expr);
+                this.$targets = this.$element.querySelectorAll(this.$delegatedElement);
             }
             console.log(this)
         },
         $done: function () {
-            const self = this,
-                  targets = this.$element.querySelectorAll(this.$delegatedElement);
+            const self = this;
 
             // 事件委托.
             if (this.$delegatedElement) {
 
                 this.$clickEvent = function (event) {
+                    var start = performance.now();
                     event = window.event || event;
                     var target = event.target || event.srcElement,
                         targetThis = null;  // 目标元素.
@@ -185,8 +186,8 @@ function internalDirectives ($lc, undefined) {
                     // 判断 target 是不是想要的元素.
                     (function findTarget (target) {
                         var found = false;
-                        for (let i = 0, length = targets.length; i < length; i++) {
-                            if (target !== targets[i]) continue;
+                        for (let i = 0, length = self.$targets.length; i < length; i++) {
+                            if (target !== self.$targets[i]) continue;
                             found = true;
                             targetThis = target;
                             break;
@@ -196,6 +197,8 @@ function internalDirectives ($lc, undefined) {
 
                     if (target === self.$element) return;  // 如果点击到了委托容器则退出.
                     self.$scope[self.$expr].apply(targetThis, arguments);
+                    var end = performance.now();
+                    console.log(`time takes ${end - start}`);  // 十五层节点嵌套大概需要 0.2 秒.
                 };
 
             // 无委托.
@@ -210,8 +213,7 @@ function internalDirectives ($lc, undefined) {
         $update: function (newValue) {
             $lc.off(this.$element, "click", this.$clickEvent);
 
-            const self = this,
-                  targets = this.$element.querySelectorAll(this.$delegatedElement);
+            const self = this;
 
             // 事件委托.
             if (this.$delegatedElement) {
@@ -224,8 +226,8 @@ function internalDirectives ($lc, undefined) {
                     // 判断 target 是不是想要的元素.
                     (function findTarget (target) {
                         var found = false;
-                        for (let i = 0, length = targets.length; i < length; i++) {
-                            if (target !== targets[i]) continue;
+                        for (let i = 0, length = self.$targets.length; i < length; i++) {
+                            if (target !== self.$targets[i]) continue;
                             found = true;
                             targetThis = target;
                             break;
