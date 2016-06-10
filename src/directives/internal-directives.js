@@ -10,9 +10,7 @@ export {internalDirectives}
 function internalDirectives ($lc, undefined) {
 
     // lc-skip
-    $lc.directive("skip", {
-        priority: 10000
-    });
+    $lc.directive("skip", { priority: 10000 });
 
     // lc-cloak
     $lc.directive("cloak", {
@@ -25,18 +23,12 @@ function internalDirectives ($lc, undefined) {
     // lc-text
     (() => {
         $lc.directive("text", {
-            $init: function () {
-                setInnterText.call(this);
-            },
-            $update: function (newValue) {
-                setInnterText.call(this, newValue);
-            }
+            $init: function () { setInnterText.call(this); },
+            $update: function (newValue) { setInnterText.call(this, newValue); }
         });
 
         function setInnterText (value) {
-            if (value === undefined) {
-                value = this.$scope[this.$expr] || "";
-            }
+            if (value === undefined) { value = this.$scope[this.$expr] || ""; }
             if (this.$element.textContent !== undefined) {
                 this.$element.textContent = value;
             } else {
@@ -83,20 +75,16 @@ function internalDirectives ($lc, undefined) {
 
             $lc.on(element, "blur", () => this.duplexIgnored = false);
 
-
             element.addEventListener("input", inputEvent, false);
 
             // Fixing: IE9 在 Backspace / Delete / 剪切时不触发 input 事件.
             // http://frontenddev.org/article/compatible-with-processing-and-chinese-input-method-to-optimize-the-input-events.html
             if ($lc.BROWSER === "IE 9") {
-
                 $lc.on(element, "cut", () => setTimeout(inputEvent, 1));  // 必须放置在任务队列中才生效.
-
                 $lc.on(element, "keyup", (event) => {
                     event = event || window.event;
                     (event.keyCode === 46 || event.keyCode === 8) && inputEvent();
                 });
-
             }
 
             function inputEvent () {
@@ -119,44 +107,35 @@ function internalDirectives ($lc, undefined) {
 
     // lc-mouse events.
     (() => {
+        function initEvent (eventType) {
+            this[`$${eventType}`] = this.$scope[this.$expr];
+            $lc.on(this.$element, eventType, this[`$${eventType}`]);
+        }
+
+        function updateEvent (eventType, newFunc) {
+            $lc.off(this.$element, eventType, this[`$${eventType}`]);
+            this[`$${eventType}`] = newFunc;
+            $lc.on(this.$element, eventType, this[`$${eventType}`]);
+        }
+
         $lc.directive("mouseenter", {
-            $done: function () {
-                $lc.on(this.$element, "mouseenter", this.$scope[this.$expr]);
-            },
-
-            $update: function (newFunc) {
-
-            }
+            $done: function () { initEvent.call(this, "mouseenter"); },
+            $update: function (newFunc) { updateEvent.call(this, "mouseenter", newFunc); }
         });
 
         $lc.directive("mouseleave", {
-            $done: function () {
-                $lc.on(this.$element, "mouseleave", this.$scope[this.$expr]);
-            },
-
-            $update: function () {
-
-            }
+            $done: function () { initEvent.call(this, "mouseleave"); },
+            $update: function (newFunc) { updateEvent.call(this, "mouseleave", newFunc); }
         });
 
         $lc.directive("mouseover", {
-            $done: function () {
-                $lc.on(this.$element, "mouseover", this.$scope[this.$expr]);
-            },
-
-            $update: function () {
-
-            }
+            $done: function () { initEvent.call(this, "mouseover"); },
+            $update: function (newFunc) { updateEvent.call(this, "mouseover", newFunc); }
         });
 
         $lc.directive("mouseout", {
-            $done: function () {
-                $lc.on(this.$element, "mouseout", this.$scope[this.$expr]);
-            },
-
-            $update: function () {
-
-            }
+            $done: function () { initEvent.call(this, "mouseout"); },
+            $update: function (newFunc) { updateEvent.call(this, "mouseout", newFunc); }
         });
     })();
 

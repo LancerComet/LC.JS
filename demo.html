@@ -185,6 +185,42 @@
             })
         </script>
 
+        <hr>
+
+        <div lc-controller="mouseEventCtrl">
+            <h2>Mouse Event</h2>
+            <div style="padding: 30px 70px; background-color: red; color: #fff; text-align: center;" lc-mouseenter="mouseenterEvent" lc-mouseleave="mouseleaveEvent" lc-mouseover="mouseoverEvent" lc-mouseout="mouseoutEvent" lc-click="changeEvent">
+                Click to change mouseenter event.
+            </div>
+        </div>
+
+        <script>
+            $lc.controller("mouseEventCtrl", function () {
+                var scope = this;
+                this.mouseenterEvent = function () {
+                    console.log("Mouseenter");
+                };
+
+                this.mouseleaveEvent = function () {
+                    console.log("mouseleave")
+                };
+
+                this.mouseoverEvent = function () {
+                    //console.log("mouseover")
+                };
+
+                this.mouseoutEvent = function () {
+                    //console.log("mouseout")
+                };
+
+                this.changeEvent = function () {
+                    scope.mouseenterEvent = function () {
+                        console.log("MouseEnter has been changed!");
+                    }
+                }
+            });
+        </script>
+
 
     </body>
     
