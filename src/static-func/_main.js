@@ -9,6 +9,7 @@ import {getDirectives} from "./get-directives"
 import {css} from "./css"
 import {on} from "./on-off"
 import {off} from "./on-off"
+import {log} from "./log"
 
 function staticFunc ($lc) {
     observe($lc);  // $lc.observe.
@@ -16,4 +17,5 @@ function staticFunc ($lc) {
     css($lc);  // $lc.css.
     on($lc); // $lc.on.
     off($lc);  // $lc.off.
+    log($lc);  // $lc.log.
 }

@@ -20,7 +20,7 @@ function directive ($lc) {
          *       $init: function (element, scope),  // 指令初始化时执行.
          *       $done: Function,  // 指令初始化完毕后执行.
          *       $update: Function,  // 指令节点进行更新时执行.
-         *       $destory: Function  // 指令在销毁时执行.
+         *       $destroy: Function  // 指令在销毁时执行.
          *   }
          */
 
@@ -58,11 +58,11 @@ function directive ($lc) {
                     };
                 }
 
-                if (options.$destory) {
-                    var _$destory = this.$destory;
-                    this.$destory = function () {
-                        _$destory.call(this);
-                        options.$destory.apply(this, arguments);
+                if (options.$destroy) {
+                    var _$destroy = this.$destroy;
+                    this.$destroy = function () {
+                        _$destroy.call(this);
+                        options.$destroy.apply(this, arguments);
                     };
                 }
 
@@ -70,14 +70,14 @@ function directive ($lc) {
             }
 
             $done () {
-                // 好像没碉用？
+
             }
 
             $update () {
             }
 
-            $destory () {
-
+            $destroy () {
+                // TODO: 解除节点所有事件并删除节点.
             }
 
             // 删除节点指令标识.

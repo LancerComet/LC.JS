@@ -8,6 +8,7 @@ import {setStaticFunc} from "./static-func/_main"
 import {controller} from "./controller/controller"
 import {directive} from "./directives/directive"
 import {service} from "./service/service"
+import {component} from "./component/component"
 
 import {internalDirectives} from "./directives/internal-directives"
 import {internalSerivces} from "./service/internal-service"
@@ -31,6 +32,7 @@ import {domInit} from "./dom-init/_main"
     controller($lc);  // 初始化控制器逻辑.
     directive($lc);  // 初始化指令定义函数.
     service($lc);  // 初始化服务函数.
+    component($lc);  // 初始化组件函数.
 
 
     // Definition: 框架初始化.
@@ -64,12 +66,13 @@ import {domInit} from "./dom-init/_main"
     })();
 
 
-
     // Definition: 将 LancerFrame 挂载至全局环境.
     // =================================
     root.LancerFrame = root.$lc = $lc;
 
+
     /* Definiton goes below. */
+
 
     // Definiiton: 框架初始化函数.
     // =================================
