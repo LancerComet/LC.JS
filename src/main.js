@@ -2,8 +2,16 @@
 // # Carry Your World #
 
 import {_} from "./_/_"
-import {setStaticFunc} from "./static-func/_main"  
-import {initFunc} from "./init.js"
+
+import {setStaticFunc} from "./static-func/_main"
+
+import {controller} from "./controller/controller"
+import {directive} from "./directives/directive"
+import {service} from "./service/service"
+
+import {internalDirectives} from "./directives/internal-directives"
+import {internalSerivces} from "./service/internal-service"
+import {domInit} from "./dom-init/_main"
 
 (function (root, undefined) {
     "use strict";
@@ -17,10 +25,13 @@ import {initFunc} from "./init.js"
     $lc.BROWSER = _.browser();
 
 
-    // Definition: 静态方法定义区.
+    // Definition: 初始化框架模块.
     // =================================
-    setStaticFunc($lc);  // 设置静态方法.
-    
+    setStaticFunc($lc);  // 初始化静态方法.
+    controller($lc);  // 初始化控制器逻辑.
+    directive($lc);  // 初始化指令定义函数.
+    service($lc);  // 初始化服务函数.
+
 
     // Definition: 框架初始化.
     // =================================
@@ -32,23 +43,20 @@ import {initFunc} from "./init.js"
         
         $lc.on(window, "DOMContentLoaded", () => {
             if ($lc.inited) return;
-            console.log("Init at DOMContentLoaded");
-            initFunc($lc);
-            $lc.inited = true;            
+            initAfterDomReady();
+            $lc.inited = true;
         });
         
         $lc.on(window, "load", () => {
             if ($lc.inited) return;
-            console.log("Init at window.onload");
-            initFunc($lc);
-            $lc.inited = true;            
+            initAfterDomReady();
+            $lc.inited = true;
         });
         
         setTimeout(() => {
             document.readyState === "complete" && (() => {
-                if ($lc.inited) return;        
-                console.log("Init at readyState = complete");
-                initFunc($lc);
+                if ($lc.inited) return;
+                initAfterDomReady();
                 $lc.inited = true;
             })();
         }, 1);
@@ -60,6 +68,16 @@ import {initFunc} from "./init.js"
     // Definition: 将 LancerFrame 挂载至全局环境.
     // =================================
     root.LancerFrame = root.$lc = $lc;
+
+    /* Definiton goes below. */
+
+    // Definiiton: 框架初始化函数.
+    // =================================
+    function initAfterDomReady () {
+        internalDirectives($lc);  // 初始化内置指令.
+        internalSerivces($lc);  // 初始化内置服务.
+        domInit($lc);  // 扫描文档结构.
+    }
 
 
 })(window);
