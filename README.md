@@ -85,6 +85,35 @@ A simple Web Frontend MVVM Framework. Still under construction.
 ```
 
 
+### Using components.
+```
+<div lc-controller="testCtrl">
+    <lc-greeting></lc-greeting>
+</div>
+
+<script>
+$lc.controller("testCtrl", function () {
+    this.greeting = "Hello!";
+});
+
+$lc.component("lc-greeting", {
+    $init: function (element, scope) {
+		// "element" is the element of this component.
+		// "scope" is the scope object of the controller that this component belongs to. 
+		console.log("I'm going to define the component called 'lc-greeting'!");
+		console.dir(element.innerHTML);
+		console.log(scope); 
+	},
+	$done: function (element, scope) {
+		console.dir(element.innerHTML);
+		console.log(scope); 
+	},
+	$template: '<h1 lc-text="greeting"></h1>'
+});
+</script>
+```
+
+
 ## Directive finished.
  - lc-controller
  - lc-model

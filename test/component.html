@@ -25,11 +25,15 @@
         });
 
         $lc.component("lc-greeting", {
-            $init: function () {
-
+            $init: function (element, scope) {
+                console.log("init")
+                console.log(element.innerHTML)
+                console.log(scope)
             },
             $done: function (element, scope) {
-
+                console.log("done")
+                console.log(element.innerHTML)
+                console.log(scope)
             },
             $template:
                     "<div>" +

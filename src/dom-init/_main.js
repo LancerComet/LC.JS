@@ -108,7 +108,7 @@ function domInit ($lc) {
                     var componentObj = $lc.components[tagName];
 
                     // 执行 $init.
-                    componentObj.$init && componentObj.$init();
+                    componentObj.$init && componentObj.$init(child, scope);
 
                     // 设置组件内部 HTML 为模板.
                     child.innerHTML = componentObj.$template;
@@ -116,7 +116,10 @@ function domInit ($lc) {
                     // 扫描组件内部是否含有指令并初始化.
                     initController(child, scope);
 
-                // 指令.
+                    // 执行 $done.
+                    componentObj.$done && componentObj.$done(child, scope);
+
+                    // 指令.
                 } else {
                     // 获取节点上注册的指令.
                     var directiveList = $lc.getDirectives(child);
