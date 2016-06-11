@@ -47,7 +47,7 @@ export function component ($lc) {
     };
 
     function destoryFunc () {
-        
+        console.log("Destory Func.")
     }
     
     function errorHandler (type) {

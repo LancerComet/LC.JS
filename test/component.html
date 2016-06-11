@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <div lc-controller="testCtrl">
+        <lc-greeting></lc-greeting>
+        <div lc-cloak></div>
+    </div>
+    <script src="/dist/LancerFrame.js"></script>
+    <script>
+        $lc.controller("testCtrl", function () {
+            this.greeting = "Greeting!";
+            this.desc = "This is an example for $lc.component.";
+            this.clickParent = function () {
+                console.log("clickParent")
+            };
+            this.clickChildren = function (event) {
+                event.stopPropagation();
+                console.log("clickChildren")
+            }
+        });
+
+        $lc.component("lc-greeting", {
+            $init: function () {
+
+            },
+            $done: function (element, scope) {
+
+            },
+            $template:
+                    "<div>" +
+                        "<h1 lc-text='greeting'></h1>" +
+                        "<p lc-text='desc'></p>" +
+                    "</div>" +
+                    "<div lc-click='clickParent'>" +
+                        "click me" +
+                        "<button lc-click='clickChildren'>Click me</button>" +
+                    "</div>"
+
+        });
+
+
+    </script>
+
+</body>
+</html>

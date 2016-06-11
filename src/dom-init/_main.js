@@ -77,6 +77,7 @@ function domInit ($lc) {
                     });
                 }
 
+                // 初始化控制器内部节点.
                 initController(scope.$ctrlDoms[i], scope);
 
                 // 控制器节点处理完之后修改 lc-controller. 就是方便查看是不是初始化完毕了.
@@ -88,33 +89,53 @@ function domInit ($lc) {
         })();
     }
     
-    // Definition: 初始化控制器内的子节点指令.
+    // Definition: 初始化控制器内部节点.
     function initController (ctrlDom, scope) {
 
         (function initChilden (ctrlChildren) {
 
             for (let i = 0, length = ctrlChildren.length; i < length; i++) {
                 var child = ctrlChildren[i];
+                var tagName = child.tagName.toLowerCase();
 
                 // 避开嵌套控制器.
                 if (child.attributes["lc-controller"]) { return; }
 
-                // 获取节点上注册的指令.
-                var directiveList = $lc.getDirectives(child);
+                // 判断其是指令还是组件.
+                // 组件.
+                if ($lc.components[tagName]) {
+                    console.log(child.tagName.toLowerCase() + " 是组件");
+                    var componentObj = $lc.components[tagName];
 
-                // 初始化指令.
-                for (let i = 0, length = directiveList.length; i < length; i++) {
-                    scope.$directives.push(new $lc.directives[directiveList[i]](child, scope));  // 创建指令对象并推入控制器下的 $directives.
+                    // 执行 $init.
+                    componentObj.$init && componentObj.$init();
 
-                    // 当出现优先级为 10000 的指令时仅仅初始化自身, 中止执行.
-                    if ($lc.directives[directiveList[i]].priority === 10000) {
-                        break;
+                    // 设置组件内部 HTML 为模板.
+                    child.innerHTML = componentObj.$template;
+
+                    // 扫描组件内部是否含有指令并初始化.
+                    initController(child, scope);
+
+                // 指令.
+                } else {
+                    // 获取节点上注册的指令.
+                    var directiveList = $lc.getDirectives(child);
+
+                    // 初始化指令.
+                    for (let i = 0, length = directiveList.length; i < length; i++) {
+                        scope.$directives.push(new $lc.directives[directiveList[i]](child, scope));  // 创建指令对象并推入控制器下的 $directives.
+
+                        // 当出现优先级为 10000 的指令时仅仅初始化自身, 中止执行.
+                        if ($lc.directives[directiveList[i]].priority === 10000) {
+                            break;
+                        }
+                    }
+
+                    if (child.children.length > 0) {
+                        initChilden(child.children);  // 多层嵌套子元素.
                     }
                 }
 
-                if (child.children.length > 0) {
-                    initChilden(child.children);  // 多层嵌套子元素.
-                }
             }
 
             // 初始化指令.
@@ -122,5 +143,6 @@ function domInit ($lc) {
         })(ctrlDom.children);
         
     }
+
 
 }
