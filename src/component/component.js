@@ -41,7 +41,8 @@ export function component ($lc) {
             $template: options.$template || "",
             $init: options.$init || null,
             $done: options.$done || null,
-            $destroy: destoryFunc
+            $destroy: destoryFunc,
+            $transparent: options.$transparent
         };
 
     };

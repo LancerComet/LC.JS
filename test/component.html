@@ -9,9 +9,13 @@
     <div lc-controller="testCtrl">
         <lc-greeting></lc-greeting>
         <div lc-cloak></div>
+        <hr>
+        <p lc-text="greeting"></p>
+        <p lc-text="desc"></p>
     </div>
     <script src="/dist/LancerFrame.js"></script>
     <script>
+        var start = performance.now();
         $lc.controller("testCtrl", function () {
             this.greeting = "Greeting!";
             this.desc = "This is an example for $lc.component.";
@@ -43,9 +47,13 @@
                     "<div lc-click='clickParent'>" +
                         "click me" +
                         "<button lc-click='clickChildren'>Click me</button>" +
-                    "</div>"
+                    "</div>",
+            $transparent: true
 
         });
+        setTimeout(function () {
+            console.log("Init takes " + (performance.now() - start))
+        }, 1);
 
 
     </script>

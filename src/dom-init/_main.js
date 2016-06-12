@@ -91,60 +91,56 @@ function domInit ($lc) {
     
     // Definition: 初始化控制器内部节点.
     function initController (ctrlDom, scope) {
+        var ctrlChildren = ctrlDom.children;
 
-        (function initChilden (ctrlChildren) {
+        for (let i = 0, length = ctrlChildren.length; i < length; i++) {
+            var child = ctrlChildren[i];
+            var tagName = child.tagName.toLowerCase();
 
-            for (let i = 0, length = ctrlChildren.length; i < length; i++) {
-                var child = ctrlChildren[i];
-                var tagName = child.tagName.toLowerCase();
+            // 避开嵌套控制器.
+            if (child.attributes["lc-controller"]) { return; }
 
-                // 避开嵌套控制器.
-                if (child.attributes["lc-controller"]) { return; }
+            // 判断其是指令还是组件.
+            // 组件.
+            if ($lc.components[tagName]) {
+                var componentObj = $lc.components[tagName];
 
-                // 判断其是指令还是组件.
-                // 组件.
-                if ($lc.components[tagName]) {
-                    console.log(child.tagName.toLowerCase() + " 是组件");
-                    var componentObj = $lc.components[tagName];
+                componentObj.$init && componentObj.$init(child, scope);  // 执行 $init.
 
-                    // 执行 $init.
-                    componentObj.$init && componentObj.$init(child, scope);
-
-                    // 设置组件内部 HTML 为模板.
-                    child.innerHTML = componentObj.$template;
-
-                    // 扫描组件内部是否含有指令并初始化.
-                    initController(child, scope);
-
-                    // 执行 $done.
-                    componentObj.$done && componentObj.$done(child, scope);
-
-                    // 指令.
+                // 设置组件内部 HTML 为模板.
+                if (componentObj.$transparent) {
+                    child.outerHTML = componentObj.$template;
+                    initController(ctrlDom, scope);  // TODO: 查看直接初始化控制器节点是不是有问题.
                 } else {
-                    // 获取节点上注册的指令.
-                    var directiveList = $lc.getDirectives(child);
+                    child.innerHTML = componentObj.$template;
+                    initController(child, scope);  // 扫描组件内部是否含有指令并初始化.
+                }
 
-                    // 初始化指令.
-                    for (let i = 0, length = directiveList.length; i < length; i++) {
-                        scope.$directives.push(new $lc.directives[directiveList[i]](child, scope));  // 创建指令对象并推入控制器下的 $directives.
+                componentObj.$done && componentObj.$done(child, scope);  // 执行 $done.
 
-                        // 当出现优先级为 10000 的指令时仅仅初始化自身, 中止执行.
-                        if ($lc.directives[directiveList[i]].priority === 10000) {
-                            break;
-                        }
-                    }
+            // 指令.
+            } else {
+                // 获取节点上注册的指令.
+                var directiveList = $lc.getDirectives(child);
 
-                    if (child.children.length > 0) {
-                        initChilden(child.children);  // 多层嵌套子元素.
+                // 初始化指令.
+                for (let i = 0, length = directiveList.length; i < length; i++) {
+                    scope.$directives.push(new $lc.directives[directiveList[i]](child, scope));  // 创建指令对象并推入控制器下的 $directives.
+
+                    // 当出现优先级为 10000 的指令时仅仅初始化自身, 中止执行.
+                    if ($lc.directives[directiveList[i]].priority === 10000) {
+                        break;
                     }
                 }
 
+                if (child.children.length > 0) {
+                    initController(child, scope);  // 多层嵌套子元素.
+                }
             }
 
-            // 初始化指令.
-            
-        })(ctrlDom.children);
-        
+        }
+
+
     }
 
 
