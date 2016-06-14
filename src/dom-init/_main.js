@@ -105,7 +105,7 @@ function domInit ($lc) {
                 // 组件.
                 if ($lc.components[tagName]) {
                     console.log(child.tagName.toLowerCase() + " 是组件");
-                    var componentObj = $lc.components[tagName];
+                    var componentObj = new $lc.components[tagName];
 
                     // 执行 $init.
                     componentObj.$init && componentObj.$init(child, scope);
