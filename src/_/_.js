@@ -26,11 +26,25 @@ export const _ = {
         return result;
     },
     strip: (str, target) => str.replace(new RegExp(`${target}`, "g"), ""),
+
+    // 检测过滤器方法, 查询指令中的过滤器名称.
     findFilter: directive => {
         directive = _.strip(directive, " ");
         directive = directive.match(/\|\S*/);
         if (_.typeof(directive) === "array" && directive[0]) directive = directive[0].replace("|", "");
         return directive;
     },
-    removeFilter: directive => directive.substr(0, directive.indexOf("|") - 1)
+
+    // 删除过滤器函数.
+    removeFilter: directive => directive.substr(0, directive.indexOf("|") - 1),
+
+    // 获取节点属性函数.
+    getAttrs: element => {
+        var result = {};
+        var attrs = element.attributes;
+        for (let i = 0, length = attrs.length; i < length; i++) {
+            result[attrs[i].name] = attrs[i].value;
+        }
+        return result;
+    }
 };
