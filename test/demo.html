@@ -11,6 +11,10 @@
     
     <body>
 
+    <script>
+        var startTime = performance.now();
+    </script>
+
         <div lc-controller="testCtrl" lc-cloak>
             <h2>TestCtrl</h2>
             <p>Hello, <span lc-text="firstname" lc-click="firstnameClick"></span> <span lc-text="lastname"></span>!</p>
@@ -220,6 +224,13 @@
                 }
             });
         </script>
+
+    <script>
+        setTimeout(function () {
+            var endTime = performance.now();
+            console.log("LancerFrame initialization takes " + (endTime - startTime))
+        }, 1)
+    </script>
 
 
     </body>

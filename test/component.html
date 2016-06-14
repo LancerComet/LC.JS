@@ -5,13 +5,16 @@
     <title>Title</title>
 </head>
 <body>
-
+    <app-header></app-header>
     <div lc-controller="testCtrl">
         <lc-greeting></lc-greeting>
         <div lc-cloak></div>
     </div>
     <script src="/dist/LancerFrame.js"></script>
     <script>
+        $lc.component("app-header", {
+            $template: "<div>This is a header.</div>"
+        });
         $lc.controller("testCtrl", function () {
             this.greeting = "Greeting!";
             this.desc = "This is an example for $lc.component.";
@@ -23,8 +26,8 @@
                 console.log("clickChildren")
             }
         });
-
         $lc.component("lc-greeting", {
+            $transparent: true,
             $init: function (element, scope) {
                 console.log("init")
                 console.log(element.innerHTML)
@@ -46,8 +49,6 @@
                     "</div>"
 
         });
-
-
     </script>
 
 </body>
