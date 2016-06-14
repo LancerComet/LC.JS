@@ -36,12 +36,26 @@ export function component ($lc) {
             return false;
         }
 
-        $lc.components[componentName] = {
-            $name: componentName,
-            $template: options.$template || "",
-            $init: options.$init || null,
-            $done: options.$done || null,
-            $destroy: destoryFunc
+        $lc.components[componentName] = class {
+            constructor () {
+                this.$name = componentName;
+                this.$template = options.$template || "";
+
+                this.$init = (element, scope) => {
+
+                    // 处理绑定.
+                    // :class 与 :text.
+                    console.log(_.getAttrs(element))
+
+                    options.$init && options.$init(element, scope);
+                };
+
+                this.$done = (element, scope) => {
+                    options.$done && options.$done(element, scope);
+                };
+
+                this.$destroy = destoryFunc;
+            }
         };
 
     };
