@@ -113,6 +113,32 @@ $lc.component("lc-greeting", {
 </script>
 ```
 
+### Using components with value binding.
+```
+<div lc-controller="testCtrl">
+    <lc-button :class="pink" :text="'A pink button.'"></lc-button>  
+    <lc-button :class="blue" :text="name"></lc-button>
+</div>
+
+<script>
+    $lc.component("lc-button", {
+        $template: '<button class="lc-button"></button>',
+        $transparent: true
+    });
+
+    $lc.controller("testCtrl", function () {
+        this.name = "LancerComet!"
+    });
+</script>
+
+```
+
+Output:
+```
+<button class="lc-button pink">A pink button.</button>
+<button class="lc-button blue">LancerComet!</button>
+```
+
 
 ## Directive finished.
  - lc-controller

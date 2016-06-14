@@ -24,28 +24,22 @@
 <body>
 
     <div lc-controller="testCtrl">
-        <lc-button :class="pink" :text="button pink"></lc-button>
-        <lc-button :class="blue" :text="button blue"></lc-button>
+        <lc-button :class="pink" :text="'A pink button.'"></lc-button>
+        <lc-button :class="blue" :text="name"></lc-button>
     </div>
 
     <script src="/dist/LancerFrame.js"></script>
     <script>
         $lc.component("lc-button", {
-            $init: function (element, scope) {
-
-            },
-            $done: function (element, scope) {
-
-            },
             $template: '<button class="lc-button"></button>',
             $transparent: true
         });
 
         $lc.controller("testCtrl", function () {
-            this.text = "aaaa"
+            this.name = "LancerComet!"
         });
-
     </script>
+
 </body>
 
 </html>

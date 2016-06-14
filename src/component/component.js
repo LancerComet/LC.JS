@@ -17,7 +17,8 @@ export function component ($lc) {
          *  @ options: {
          *      $init: Function,
          *      $done: Function,
-         *      $destroy: Function
+         *      $destroy: Function,
+         *      $transparent: Boolean
          *  }
          */
 
@@ -41,12 +42,35 @@ export function component ($lc) {
             constructor () {
                 this.$name = componentName;
                 this.$template = options.$template || "";
+                this.$transparent = options.$transparent;
 
                 this.$init = (element, scope) => {
+                    // 处理绑定. 暂时只有 :text 与 :class.
+                    var attrs = _.getAttrs(element);
 
-                    // 处理绑定.
-                    // :class 与 :text.
-                    console.log(_.getAttrs(element))
+                    // :class.
+                    var templateClass = this.$template.match(/class=["|']\S*["|']/);
+                    if (templateClass && attrs[":class"]) {
+                        templateClass = _.strip(templateClass[0].trim(), "\"");
+                        templateClass = templateClass.substr(templateClass.indexOf("=") + 1);
+                        this.$template = this.$template.replace(templateClass, templateClass + ` ${attrs[":class"]}`);
+                    }
+
+
+                    // :text.
+                    if (attrs[":text"]) {
+                        attrs[":text"] = attrs[":text"].replace(/"/g, "'");
+
+                        var text = attrs[":text"];
+                        if (text.indexOf("'") < 0) {
+                            // 指令.
+                            this.$template = this.$template.replace(/><\//, ` lc-text="${text}"></`);
+                        } else {
+                            // 字符串.
+                            this.$template = this.$template.replace(/><\//, `>${text.replace(/'/g, "")}</`);
+                        }
+
+                    }
 
                     options.$init && options.$init(element, scope);
                 };
