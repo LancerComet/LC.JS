@@ -36,6 +36,7 @@ export function component ($lc) {
             return false;
         }
 
+
         $lc.components[componentName] = class {
             constructor () {
                 this.$name = componentName;
@@ -56,8 +57,7 @@ export function component ($lc) {
 
                 this.$destroy = destoryFunc;
             }
-        };
-
+        }
     };
 
     function destoryFunc () {
