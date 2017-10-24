@@ -1,31 +1,18 @@
 import { Component } from '../src'
 
-// Create a component.
+console.time('Create component class')
+@Component
+class MyComponent {
+  name: string = 'LancerComet'
+  age: number = 27
+  isMarried: boolean = false
+  address: string[] = ['NewYork', 'Beijing']
+  sex: string = 'male'
+}
+console.timeEnd('Create component class')
+
 console.time()
-const myInfo = new Component({
-  models: {
-    name: {
-      type: String,
-      default: 'LancerComet'
-    },
-
-    age: {
-      type: Number,
-      default: 27
-    },
-
-    isMarried: {
-      type: Boolean,
-      default: false
-    },
-
-    addresses: {
-      type: Array,
-      default () {
-        return ['Newyork', 'Beijing']
-      }
-    }
-  }
-})
+const a = new MyComponent()
 console.timeEnd()
-console.log(myInfo)
+
+console.log(a)

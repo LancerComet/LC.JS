@@ -3,59 +3,85 @@
 import { ReactiveModel } from '../core/model'
 
 /**
- * Create a component.
+ * Component.
+ * Create a component by using this decorator.
  *
- * @class Component
+ * @template T
+ * @param {T} ClassCreatedByUser
+ * @returns
  */
-class Component {
-  /** Model storage. */
-  private $models: { [key: string]: ReactiveModel } = {}
+function Component<T extends {new (...args:any[]): {}}> (ClassCreatedByUser: T) {
+  const instance = new ClassCreatedByUser()
 
-  /** Initialize model. */
-  private initModels (models: TComponentModels) {
-    Object.keys(models).forEach(key => {
-      if (!checkVaildKeyName(key)) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error(
-            `[${process.env.NAME}] "${key}" is invaild: A model's name cannot start with "$" or "_".`
-          )
+  // Transform property to TComponentModels.
+  const keys = Object.keys(instance)
+  const models: TComponentModels = {}
+
+  for (let i = 0, length = keys.length; i < length; i++) {
+    const key = keys[i]
+    const value = instance[key]
+    if (value === null || value === undefined) {
+      console.error(`[${process.env.NAME}] You should provide an initial value for your model "${key}".`)
+      return
+    }
+
+    models[key] = {
+      type: instance[key].constructor,
+      default: instance[key]
+    }
+  }
+
+  return class Component extends ClassCreatedByUser {
+    /** Model storage. */
+    private $models: { [key: string]: ReactiveModel } = {}
+
+    /** Initialize model. */
+    private initModels (models: TComponentModels) {
+      for (let i = 0, length = keys.length; i < length; i++) {
+        const key = keys[i]
+        if (!checkVaildKeyName(key)) {
+          if (process.env.NODE_ENV === 'development') {
+            console.error(
+              `[${process.env.NAME}] "${key}" is invaild: A model's name cannot start with "$" or "_".`
+            )
+          }
+          continue
         }
-        return
+
+        const model = models[key]
+        const reactiveModel = new ReactiveModel(key, model)
+        this.$models[key] = reactiveModel
+
+        // Set model to root level.
+        Object.defineProperty(this, key, {
+          enumerable: true,
+          get: () => reactiveModel.value,
+          set: value => {
+            reactiveModel.value = value
+          }
+        })
       }
+    }
 
-      const model = models[key]
-      const reactiveModel = new ReactiveModel(key, model)
-      this.$models[key] = reactiveModel
-
-      // Set model to root level.
-      Object.defineProperty(this, key, {
-        enumerable: true,
-        get: () => reactiveModel.value,
-        set: value => {
-          reactiveModel.value = value
-        }
+    /** Hide the privates. */
+    private hidePrivateProps () {
+      ['$models'].forEach(key => {
+        Object.defineProperty(this, key, {
+          configurable: false,
+          enumerable: false
+        })
       })
-    })
-  }
+    }
 
-  /** Hide the privates. */
-  private hidePrivateProps () {
-    ['$models'].forEach(key => {
-      Object.defineProperty(this, key, {
-        configurable: false,
-        enumerable: false
-      })
-    })
-  }
-
-  /**
-   * Creates an instance of Component.
-   * @param {IComponentOption} option
-   * @memberof Component
-   */
-  constructor (option: IComponentOption) {
-    this.initModels(option.models)
-    this.hidePrivateProps()
+    /**
+     * Creates an instance of Component.
+     * @memberof Component
+     */
+    constructor (...args) {
+      super(...args)
+      this.initModels(models)
+      this.hidePrivateProps()
+    }
   }
 }
 

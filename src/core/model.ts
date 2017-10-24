@@ -49,16 +49,12 @@ class ReactiveModel {
     // Set value data.
     const defaultValue = modelItem.default
     if (type === Array) {
-      if (typeof defaultValue !== 'function') {
-        throw new TypeError(`[${process.env.NAME}] The default value for an array must be provided with a function that returns a array.`)
-      }
-
-      this._defaultValue = <() => any[]> defaultValue()
+      this._defaultValue = (<any[]> defaultValue).slice()
     } else {
       this._defaultValue = defaultValue
     }
 
-    this.value = this._defaultValue
+    this.value = defaultValue
   }
 }
 

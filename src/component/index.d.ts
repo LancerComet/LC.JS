@@ -73,7 +73,7 @@ interface IComponentModelBoolean extends IComponentModelItem {
  */
 interface IComponentModelArray extends IComponentModelItem {
   type: ArrayConstructor
-  default: () => any[]
+  default: any[]
 }
 
 /**
@@ -84,4 +84,4 @@ type TModelType = NumberConstructor | StringConstructor | BooleanConstructor | A
 /**
  * Default value for model.
  */
-type TModelDefaultValue = number | string | boolean | Function
+type TModelDefaultValue = number | string | boolean | any[]

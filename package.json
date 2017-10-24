@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config ./build/webpack.dev.conf.js",
     "build": "cross-env NODE_ENV=production webpack --config ./build/webpack.prod.conf.js",
-    "test": "cross-env BABEL_ENV=test karma start karma.conf.js --single-run"
+    "test": "cross-env BABEL_ENV=test karma start karma.conf.js"
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",

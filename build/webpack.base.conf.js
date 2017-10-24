@@ -1,6 +1,8 @@
 const path = require('path')
 const config = require('../config')
 
+const srcFolders = ['dev', 'src', 'test'].map(resolve)
+
 module.exports = {
   entry: {
     app: config.base.app
@@ -36,24 +38,24 @@ module.exports = {
       {
         test: /\.js$/,
         use: [
-          'cache-loader',
-          'thread-loader',
+          // 'cache-loader',
+          // 'thread-loader',
           'babel-loader'
         ],
-        include: ['dev', 'src', 'test'].map(resolve)
+        include: srcFolders
       },
       {
         test: /\.tsx?$/,
         use: [
-          'cache-loader',
-          'thread-loader',
+          // 'cache-loader',
+          // 'thread-loader',
           'babel-loader',
           {
             loader: 'ts-loader',
-            options: { happyPackMode: true }
+            // options: { happyPackMode: true }
           }
         ],
-        include: ['src', 'test'].map(resolve)
+        include: srcFolders
       }
     ]
   }
