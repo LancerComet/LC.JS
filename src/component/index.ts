@@ -3,6 +3,20 @@
 import { ReactiveModel } from '../core/model'
 
 /**
+ * LC.JS.
+ * class LC is the basic class of a component.
+ *
+ * @class LC
+ */
+class LC {
+  mount (element: string | Element) {
+    const el = typeof element === 'string'
+      ? document.querySelector(element)
+      : element
+  }
+}
+
+/**
  * Component.
  * Create a component by using this decorator.
  *
@@ -10,7 +24,7 @@ import { ReactiveModel } from '../core/model'
  * @param {T} ClassCreatedByUser
  * @returns
  */
-function Component<T extends {new (...args:any[]): {}}> (ClassCreatedByUser: T) {
+function Component<T extends {new (...args:any[]): any}> (ClassCreatedByUser: T) {
   const instance = new ClassCreatedByUser()
 
   // Transform property to TComponentModels.
@@ -79,14 +93,15 @@ function Component<T extends {new (...args:any[]): {}}> (ClassCreatedByUser: T) 
      */
     constructor (...args) {
       super(...args)
-      this.initModels(models)
       this.hidePrivateProps()
+      this.initModels(models)
     }
   }
 }
 
 export {
-  Component
+  Component,
+  LC
 }
 
 /**

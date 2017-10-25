@@ -1,5 +1,6 @@
-import { Component } from './component'
+import { Component, LC } from './component'
 
 export {
-  Component
+  Component,
+  LC
 }

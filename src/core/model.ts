@@ -48,11 +48,9 @@ class ReactiveModel {
 
     // Set value data.
     const defaultValue = modelItem.default
-    if (type === Array) {
-      this._defaultValue = (<any[]> defaultValue).slice()
-    } else {
-      this._defaultValue = defaultValue
-    }
+    this._defaultValue = type === Array
+      ? (<any[]> defaultValue).slice()
+      : defaultValue
 
     this.value = defaultValue
   }

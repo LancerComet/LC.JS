@@ -1,18 +1,15 @@
-import { Component } from '../src'
+import { Component, LC } from '../src'
 
-console.time('Create component class')
+console.time()
 @Component
-class MyComponent {
+class MyComponent extends LC {
   name: string = 'LancerComet'
   age: number = 27
   isMarried: boolean = false
   address: string[] = ['NewYork', 'Beijing']
   sex: string = 'male'
 }
-console.timeEnd('Create component class')
 
-console.time()
 const a = new MyComponent()
 console.timeEnd()
-
-console.log(a)
+a.mount('#test-component')
