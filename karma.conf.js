@@ -36,6 +36,10 @@ module.exports = function (config) {
 
     webpack: webpackConfig,
 
+    webpackMiddleware: {
+      stats: 'errors-only'
+    },
+
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -63,6 +67,13 @@ module.exports = function (config) {
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['PhantomJS'],
+
+    customLaunchers: {
+      Chrome_without_security: {
+        base: 'Chrome',
+        flags: ['--disable-web-security']
+      }
+    },
 
 
     // Continuous Integration mode
