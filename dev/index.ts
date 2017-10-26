@@ -1,5 +1,6 @@
 import { Component, LC } from '../src'
 
+console.time()
 @Component
 class MyComponent extends LC {
   // Models.
@@ -16,12 +17,21 @@ class MyComponent extends LC {
 
   // Template.
   template: string = `
-    <h1>Hello, {{name}}!</h1>
-    <button @click="showMyAge">Show my age</button>
+    <div class="my-component lc-js">
+      <h1>MyInfo</h1>
+      <p>Name: {{name}}, {{age}}</p>
+      <p>Age: {{age}}</p>
+      <p>
+        Address:
+        <br/>
+        I'm live in
+        <span style="color: red">{{address[0] + ', ' + address[1]}}</span>.
+      </p>
+      <button @click="showMyAge">Show my age</button>
+    </div>
   `
 }
 
 const component = new MyComponent()
 component.mount('#test-component')
-
-console.log(component)
+console.timeEnd()

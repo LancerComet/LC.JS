@@ -88,7 +88,7 @@ function getElementAttribute (elementStr: string = ''): IElementAttribute {
     return Object.create(null)
   }
 
-  const words = elementStr.split(' ')
+  const words = elementStr.match(/^\w+(\/?)|[\w]+[="'].[\w:; -_]+[:"'-\w\/?]+/g)  // Only split html by attributes.
   let isSelfClosed = false
 
   // Check and deal-with self-clsoed.
@@ -99,7 +99,7 @@ function getElementAttribute (elementStr: string = ''): IElementAttribute {
     }
   }
 
-  const tagName = words.shift()
+  const tagName = words.shift().replace('<', '')
   const attributes = {}
 
   for (let i = 0, length = words.length; i < length; i++) {

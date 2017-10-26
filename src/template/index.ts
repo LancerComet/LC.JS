@@ -1,4 +1,4 @@
-import { ASTNode, TTemplateAST } from './modules/ast-node'
+import { ASTNode, TemplateAST } from './modules/ast-node'
 import { tokenizer } from './modules/tokenizer'
 import { internalDirectives } from '../config'
 
@@ -6,9 +6,9 @@ import { internalDirectives } from '../config'
  * Parse HTML to ASTNode[].
  *
  * @param {string} htmlString
- * @returns {TTemplateAST}
+ * @returns {TemplateAST}
  */
-function parseHTMLtoAST (htmlString: string): TTemplateAST {
+function parseHTMLtoAST (htmlString: string): TemplateAST {
   const ast = tokenizer(htmlString)
   return ast
 }

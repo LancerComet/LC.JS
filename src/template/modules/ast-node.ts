@@ -8,7 +8,7 @@ import { TElementAttribute } from './tokenizer'
 class ASTNode {
   _id: string
   attributes: TElementAttribute
-  children: TTemplateAST
+  children: TemplateAST
   tagName: string
 
   constructor (params: IASTNodeOption) {
@@ -27,16 +27,16 @@ class ASTNode {
 interface IASTNodeOption {
   _id: string
   attributes?: TElementAttribute
-  children?: TTemplateAST
+  children?: TemplateAST
   tagName: string
 }
 
 /**
  * Template elements AST.
  */
-type TTemplateAST = Array<ASTNode | string>
+type TemplateAST = Array<ASTNode | string>
 
 export {
   ASTNode,
-  TTemplateAST
+  TemplateAST
 }

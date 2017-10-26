@@ -12,6 +12,9 @@ class ReactiveModel {
 
   /** Model type. */
   private _type: TModelType
+  get type (): TModelType {
+    return this._type
+  }
 
   /** Default value backup. */
   private _defaultValue: any

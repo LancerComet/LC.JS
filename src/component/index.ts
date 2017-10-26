@@ -2,7 +2,7 @@
 
 import { ReactiveModel } from './modules/reactive-model'
 import { parseHTMLtoAST, createElementByASTNode } from '../template'
-import { ASTNode, TTemplateAST } from '../template/modules/ast-node'
+import { ASTNode, TemplateAST } from '../template/modules/ast-node'
 
 /**
  * Reserved Properties in component.
@@ -40,7 +40,7 @@ class LC {
 
     // Transform ast to element.
     const fragment = document.createDocumentFragment()
-    const astWithValue = fillExpressionWithValue(ast, this.$models)
+    const astWithValue = transformAST(ast, this.$models)
     astWithValue.forEach(astNode => {
       const element = createElementByASTNode(astNode)
       fragment.appendChild(element)
@@ -61,11 +61,15 @@ class LC {
       ? document.querySelector(element)
       : element
 
+    if (!el) { return }
+
     // Compile tempalte to component.
     const fragment = this.$compile()
 
-    el.innerHTML = ''
-    el.appendChild(fragment)
+    Promise.resolve().then(() => {
+      el.innerHTML = ''
+      el.appendChild(fragment)
+    })
   }
 }
 
@@ -178,36 +182,41 @@ function checkVaildKeyName (keyName: string): boolean {
 }
 
 /**
- * Fill expression in ASTNode with target value.
+ * Fill expression in AST with target value.
  *
- * @param {TTemplateAST} ast
+ * @param {TemplateAST} ast
  * @param {{[key: string]: ReactiveModel}} $models
- * @returns {TTemplateAST}
+ * @returns {TemplateAST}
  */
-function fillExpressionWithValue (ast: TTemplateAST, $models: {[key: string]: ReactiveModel}): TTemplateAST {
+function transformAST (ast: TemplateAST, $models: {[key: string]: ReactiveModel}): TemplateAST {
   ast = ast.slice()
-  ast.forEach((astNode, index) => {
-    // 如果是文本节点则直接替换.
-    switch (typeof astNode) {
-      case 'string':
-        // 获取模板中的所有插值表达式中的变量.
-        const expressions = (<string> astNode).match(/{{.+}}/g)
-        if (expressions) {
-          expressions.forEach(expression => {
-            const model = $models[expression.replace(/{|}/g, '')]
-            if (!model) { return }
+  ast.forEach((astNode: ASTNode | string, index: number) => {
+    // If is a ASTNode, just go further.
+    if (astNode instanceof ASTNode) {
+      const transformedChildren = transformAST(astNode.children, $models)
+      astNode.children = transformedChildren
+      return
+    }
 
-            // 如果变量存在于用户的 model 则进行赋值.
-            ast[index] = (<string> ast[index]).replace(new RegExp(expression), model.value)
-          })
-        }
-      break
+    // "astNode" is a string. Means a TextNode.
+    const expressions = astNode.match(/{{(\w|\d)+}}|{.+}/g)
+    if (expressions) {
+      const modelKeys = Object.keys($models)
+      const modelValues = modelKeys.map(key => $models[key].value)
 
-      // 如果是 Element 则需要继续遍历递归.
-      case 'object':
-        const children = (<ASTNode> astNode).children
-        ;(<ASTNode> ast[index]).children = fillExpressionWithValue(children, $models)
-      break
+      expressions.forEach(expression => {
+        const pureExpression = expression.replace(/{|}/g, '')  // {{name}} => name
+        const model = $models[pureExpression]
+
+        // Calculate value and replace mastache expression.
+        const Func = new Function(
+          modelKeys.join(','),
+          'exp',
+          'return eval(exp)'
+        )
+        const result = Func.apply(null, modelValues.concat(pureExpression))
+        ast[index] = (<string> ast[index]).replace(expression, result)
+      })
     }
   })
 
