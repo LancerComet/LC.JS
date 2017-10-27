@@ -1,4 +1,5 @@
-import { Component, LC } from './component'
+import { LC } from './core'
+import { Component } from './component'
 
 export {
   Component,
