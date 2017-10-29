@@ -15,3 +15,8 @@ const root = new Root()
 root.mount('#lc-app')
 console.timeEnd('createComponent')
 console.log(root)
+
+// setInterval(() => {
+//   root.time += 1
+//   root.appName = Math.random().toString()
+// }, 10)

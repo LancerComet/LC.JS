@@ -1,5 +1,7 @@
 import { ASTNode } from './ast'
 import { randomID } from '../../utils/random-id'
+import { htmlTagToPascal } from '../../utils/html-tag-to-pascal'
+import { NODE_TYPE } from '../../core/config'
 
 /**
  * Convert html string to AST.
@@ -44,32 +46,36 @@ export {
  * Convert single HTML node to ASTNode.
  *
  * @param {Node} node
- * @param {$ComponentUsage} [components]
+ * @param {$ComponentUsage} [$components]
  * @returns {ASTNode}
  */
-function parseSingleNode (node: Node, components?: $ComponentUsage): ASTNode {
+function parseSingleNode (node: Node, $components?: $ComponentUsage): ASTNode {
   let astNode: ASTNode = null
 
   let attributes = {}
   const children = []
   const nodeType = node.nodeType
-  let tagName = null
+  let tagName = ''
   let textContext = null
   let componentAnchor = false
   let ComponentConstructor = null
+  let componentName = ''
 
   switch (nodeType) {
     // Element.
-    case 1:
+    case NODE_TYPE.element:
       const _tagName = (<HTMLElement> node).tagName.toLowerCase()
+      componentName = htmlTagToPascal(_tagName)
 
-      // Check whether is an anchor for component.
-      if (components) {
-        const ComponentCtro = components[htmlTagToPascal(_tagName)]
-        if (ComponentCtro) {
-          // This is a component anchor.
+      // If component usage is given then
+      // check if this node is an anchor for component.
+      if ($components) {
+        const $component = $components[componentName]
+
+        // This is a component anchor.
+        if ($component) {
           componentAnchor = true
-          ComponentConstructor = ComponentCtro
+          ComponentConstructor = $component.Constructor
         }
       }
 
@@ -77,7 +83,7 @@ function parseSingleNode (node: Node, components?: $ComponentUsage): ASTNode {
       let i = 0
       while (i < childrenLength){
         const childNode = node.childNodes[i]
-        children.push(parseSingleNode(childNode, components))
+        children.push(parseSingleNode(childNode, $components))
         i++
       }
 
@@ -91,7 +97,7 @@ function parseSingleNode (node: Node, components?: $ComponentUsage): ASTNode {
       break
 
     // TextNode.
-    case 3:
+    case NODE_TYPE.textNode:
       textContext = node.textContent || node.nodeValue || ''
       break
   }
@@ -104,20 +110,12 @@ function parseSingleNode (node: Node, components?: $ComponentUsage): ASTNode {
     ComponentConstructor,
     nodeType,
     tagName,
-    textContent: nodeType === 3
+    componentName,
+    textContent: nodeType === NODE_TYPE.textNode
       ? textContext
-      : null
+      : ''
   })
 
   return astNode
 }
 
-function htmlTagToPascal (tagName: string): string {
-  const matching = tagName.match(/-\w/)
-  if (matching) {
-    matching.forEach(item => {
-      tagName = tagName.replace(item, item.replace('-', '').toUpperCase())
-    })
-  }
-  return tagName.replace(tagName[0], tagName[0].toUpperCase())
-}

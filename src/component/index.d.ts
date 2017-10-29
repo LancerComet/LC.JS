@@ -4,7 +4,7 @@
  * @interface IComponentOption
  */
 interface IComponentOption {
-  components?: {}
+  components?: {[name: string]: Function}
   template?: string
 }
 
@@ -30,6 +30,14 @@ interface IComponentModelItem {
    * @memberof IComponentModel
    */
   default: TModelDefaultValue
+
+  /**
+   * Component which uses this ReactiveModel.
+   *
+   * @type {LC}
+   * @memberof IComponentModelItem
+   */
+  $component?: LC
 }
 
 /**

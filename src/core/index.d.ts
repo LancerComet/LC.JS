@@ -1,39 +1,4 @@
-declare class LC {
-  /**
-   * Component usage.
-   *
-   * @private
-   * @type {{[key: string]: Function}}
-   * @memberof LC
-   */
-  private $components: $ComponentUsage
-
-  /**
-   * Model storage.
-   *
-   * @implements
-   * @type {{ [key: string]: ReactiveModel }}
-   * @memberof LC
-   */
-  private $models: $ComponentModels
-
-  /**
-   * Template string.
-   *
-   * @implements
-   * @type {string}
-   * @memberof LC
-   */
-  private $template: string
-
-  /**
-   * Move models to root level.
-   *
-   * @private
-   * @memberof LC
-   */
-  private $moveModelToRootLevel (): void
-
+declare abstract class LC {
   /**
    * Mount this component to target element.
    *
@@ -62,4 +27,7 @@ type $ComponentModels = {[key: string]: ReactiveModel}
 /**
  * Component usage delcration of a component.
  */
-type $ComponentUsage = {[key: string]: Function}
+type $ComponentUsage = {[key: string]: {
+  reference: LC
+  Constructor: Function
+}}

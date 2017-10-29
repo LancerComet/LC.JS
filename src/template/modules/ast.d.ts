@@ -69,6 +69,14 @@ declare class ASTNode {
    * @memberof ASTNode
    */
   ComponentConstructor: new (...args) => any
+
+  /**
+   * Component name. Just tag name in pascal style.
+   *
+   * @type {string}
+   * @memberof ASTNode
+   */
+  componentName: string
 }
 
 /**
@@ -80,11 +88,13 @@ interface IASTNodeOption {
   id: string
   attributes?: ASTNodeElementAttribute
   children?: AST
-  componentAnchor?: boolean
-  ComponentConstructor?: new (...args) => any
   nodeType: ASTNodeType
   tagName: string
   textContent?: string
+
+  componentAnchor?: boolean
+  ComponentConstructor?: new (...args) => any
+  componentName: string
 }
 
 /**

@@ -12,8 +12,10 @@ class ASTNode {
   nodeType: ASTNodeType
   tagName: string
   textContent: string
+
   componentAnchor: boolean
   ComponentConstructor: new (...args) => any
+  componentName: string
 
   constructor (params: IASTNodeOption) {
     this.id = params.id
@@ -22,8 +24,10 @@ class ASTNode {
     this.nodeType = params.nodeType || 1
     this.tagName = params.tagName
     this.textContent = params.textContent || null
+
     this.componentAnchor = params.componentAnchor || false
     this.ComponentConstructor = params.ComponentConstructor || null
+    this.componentName = params.componentName || ''
   }
 }
 

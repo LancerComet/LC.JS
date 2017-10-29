@@ -1,5 +1,13 @@
 declare class ReactiveModel {
   /**
+   * Component that uses this ReactiveModel.
+   *
+   * @type {LC}
+   * @memberof ReactiveModel
+   */
+  $component: LC
+
+  /**
    * Name of this reactive model.
    * This value is the keyname of this model in component.
    *

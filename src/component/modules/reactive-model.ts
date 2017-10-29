@@ -7,6 +7,14 @@
  */
 class ReactiveModel {
   /**
+   * Component that uses this ReactiveModel.
+   *
+   * @type {LC}
+   * @memberof ReactiveModel
+   */
+  $component: LC
+
+  /**
    * Name of this reactive model.
    * This value is the keyname of this model in component.
    *
@@ -36,15 +44,26 @@ class ReactiveModel {
   get value (): any {
     return this._value
   }
-  set value (value) {
+  set value (newValue) {
     // Imcompatible type.
-    if (value.constructor !== this.type) {
-      console.error(`[${process.env.NAME}] Model "${this.name}" should be a "${this.type.name}", but a "${value.constructor.name}" is given.`)
+    if (newValue.constructor !== this.type) {
+      console.error(`[${process.env.NAME}] Model "${this.name}" should be a "${this.type.name}", but a "${newValue.constructor.name}" is given.`)
       return
     }
 
-    // Correct type.
-    this._value = value
+    const oldValue = this._value
+    if (oldValue === newValue) {
+      return
+    }
+
+    this._value = newValue
+
+    // Notify component.
+    this.$component && this.$component['$notify'](
+      this.name,
+      newValue,
+      oldValue
+    )
   }
 
   /**
@@ -54,6 +73,11 @@ class ReactiveModel {
    * @memberof ReactiveModel
    */
   constructor (name: string, modelItem: IComponentModelItem) {
+    // Keep component reference.
+    if (modelItem.$component) {
+      this.$component = modelItem.$component
+    }
+
     // Set name info.
     this.name = name
 
