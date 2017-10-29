@@ -25,19 +25,19 @@ class ReactiveModel {
     return this._value
   }
   set value (value) {
-    // Check value type.
-    if (value.constructor === this._type) {
-      // Correct type,
-      this._value = value
-    } else {
-      // Wrong type, assign default value.
+    // Imcompatible type.
+    if (value.constructor !== this._type) {
       console.error(`[${process.env.NAME}] Model "${this._name}" should be a "${this._type.name}", but a "${value.constructor.name}" is given.`)
-      this._value = this._defaultValue
+      return
     }
+
+    // Correct type.
+    this._value = value
   }
 
   /**
    * Creates an instance of ReactiveModel.
+   * @param {string} name
    * @param {IComponentModelItem} modelItem
    * @memberof ReactiveModel
    */

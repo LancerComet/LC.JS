@@ -85,20 +85,21 @@ function transformAST (ast: TemplateAST, $models: {[key: string]: ReactiveModel}
     // "astNode" is a string. Means a TextNode.
     const expressions = astNode.match(/{{(\w|\d)+}}|{.+}/g)
     if (expressions) {
-      const modelKeys = Object.keys($models)
-      const modelValues = modelKeys.map(key => $models[key].value)
+      const keysOfModel = Object.keys($models)
+      const valuesOfModel = keysOfModel.map(key => $models[key].value)
 
       expressions.forEach(expression => {
         const pureExpression = expression.replace(/{|}/g, '')  // {{name}} => name
         const model = $models[pureExpression]
 
         // Calculate value and replace mastache expression.
-        const Func = new Function(
-          modelKeys.join(','),
-          'exp',
-          'return eval(exp)'
+        const evalFunc = Function.apply(
+          null,
+          keysOfModel.concat('return ' + pureExpression)
         )
-        const result = Func.apply(null, modelValues.concat(pureExpression))
+        const result = evalFunc.apply(null, valuesOfModel)
+
+        // Replace mastache expression.
         ast[index] = (<string> ast[index]).replace(expression, result)
       })
     }

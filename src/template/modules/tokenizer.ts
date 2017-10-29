@@ -1,6 +1,8 @@
 import { ASTNode } from './ast-node'
 import { randomID } from '../../utils/random-id'
 
+const TOKEN_MATCHING_REGEXP = /(<|>)/
+
 /**
  * Convert html string to ASTNode.
  *
@@ -14,7 +16,7 @@ function tokenizer (htmlString: string): ASTNode[] {
 
   const ast = []
   const tokens = htmlString
-    .split(/(<|>)/)
+    .split(TOKEN_MATCHING_REGEXP)
     .filter(item => item !== '')
 
   // Array that stores tree-structor of current element and its ancestors.
@@ -77,6 +79,10 @@ function tokenizer (htmlString: string): ASTNode[] {
   return ast
 }
 
+const ELEMENT_MATCHING_REGEXP = /^\w+(\/?)|[\w]+[="'].[\w:; -_]+[:"'-\w\/?]+/g
+const SELF_CLOSED_TAG_MATCHING_REGEXP = /\/$/
+const QUOTE_MATCHING = /("|')/g
+
 /**
  * Get attributes of html element string.
  *
@@ -88,12 +94,12 @@ function getElementAttribute (elementStr: string = ''): IElementAttribute {
     return Object.create(null)
   }
 
-  const words = elementStr.match(/^\w+(\/?)|[\w]+[="'].[\w:; -_]+[:"'-\w\/?]+/g)  // Only split html by attributes.
+  const words = elementStr.match(ELEMENT_MATCHING_REGEXP)  // Only split html by attributes.
   let isSelfClosed = false
 
   // Check and deal-with self-clsoed.
   for (let i = 0, length = words.length; i < length; i++) {
-    if (/\/$/.test(words[i])) {
+    if (SELF_CLOSED_TAG_MATCHING_REGEXP.test(words[i])) {
       isSelfClosed = true
       words[i] = words[i].replace('/', '')
     }
@@ -106,7 +112,7 @@ function getElementAttribute (elementStr: string = ''): IElementAttribute {
     const item = words[i]
     const _words = item.split('=')
     const attrName = _words[0]
-    const attrValue = _words[1].replace(/("|')/g, '')  // Remove " and ' in attribute value.
+    const attrValue = _words[1].replace(QUOTE_MATCHING, '')  // Remove " and ' in attribute value.
     attributes[attrName] = attrValue
   }
 

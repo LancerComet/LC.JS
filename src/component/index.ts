@@ -116,4 +116,3 @@ function checkVaildKeyName (keyName: string): boolean {
   return keyName.indexOf('$') !== 0 &&
     keyName.indexOf('_') !== 0
 }
-
