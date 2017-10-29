@@ -2,12 +2,13 @@ import { ASTNode } from './ast'
 import { randomID } from '../../utils/random-id'
 
 /**
- * Convert html string to ASTNode.
+ * Convert html string to AST.
  *
  * @param {string} htmlString
+ * @param {$ComponentUsage} [components]
  * @returns {AST}
  */
-function parser (htmlString: string): AST {
+function parseHTMLtoAST (htmlString: string, components?: $ComponentUsage): AST {
   if (!htmlString) {
     return []
   }
@@ -25,26 +26,28 @@ function parser (htmlString: string): AST {
     return []
   }
 
-  const firstElement = $el.firstElementChild
-  for (let i = 0, length = firstElement.childNodes.length; i < length; i++) {
-    const currentNode = firstElement.childNodes[i]
-    ast.push(parseSingleNode(currentNode))
+  for (let i = 0, length = $el.childNodes.length; i < length; i++) {
+    const currentNode = $el.childNodes[i]
+    ast.push(
+      parseSingleNode(currentNode, components)
+    )
   }
 
   return ast
 }
 
 export {
-  parser
+  parseHTMLtoAST
 }
 
 /**
  * Convert single HTML node to ASTNode.
  *
  * @param {Node} node
+ * @param {$ComponentUsage} [components]
  * @returns {ASTNode}
  */
-function parseSingleNode (node: Node): ASTNode {
+function parseSingleNode (node: Node, components?: $ComponentUsage): ASTNode {
   let astNode: ASTNode = null
 
   const _id = randomID()
@@ -53,15 +56,29 @@ function parseSingleNode (node: Node): ASTNode {
   const nodeType = node.nodeType
   let tagName = null
   let textContext = null
+  let componentAnchor = false
+  let ComponentConstructor = null
 
   switch (nodeType) {
     // Element.
     case 1:
+      const _tagName = (<HTMLElement> node).tagName.toLowerCase()
+
+      // Check whether is an anchor for component.
+      if (components) {
+        const ComponentCtro = components[htmlTagToPascal(_tagName)]
+        if (ComponentCtro) {
+          // This is a component anchor.
+          componentAnchor = true
+          ComponentConstructor = ComponentCtro
+        }
+      }
+
       const childrenLength = node.childNodes.length
       let i = 0
       while (i < childrenLength){
         const childNode = node.childNodes[i]
-        children.push(parseSingleNode(childNode))
+        children.push(parseSingleNode(childNode, components))
         i++
       }
 
@@ -71,20 +88,21 @@ function parseSingleNode (node: Node): ASTNode {
           attributes[item.name] = item.value
         })
 
-      tagName = (<HTMLElement> node).tagName
+      tagName = _tagName
       break
 
     // TextNode.
     case 3:
-      textContext = node.textContent ||
-        node.nodeValue ||
-        ''
+      textContext = node.textContent || node.nodeValue || ''
+      break
   }
 
   astNode = new ASTNode({
     _id,
     attributes,
     children,
+    componentAnchor,
+    ComponentConstructor,
     nodeType,
     tagName,
     textContent: nodeType === 3
@@ -93,4 +111,14 @@ function parseSingleNode (node: Node): ASTNode {
   })
 
   return astNode
+}
+
+function htmlTagToPascal (tagName: string): string {
+  const matching = tagName.match(/-\w/)
+  if (matching) {
+    matching.forEach(item => {
+      tagName = tagName.replace(item, item.replace('-', '').toUpperCase())
+    })
+  }
+  return tagName.replace(tagName[0], tagName[0].toUpperCase())
 }

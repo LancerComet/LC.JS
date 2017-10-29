@@ -13,7 +13,16 @@ import { isDirective } from '../directives'
  * @abstract
  * @class {LC} Class that performs basic class of any component.
  */
-abstract class LC implements ILcBaseProperties {
+abstract class LC {
+  /**
+   * Component reference in this component.
+   *
+   * @private
+   * @type {$ComponentUsage}
+   * @memberof LC
+   */
+  private $components: $ComponentUsage
+
   /**
    * Model storage.
    *
@@ -21,7 +30,7 @@ abstract class LC implements ILcBaseProperties {
    * @type {{ [key: string]: ReactiveModel }}
    * @memberof LC
    */
-  $models: {[key: string]: ReactiveModel}
+  private $models: $ComponentModels
 
   /**
    * Template string.
@@ -30,7 +39,7 @@ abstract class LC implements ILcBaseProperties {
    * @type {string}
    * @memberof LC
    */
-  $template: string
+  private $template: string
 
   /**
    * Replace root level properties to accessor.
@@ -61,7 +70,7 @@ abstract class LC implements ILcBaseProperties {
    */
   private $compile (): DocumentFragment {
     // Create AST from component's template.
-    const ast = parseHTMLtoAST(this.$template)
+    const ast = parseHTMLtoAST(this.$template, this.$components)
 
     // Transform ast to element.
     const fragment = document.createDocumentFragment()
@@ -89,12 +98,20 @@ abstract class LC implements ILcBaseProperties {
 
     if (!el) { return }
 
+    // Try to get template from el if $template is empty.
+    if (!this.$template) {
+      const tempElement = document.createElement('div')
+      tempElement.appendChild(el.cloneNode(true))
+      this.$template = tempElement.innerHTML
+    }
+
     // Compile tempalte to component.
     const fragment = this.$compile()
 
     Promise.resolve().then(() => {
-      el.innerHTML = ''
-      el.appendChild(fragment)
+      const parent = el.parentElement
+      parent.insertBefore(fragment, el)
+      parent.removeChild(el)
     })
   }
 

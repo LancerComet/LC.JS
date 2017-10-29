@@ -4,19 +4,9 @@
  * @interface IComponentOption
  */
 interface IComponentOption {
+  components?: {}
   template?: string
 }
-
-/**
- * Models in a component.
- */
-type TComponentModels = {
-  [key: string]: IComponentModelNumber |
-    IComponentModelString |
-    IComponentModelBoolean |
-    IComponentModelArray
-}
-
 
 /**
  * Model item in a component.

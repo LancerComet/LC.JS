@@ -10,6 +10,9 @@ import { ReactiveModel } from './modules/reactive-model'
  */
 function Component (option: IComponentOption = {}) {
   return function (ClassByUser: any) {
+    // Create $components.
+    const $components = option.components || {}
+
     // Create $template.
     const $template = typeof option.template === 'string'
       ? option.template
@@ -46,6 +49,7 @@ function Component (option: IComponentOption = {}) {
 
     // Inherit.
     ClassByUser.prototype = Object.assign(ClassByUser.prototype, <ILcBaseProperties> {
+      $components,
       $template,
       $models
     })
