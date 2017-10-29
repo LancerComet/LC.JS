@@ -1,10 +1,10 @@
 /**
- * Option for creating a component.
+ * Option for component.
  *
  * @interface IComponentOption
  */
 interface IComponentOption {
-  models: TComponentModels
+  template?: string
 }
 
 /**

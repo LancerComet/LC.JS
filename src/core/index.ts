@@ -1,3 +1,5 @@
+/// <reference path="./index.d.ts" />
+
 import { ReactiveModel } from '../component/modules/reactive-model'
 import { parseHTMLtoAST, createElementByASTNode } from '../template'
 import { ASTNode, TemplateAST } from '../template/modules/ast-node'
@@ -7,18 +9,48 @@ import { ASTNode, TemplateAST } from '../template/modules/ast-node'
  * Class LC is the basic class of a component.
  * You should extend this class to create a component class.
  *
+ * @abstract
  * @class {LC} Class that performs basic class of any component.
  */
-class LC {
-  private $models: { [key: string]: ReactiveModel }
+abstract class LC implements ILcBaseProperties {
+  /**
+   * Model storage.
+   *
+   * @implements
+   * @type {{ [key: string]: ReactiveModel }}
+   * @memberof LC
+   */
+  $models: {[key: string]: ReactiveModel}
 
   /**
-   * Template of this component.
+   * Template string.
    *
+   * @implements
    * @type {string}
    * @memberof LC
    */
-  template: string = ''
+  $template: string
+
+  /**
+   * Replace root level properties to accessor.
+   *
+   * @private
+   * @memberof LC
+   */
+  private $replaceProps () {
+    // "$models" would be undefined when a new instance is created in decorator.
+    // Just skip this function in that process.
+    if (typeof this.$models !== 'object') { return }
+
+    Object.keys(this.$models).forEach(key => {
+      Object.defineProperty(this, key, {
+        get: () => this.$models[key].value,
+        set (newValue) {
+          this.$models[key].value = newValue
+        }
+      })
+    })
+  }
 
   /**
    * Compile tempalte to elements.
@@ -28,7 +60,7 @@ class LC {
    */
   private $compile (): DocumentFragment {
     // Create AST from component's template.
-    const ast = parseHTMLtoAST(this.template)
+    const ast = parseHTMLtoAST(this.$template)
 
     // Transform ast to element.
     const fragment = document.createDocumentFragment()
@@ -63,6 +95,14 @@ class LC {
       el.appendChild(fragment)
     })
   }
+
+  constructor () {
+    this.$replaceProps()
+  }
+}
+
+export {
+  LC
 }
 
 /**
@@ -106,8 +146,4 @@ function transformAST (ast: TemplateAST, $models: {[key: string]: ReactiveModel}
   })
 
   return ast
-}
-
-export {
-  LC
 }

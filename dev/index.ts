@@ -1,22 +1,8 @@
 import { Component, LC } from '../src'
 
 console.time()
-@Component
-class MyComponent extends LC {
-  // Models.
-  name: string = 'LancerComet'
-  age: number = 27
-  isMarried: boolean = false
-  address: string[] = ['NewYork', 'Beijing']
-  sex: string = 'male'
-
-  // Methods.
-  showMyAge () {
-    alert(this.age)
-  }
-
-  // Template.
-  template: string = `
+@Component({
+  template: `
     <div class="my-component lc-js">
       <h1>MyInfo</h1>
       <p>Name: {{name}}, {{age}}</p>
@@ -30,8 +16,23 @@ class MyComponent extends LC {
       <button @click="showMyAge">Show my age</button>
     </div>
   `
+})
+class MyComponent extends LC {
+  // Models.
+  name: string = 'LancerComet'
+  age: number = 27
+  isMarried: boolean = false
+  address: string[] = ['NewYork', 'Beijing']
+  sex: string = 'male'
+
+  // Methods.
+  showMyAge () {
+    alert(this.age)
+  }
 }
 
 const component = new MyComponent()
 component.mount('#test-component')
+
 console.timeEnd()
+console.log(component)
