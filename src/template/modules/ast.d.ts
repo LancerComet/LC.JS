@@ -3,18 +3,13 @@
  *
  * @class ASTNode
  */
-class ASTNode {
+declare class ASTNode {
   _id: string
   attributes: ASTNodeElementAttribute
   children: AST
+  nodeType: ASTNodeType
   tagName: string
-
-  constructor (params: IASTNodeOption) {
-    this._id = params._id
-    this.attributes = params.attributes || {}
-    this.children = params.children || []
-    this.tagName = params.tagName
-  }
+  textContent: string
 }
 
 /**
@@ -26,21 +21,22 @@ interface IASTNodeOption {
   _id: string
   attributes?: ASTNodeElementAttribute
   children?: AST
+  nodeType: ASTNodeType
   tagName: string
+  textContent?: string
 }
 
 /**
- * Attribute .
+ * AST Node Attribute.
  */
 type ASTNodeElementAttribute = {[attribute: string]: string}
 
 /**
+ * AST Node type.
+ */
+type ASTNodeType = number
+
+/**
  * Template elements AST.
  */
-type AST = Array<ASTNode | string>
-
-export {
-  AST,
-  ASTNode,
-  ASTNodeElementAttribute
-}
+type AST = Array<ASTNode>

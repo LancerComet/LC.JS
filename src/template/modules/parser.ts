@@ -1,7 +1,5 @@
-import { AST, ASTNode, ASTNodeElementAttribute } from './ast-node'
+import { ASTNode } from './ast'
 import { randomID } from '../../utils/random-id'
-
-const TOKEN_MATCHING_REGEXP = /(<|>)/
 
 /**
  * Convert html string to ASTNode.
@@ -41,18 +39,24 @@ export {
 }
 
 /**
- * Convert single node to ASTNode.
+ * Convert single HTML node to ASTNode.
  *
  * @param {Node} node
- * @returns {(ASTNode | string)}
+ * @returns {ASTNode}
  */
-function parseSingleNode (node: Node): ASTNode | string {
-  let astNode = null
+function parseSingleNode (node: Node): ASTNode {
+  let astNode: ASTNode = null
 
-  switch (node.nodeType) {
+  const _id = randomID()
+  let attributes = {}
+  const children = []
+  const nodeType = node.nodeType
+  let tagName = null
+  let textContext = null
+
+  switch (nodeType) {
+    // Element.
     case 1:
-      let children: Array<ASTNode | string> = []
-
       const childrenLength = node.childNodes.length
       let i = 0
       while (i < childrenLength){
@@ -61,24 +65,32 @@ function parseSingleNode (node: Node): ASTNode | string {
         i++
       }
 
-      // Attributes.
-      const attributes = {}
-      Array.prototype.slice.call(node.attributes).forEach(item => {
-        attributes[item.name] = item.value
-      })
+      // Get attributes info.
+      Array.prototype.slice.call(node.attributes)
+        .forEach(item => {
+          attributes[item.name] = item.value
+        })
 
-      astNode = new ASTNode({
-        _id: randomID(),
-        tagName: (<HTMLElement> node).tagName,
-        attributes,
-        children
-      })
+      tagName = (<HTMLElement> node).tagName
       break
 
+    // TextNode.
     case 3:
-      astNode = (<Text> node).textContent
-      break
+      textContext = node.textContent ||
+        node.nodeValue ||
+        ''
   }
+
+  astNode = new ASTNode({
+    _id,
+    attributes,
+    children,
+    nodeType,
+    tagName,
+    textContent: nodeType === 3
+      ? textContext
+      : null
+  })
 
   return astNode
 }

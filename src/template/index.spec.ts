@@ -1,5 +1,5 @@
 import { parseHTMLtoAST } from './'
-import { ASTNode } from './modules/ast-node'
+import { ASTNode } from './modules/ast'
 
 describe('Template testing.', () => {
   it('Should generate correct ast.', () => {

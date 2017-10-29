@@ -1,6 +1,6 @@
-import { AST, ASTNode } from './modules/ast-node'
+import { ASTNode } from './modules/ast'
 import { parser } from './modules/parser'
-import { internalDirectives } from '../config'
+import { isValueDirective, isEventDirective } from '../directives'
 
 /**
  * Parse HTML to ASTNode[].
@@ -9,54 +9,61 @@ import { internalDirectives } from '../config'
  * @returns {AST}
  */
 function parseHTMLtoAST (htmlString: string): AST {
-  const ast = parser(htmlString)
-  return ast
+  return parser(htmlString)
 }
 
 /**
  * Create element by using ASTNode.
  *
- * @param {ASTNode | string} astNode
+ * @param {ASTNode} astNode
  * @param {Element} [parentElement]
  * @returns
  */
-function createElementByASTNode (astNode: ASTNode | string, parentElement?: Element): HTMLElement | Text {
+function createElementByASTNode (astNode: ASTNode, parentElement?: Element): HTMLElement | Text {
   let element: HTMLElement | Text = null
 
-  // TextNode.
-  if (typeof astNode === 'string') {
-    element = document.createTextNode(astNode)
-    if (parentElement) {
-      parentElement.appendChild(element)
-    }
+  switch (astNode.nodeType) {
+    // Element.
+    case 1:
+      element = document.createElement(astNode.tagName)
 
-  // Element.
-  } else {
-    element = document.createElement(astNode.tagName)
+      // Set attributes.
+      const attributes = Object.keys(astNode.attributes)
+      for (let i = 0, length = attributes.length; i < length; i++) {
+        let attrName = attributes[i]
+        const value = astNode.attributes[attrName]
 
-    // Set attributes.
-    const attributes = Object.keys(astNode.attributes)
-    for (let i = 0, length = attributes.length; i < length; i++) {
-      const attrName = attributes[i]
+        // Value directive.
+        if (isValueDirective(attrName)) {
+          attrName = attrName.replace(':', '')
+        }
 
-      // Skip internal directives.
-      if (internalDirectives.indexOf(attrName) > -1) {
-        continue
+        // TODO: deal with function.
+        if (isEventDirective(attrName)) {
+          continue
+        }
+
+        element.setAttribute(attrName, value)
       }
 
-      const value = astNode.attributes[attrName]
-      element.setAttribute(attrName, value)
-    }
+      parentElement && parentElement.appendChild(element)
 
-    parentElement && parentElement.appendChild(element)
-
-    // Create ASTNode for children.
-    if (astNode.children.length) {
-      for (let i = 0, length = astNode.children.length; i < length; i++) {
-        const childAst = astNode.children[i]
-        createElementByASTNode(childAst, element)
+      // Create ASTNode for children.
+      if (astNode.children.length) {
+        for (let i = 0, length = astNode.children.length; i < length; i++) {
+          const childAst = astNode.children[i]
+          createElementByASTNode(childAst, element)
+        }
       }
-    }
+      break
+
+    // TextNode.
+    case 3:
+      element = document.createTextNode(astNode.textContent)
+      if (parentElement) {
+        parentElement.appendChild(element)
+      }
+      break
   }
 
   return element
