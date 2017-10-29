@@ -50,7 +50,6 @@ export {
 function parseSingleNode (node: Node, components?: $ComponentUsage): ASTNode {
   let astNode: ASTNode = null
 
-  const _id = randomID()
   let attributes = {}
   const children = []
   const nodeType = node.nodeType
@@ -98,7 +97,7 @@ function parseSingleNode (node: Node, components?: $ComponentUsage): ASTNode {
   }
 
   astNode = new ASTNode({
-    _id,
+    id: randomID(),
     attributes,
     children,
     componentAnchor,

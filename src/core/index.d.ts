@@ -27,20 +27,12 @@ declare class LC {
   private $template: string
 
   /**
-   * Replace root level properties to accessor.
+   * Move models to root level.
    *
    * @private
    * @memberof LC
    */
-  private $replaceProps (): void
-
-  /**
-   * Compile tempalte to elements.
-   *
-   * @private
-   * @memberof LC
-   */
-  private $compile (): DocumentFragment
+  private $moveModelToRootLevel (): void
 
   /**
    * Mount this component to target element.

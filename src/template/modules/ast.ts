@@ -6,7 +6,7 @@
  * @class ASTNode
  */
 class ASTNode {
-  _id: string
+  id: string
   attributes: ASTNodeElementAttribute
   children: AST
   nodeType: ASTNodeType
@@ -16,7 +16,7 @@ class ASTNode {
   ComponentConstructor: new (...args) => any
 
   constructor (params: IASTNodeOption) {
-    this._id = params._id
+    this.id = params.id
     this.attributes = params.attributes || {}
     this.children = params.children || []
     this.nodeType = params.nodeType || 1

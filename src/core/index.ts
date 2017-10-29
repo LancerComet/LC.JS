@@ -4,6 +4,7 @@ import { ASTNode } from '../template/modules/ast'
 
 import { parseHTMLtoAST, createElementByASTNode } from '../template'
 import { isDirective } from '../directives'
+import { nextTick } from '../utils/next-tick'
 
 /**
  * LC.JS.
@@ -42,46 +43,25 @@ abstract class LC {
   private $template: string
 
   /**
-   * Replace root level properties to accessor.
+   * Move models to root level.
    *
    * @private
    * @memberof LC
    */
-  private $replaceProps () {
+  private $moveModelToRootLevel () {
     // "$models" would be undefined when a new instance is created in decorator.
     // Just skip in this case.
     if (typeof this.$models !== 'object') { return }
 
     Object.keys(this.$models).forEach(key => {
       Object.defineProperty(this, key, {
+        enumerable: true,
         get: () => this.$models[key].value,
         set (newValue) {
           this.$models[key].value = newValue
         }
       })
     })
-  }
-
-  /**
-   * Compile tempalte to elements.
-   *
-   * @private
-   * @memberof LC
-   */
-  private $compile (): DocumentFragment {
-    // Create AST from component's template.
-    const ast = parseHTMLtoAST(this.$template, this.$components)
-
-    // Transform ast to element.
-    const fragment = document.createDocumentFragment()
-    const astWithValue = replaceAstValue(ast, this.$models)
-    astWithValue.forEach(astNode => {
-      fragment.appendChild(
-        createElementByASTNode(astNode)
-      )
-    })
-
-    return fragment
   }
 
   /**
@@ -96,19 +76,23 @@ abstract class LC {
       ? document.querySelector(element)
       : element
 
-    if (!el) { return }
+    if (!el) {
+      return
+    }
+
+    let $template = this.$template
 
     // Try to get template from el if $template is empty.
-    if (!this.$template) {
+    if (!$template) {
       const tempElement = document.createElement('div')
       tempElement.appendChild(el.cloneNode(true))
-      this.$template = tempElement.innerHTML
+      $template = tempElement.innerHTML
     }
 
     // Compile tempalte to component.
-    const fragment = this.$compile()
+    const fragment = compile($template, this.$components, this.$models)
 
-    Promise.resolve().then(() => {
+    nextTick(() => {
       const parent = el.parentElement
       parent.insertBefore(fragment, el)
       parent.removeChild(el)
@@ -116,12 +100,36 @@ abstract class LC {
   }
 
   constructor () {
-    this.$replaceProps()
+    this.$moveModelToRootLevel()
   }
 }
 
 export {
   LC
+}
+
+/**
+ * Compile HTML tempalte to HTML elements.
+ *
+ * @param {string} $template
+ * @param {$ComponentUsage} $components
+ * @param {$ComponentModels} $models
+ * @returns {DocumentFragment}
+ */
+function compile ($template: string, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
+  // Create AST from component's template.
+  const ast = parseHTMLtoAST($template, $components)
+
+  // Transform ast to element.
+  const fragment = document.createDocumentFragment()
+  const astWithValue = replaceAstValue(ast, $models)
+  astWithValue.forEach(astNode => {
+    fragment.appendChild(
+      createElementByASTNode(astNode)
+    )
+  })
+
+  return fragment
 }
 
 /**

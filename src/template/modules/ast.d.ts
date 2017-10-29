@@ -10,7 +10,7 @@ declare class ASTNode {
    * @type {string}
    * @memberof ASTNode
    */
-  _id: string
+  id: string
 
   /**
    * HTML Attributes.
@@ -77,7 +77,7 @@ declare class ASTNode {
  * @interface IASTNodeOption
  */
 interface IASTNodeOption {
-  _id: string
+  id: string
   attributes?: ASTNodeElementAttribute
   children?: AST
   componentAnchor?: boolean
