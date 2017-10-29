@@ -1,15 +1,15 @@
-import { ASTNode, TemplateAST } from './modules/ast-node'
-import { tokenizer } from './modules/tokenizer'
+import { AST, ASTNode } from './modules/ast-node'
+import { parser } from './modules/parser'
 import { internalDirectives } from '../config'
 
 /**
  * Parse HTML to ASTNode[].
  *
  * @param {string} htmlString
- * @returns {TemplateAST}
+ * @returns {AST}
  */
-function parseHTMLtoAST (htmlString: string): TemplateAST {
-  const ast = tokenizer(htmlString)
+function parseHTMLtoAST (htmlString: string): AST {
+  const ast = parser(htmlString)
   return ast
 }
 

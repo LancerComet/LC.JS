@@ -1,5 +1,3 @@
-import { TElementAttribute } from './tokenizer'
-
 /**
  * AST Node.
  *
@@ -7,14 +5,14 @@ import { TElementAttribute } from './tokenizer'
  */
 class ASTNode {
   _id: string
-  attributes: TElementAttribute
-  children: TemplateAST
+  attributes: ASTNodeElementAttribute
+  children: AST
   tagName: string
 
   constructor (params: IASTNodeOption) {
     this._id = params._id
     this.attributes = params.attributes || {}
-    this.children = this.children || []
+    this.children = params.children || []
     this.tagName = params.tagName
   }
 }
@@ -26,17 +24,23 @@ class ASTNode {
  */
 interface IASTNodeOption {
   _id: string
-  attributes?: TElementAttribute
-  children?: TemplateAST
+  attributes?: ASTNodeElementAttribute
+  children?: AST
   tagName: string
 }
 
 /**
+ * Attribute .
+ */
+type ASTNodeElementAttribute = {[attribute: string]: string}
+
+/**
  * Template elements AST.
  */
-type TemplateAST = Array<ASTNode | string>
+type AST = Array<ASTNode | string>
 
 export {
+  AST,
   ASTNode,
-  TemplateAST
+  ASTNodeElementAttribute
 }

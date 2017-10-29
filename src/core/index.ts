@@ -2,7 +2,7 @@
 
 import { ReactiveModel } from '../component/modules/reactive-model'
 import { parseHTMLtoAST, createElementByASTNode } from '../template'
-import { ASTNode, TemplateAST } from '../template/modules/ast-node'
+import { AST, ASTNode } from '../template/modules/ast-node'
 
 /**
  * LC.JS.
@@ -108,11 +108,11 @@ export {
 /**
  * Fill expression in AST with target value.
  *
- * @param {TemplateAST} ast
+ * @param {AST} ast
  * @param {{[key: string]: ReactiveModel}} $models
- * @returns {TemplateAST}
+ * @returns {AST}
  */
-function transformAST (ast: TemplateAST, $models: {[key: string]: ReactiveModel}): TemplateAST {
+function transformAST (ast: AST, $models: {[key: string]: ReactiveModel}): AST {
   ast = ast.slice()
   ast.forEach((astNode: ASTNode | string, index: number) => {
     // If is a ASTNode, just go further.

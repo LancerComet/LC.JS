@@ -4,8 +4,8 @@ console.time()
 @Component({
   template: `
     <div class="my-component lc-js">
-      <h1>MyInfo</h1>
-      <p>Name: {{name}}, {{age}}</p>
+      <h1 class="title">MyInfo</h1>
+      <p :style="font-size: {{age}}px">Name: {{name}}, {{age}}</p>
       <p>Age: {{age}}</p>
       <p>
         Address:
