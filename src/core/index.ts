@@ -84,7 +84,7 @@ abstract class LC {
    */
   private $notifyAST (ast: AST, keyName: string, newValue: any) {
     ast.forEach(astNode => {
-      astNode.setSingleExpressionValue(keyName, newValue)
+      astNode.setSingleExpressionValue(this.$models, keyName, newValue)
       this.$notifyAST(astNode.children, keyName, newValue)
     })
   }

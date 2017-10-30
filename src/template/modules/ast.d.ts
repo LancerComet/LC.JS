@@ -34,7 +34,7 @@ declare class ASTNode {
    * @type {(Element | Text)}
    * @memberof ASTNode
    */
-  element: Element | Text
+  element: Element | Text | Comment
 
   /**
    * Expression of this ASTNode.
@@ -91,11 +91,12 @@ declare class ASTNode {
   /**
    * Set single expression value.
    *
-   * @param {string} expressionName
-   * @param {*} newValue
+   * @param {$ComponentModels} $models
+   * @param {string} [expressionName]
+   * @param {*} [newValue]
    * @memberof ASTNode
    */
-  setSingleExpressionValue: (expressionName: string, newValue: any) => void
+  setSingleExpressionValue: ($models: $ComponentModels, expressionName?: string, newValue?: any) => void
 
   /**
    * Set all expressions' value.
@@ -132,6 +133,7 @@ type ASTNodeElementAttribute = {[attribute: string]: string}
  * Same as HTML Node type.
  *  - 1: Element
  *  - 3: TextNode
+ *  - 9: Comment
  */
 type ASTNodeType = number
 

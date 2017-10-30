@@ -56,7 +56,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
   const children = []
   let expression = ''
   let isComponentAnchor = false
-  const nodeType = node.nodeType
+  let nodeType = node.nodeType
   let tagName = ''
   let textContent = null
 
@@ -73,6 +73,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
         // This is a component anchor.
         if ($components[componentName]) {
           isComponentAnchor = true
+          nodeType = NODE_TYPE.comment  // Over NodeType to NODE_TYPE.comment.
         }
       }
 

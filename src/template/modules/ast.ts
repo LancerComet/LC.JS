@@ -2,6 +2,7 @@
 
 import { isValueDirective, isEventDirective, isDirective } from '../../directives'
 import { NODE_TYPE } from '../../core/config'
+import { nextTick } from '../../utils/next-tick'
 
 /**
  * AST Node.
@@ -12,7 +13,7 @@ class ASTNode {
   id: string
   attributes: ASTNodeElementAttribute
   children: AST
-  element: Element | Text
+  element: Element | Text | Comment
   expression: string
   isComponentAnchor: boolean
   nodeType: ASTNodeType
@@ -25,7 +26,8 @@ class ASTNode {
    * @memberof ASTNode
    */
   createElement () {
-    let element: Element | Text = null
+    let element: Element | Text | Comment = null
+
     switch (this.nodeType) {
       // Component anchor or html element.
       case NODE_TYPE.element:
@@ -58,6 +60,12 @@ class ASTNode {
       case NODE_TYPE.textNode:
         element = document.createTextNode(this.textContent)
         break
+
+      // Comment.
+      // This might be a component anchor.
+      case NODE_TYPE.comment:
+        element = document.createComment('')
+        break
     }
 
     this.element = element
@@ -66,13 +74,42 @@ class ASTNode {
   /**
    * Set single expression value.
    *
-   * @param {string} expressionName
-   * @param {*} newValue
+   * @param {$ComponentModels} $models
+   * @param {string} [expressionName]
+   * @param {*} [newValue]
    * @memberof ASTNode
    */
-  setSingleExpressionValue (expressionName: string, newValue: any) {
+  setSingleExpressionValue ($models: $ComponentModels, expressionName?: string, newValue?: any) {
     const expressions = matchExpression(this.expression)
-    if (!expressions) { return }
+    if (!expressions) {
+      return
+    }
+
+    // Check whether "expressionName" is in "expressions" when it is given.
+    // If there is no "expressionName", just return.
+    if (
+      typeof expressionName !== 'undefined' &&
+      typeof newValue !== 'undefined'
+    ) {
+      // Check whether this ASTNodes' expression has "expressionName"
+      const expNameMatching = new RegExp(expressionName, 'g')
+      let containTargetExp = false
+      for (let i = 0, length = expressions.length; i < length; i++) {
+        if (
+          expNameMatching.test(getPureExpression(expressions[i]))
+        ) {
+          containTargetExp = true
+          break
+        }
+      }
+
+      if (!containTargetExp) {
+        return
+      }
+    }
+
+    const variables = Object.keys($models)
+    const values = variables.map(item => $models[item].value)
 
     switch (this.nodeType) {
       case NODE_TYPE.element:
@@ -89,12 +126,13 @@ class ASTNode {
           if (!expInThisAttrValue) { return }
 
           expInThisAttrValue.forEach(exp => {
-            if (exp !== expressionName) { return }
             const result = evaluateExpression(
               [expressionName], [newValue], getPureExpression(exp)
             )
 
-            this.attributes[attrName] = attrValue.replace(exp, result)
+            nextTick(() => {
+              this.attributes[attrName] = attrValue.replace(exp, result)
+            })
           })
         })
 
@@ -103,17 +141,17 @@ class ASTNode {
       case NODE_TYPE.textNode:
         let newTextContent = this.expression
 
-        expressions.some(exp => {
-          const pureExp = getPureExpression(exp)
-          if (pureExp === expressionName) {
-            // Replace mastache expression.
-            newTextContent = newTextContent.replace(new RegExp(exp, 'g'), newValue.toString())
+        expressions.forEach(exp => {
+          // Replace mastache expression.
+          newTextContent = newTextContent.replace(
+            new RegExp(normalizeOperators(exp), 'g'),
+            evaluateExpression(variables, values, getPureExpression(exp))
+          )
+        })
 
-            // Update "this.element.textContent".
-            this.textContent = newTextContent
-            this.element.textContent = newTextContent
-            return true
-          }
+        nextTick(() => {
+          this.textContent = newTextContent
+          this.element.textContent = newTextContent
         })
 
         break
@@ -127,12 +165,7 @@ class ASTNode {
    * @memberof ASTNode
    */
   updateElement ($models: $ComponentModels) {
-    const keysOfModel = Object.keys($models)
-    const valuesOfModel = keysOfModel.map(key => $models[key].value)
-
-    keysOfModel.forEach((keyInModel, index) => {
-      this.setSingleExpressionValue(keyInModel, valuesOfModel[index])
-    })
+    this.setSingleExpressionValue($models)
 
     // Update children too.
     this.children.forEach(child => child.updateElement($models))
@@ -142,7 +175,7 @@ class ASTNode {
     this.id = params.id
     this.attributes = params.attributes || {}
     this.children = params.children || []
-    this.expression = params.expression || ''
+    this.expression = params.expression.trim() || ''
     this.isComponentAnchor = !!params.isComponentAnchor
     this.nodeType = params.nodeType || NODE_TYPE.element
 
@@ -199,4 +232,20 @@ function matchExpression (string: string) {
  */
 function getPureExpression (expression: string): string {
   return expression.replace(/{|}/g, '')
+}
+
+/**
+ * Normalize operators for regexp.
+ *
+ * @param {string} regExpStr
+ * @returns {string}
+ * @example
+ *  {{a * b}} => {{a \* b}}
+ */
+function normalizeOperators (regExpStr: string) {
+  (regExpStr.match(/\+|\*/g) || []).forEach(item => {
+    regExpStr = regExpStr.replace(item, '\\' + item)
+  })
+
+  return regExpStr
 }

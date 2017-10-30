@@ -10,7 +10,7 @@ import { MyComponent } from './my-component'
     <div class="lc-app">
       <h1 class="title">{{appName}} demo page.</h1>
       <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
-      <div>Time: {{time}}</div>
+      <div>Time: {{time}}, double time: {{time * 2}}</div>
       <my-component></my-component>
     </div>
   `
@@ -28,4 +28,4 @@ console.log(root)
 
 setInterval(() => {
   root.time += 1
-}, 100)
+}, 1)
