@@ -32,13 +32,6 @@ function Component (option: IComponentOption = {}) {
     const instance = new ClassByUser()
     const keys = Object.keys(instance)
 
-    // Get accessor's key.
-    // const accessors = Object.getOwnPropertyNames(
-    //   Object.getPrototypeOf(instance)
-    // ).filter(key => key !== 'constructor')
-
-    // keys = keys.concat(accessors)
-
     // TODO: Check vaild key name.
 
     for (let i = 0, length = keys.length; i < length; i++) {

@@ -31,7 +31,7 @@ function parseHTMLtoAST (htmlString: string, components?: $ComponentUsage): AST 
   for (let i = 0, length = $el.childNodes.length; i < length; i++) {
     const currentNode = $el.childNodes[i]
     ast.push(
-      parseSingleNode(currentNode, components)
+      elementToASTNode(currentNode, components)
     )
   }
 
@@ -49,33 +49,30 @@ export {
  * @param {$ComponentUsage} [$components]
  * @returns {ASTNode}
  */
-function parseSingleNode (node: Node, $components?: $ComponentUsage): ASTNode {
+function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
   let astNode: ASTNode = null
 
   let attributes = {}
   const children = []
+  let expression = ''
+  let isComponentAnchor = false
   const nodeType = node.nodeType
   let tagName = ''
-  let textContext = null
-  let componentAnchor = false
-  let ComponentConstructor = null
-  let componentName = ''
+  let textContent = null
 
   switch (nodeType) {
     // Element.
     case NODE_TYPE.element:
       const _tagName = (<HTMLElement> node).tagName.toLowerCase()
-      componentName = htmlTagToPascal(_tagName)
 
       // If component usage is given then
       // check if this node is an anchor for component.
       if ($components) {
-        const $component = $components[componentName]
+        const componentName = htmlTagToPascal(_tagName)
 
         // This is a component anchor.
-        if ($component) {
-          componentAnchor = true
-          ComponentConstructor = $component.Constructor
+        if ($components[componentName]) {
+          isComponentAnchor = true
         }
       }
 
@@ -83,7 +80,7 @@ function parseSingleNode (node: Node, $components?: $ComponentUsage): ASTNode {
       let i = 0
       while (i < childrenLength){
         const childNode = node.childNodes[i]
-        children.push(parseSingleNode(childNode, $components))
+        children.push(elementToASTNode(childNode, $components))
         i++
       }
 
@@ -91,6 +88,7 @@ function parseSingleNode (node: Node, $components?: $ComponentUsage): ASTNode {
       Array.prototype.slice.call(node.attributes)
         .forEach(item => {
           attributes[item.name] = item.value
+          expression += item.value  // Save all attribute as expressions for further usage in astNode.setSingleExpressionValue.
         })
 
       tagName = _tagName
@@ -98,7 +96,7 @@ function parseSingleNode (node: Node, $components?: $ComponentUsage): ASTNode {
 
     // TextNode.
     case NODE_TYPE.textNode:
-      textContext = node.textContent || node.nodeValue || ''
+      expression = textContent = node.textContent || node.nodeValue || ''
       break
   }
 
@@ -106,16 +104,12 @@ function parseSingleNode (node: Node, $components?: $ComponentUsage): ASTNode {
     id: randomID(),
     attributes,
     children,
-    componentAnchor,
-    ComponentConstructor,
+    expression,
+    isComponentAnchor,
     nodeType,
     tagName,
-    componentName,
-    textContent: nodeType === NODE_TYPE.textNode
-      ? textContext
-      : ''
+    textContent
   })
 
   return astNode
 }
-

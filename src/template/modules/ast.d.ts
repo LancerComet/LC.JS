@@ -29,6 +29,33 @@ declare class ASTNode {
   children: AST
 
   /**
+   * Element that refers to this ASTNode.
+   *
+   * @type {(Element | Text)}
+   * @memberof ASTNode
+   */
+  element: Element | Text
+
+  /**
+   * Expression of this ASTNode.
+   * Only available when it's a text node.
+   *
+   * @type {string}
+   * @memberof ASTNode
+   * @example
+   *   My name is {{name}} and I'm {{age}}-year-old.
+   */
+  expression: string
+
+  /**
+   * If this node is an anchor for component.
+   *
+   * @type {boolean}
+   * @memberof ASTNode
+   */
+  isComponentAnchor: boolean
+
+  /**
    * Node type.
    *
    * @type {ASTNodeType}
@@ -46,6 +73,7 @@ declare class ASTNode {
 
   /**
    * TextContent.
+   * Transformed from "this.expression" by giving values.
    * Only available when it's a text node.
    *
    * @type {string}
@@ -54,29 +82,28 @@ declare class ASTNode {
   textContent: string
 
   /**
-   * If this node is an anchor for component.
+   * Create HTML element.
    *
-   * @type {boolean}
    * @memberof ASTNode
    */
-  componentAnchor: boolean
+  createElement: () => void
 
   /**
-   * Component constructor.
-   * Only available when it is a component anchor.
+   * Set single expression value.
    *
-   * @type {Function}
+   * @param {string} expressionName
+   * @param {*} newValue
    * @memberof ASTNode
    */
-  ComponentConstructor: new (...args) => any
+  setSingleExpressionValue: (expressionName: string, newValue: any) => void
 
   /**
-   * Component name. Just tag name in pascal style.
+   * Set all expressions' value.
    *
-   * @type {string}
+   * @param {$ComponentModels} $models
    * @memberof ASTNode
    */
-  componentName: string
+  updateElement: ($models: $ComponentModels) => void
 }
 
 /**
@@ -88,13 +115,11 @@ interface IASTNodeOption {
   id: string
   attributes?: ASTNodeElementAttribute
   children?: AST
+  expression: string
+  isComponentAnchor?: boolean
   nodeType: ASTNodeType
   tagName: string
   textContent?: string
-
-  componentAnchor?: boolean
-  ComponentConstructor?: new (...args) => any
-  componentName: string
 }
 
 /**

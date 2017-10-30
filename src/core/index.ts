@@ -1,8 +1,9 @@
 /// <reference path="./index.d.ts" />
+import { Packet } from '_debugger';
 
 import { ASTNode } from '../template/modules/ast'
 
-import { compile } from '../template'
+import { compileAstToElement, parseHTMLtoAST } from '../template'
 import { nextTick } from '../utils/next-tick'
 
 /**
@@ -24,15 +25,6 @@ abstract class LC {
   private $components: any
 
   /**
-   * Mounter element.
-   *
-   * @private
-   * @type {Element}
-   * @memberof LC
-   */
-  private $el: Element
-
-  /**
    * Model storage.
    *
    * @implements
@@ -51,37 +43,22 @@ abstract class LC {
   private $template: string
 
   /**
-   * Create and render HTML.
+   * AST.
    *
    * @private
+   * @type {AST}
    * @memberof LC
    */
-  private $render () {
-    const el = this.$el
-    if (!el) { return }
+  private $ast: AST
 
-    let $template = this.$template
-
-    // Try to get template from el if $template is empty.
-    if (!$template) {
-      const tempElement = document.createElement('div')
-      tempElement.appendChild(el.cloneNode(true))
-      $template = tempElement.innerHTML
-      this.$template = $template
-    }
-
-    // Compile tempalte to component.
-    const fragment = compile($template, this.$components, this.$models)
-
-    // Keep new $el reference.
-    this.$el = fragment.firstElementChild || <Element> fragment.childNodes[0]  // IE fallback.
-
-    nextTick(() => {
-      const parent = el.parentElement
-      parent.insertBefore(fragment, el)
-      parent.removeChild(el)
-    })
-  }
+  /**
+   * Elements of this component.
+   *
+   * @private
+   * @type {DocumentFragment}
+   * @memberof LC
+   */
+  private $elements: DocumentFragment
 
   /**
    * Will be triggered when some model's value has been changed.
@@ -93,8 +70,54 @@ abstract class LC {
    * @memberof LC
    */
   private $notify (keyName: string, newValue: any, oldValue: any) {
-    // console.log(`${keyName} is changed, newValue: ${newValue}, oldValue: ${oldValue}`)
-    this.$render()
+    this.$notifyAST(this.$ast, keyName, newValue)
+  }
+
+  /**
+   * Notify $ast to update ASTNodes in $ast.
+   *
+   * @private
+   * @param {AST} ast
+   * @param {string} keyName
+   * @param {*} newValue
+   * @memberof LC
+   */
+  private $notifyAST (ast: AST, keyName: string, newValue: any) {
+    ast.forEach(astNode => {
+      astNode.setSingleExpressionValue(keyName, newValue)
+      this.$notifyAST(astNode.children, keyName, newValue)
+    })
+  }
+
+  /**
+   * Generate AST.
+   *
+   * @private
+   * @memberof LC
+   */
+  private $createAST () {
+    let $template = this.$template
+    if (!$template) {
+      return
+    }
+
+    const ast = parseHTMLtoAST($template, this.$components)
+    this.$ast = ast
+  }
+
+  /**
+   * Compile AST.
+   *
+   * @private
+   * @memberof LC
+   */
+  private $compile () {
+    const ast = this.$ast
+    if (!ast) {
+      return
+    }
+
+    this.$elements = compileAstToElement(ast, this.$components, this.$models)
   }
 
   /**
@@ -105,16 +128,17 @@ abstract class LC {
    */
   mount (element: string | Element) {
     // Get mounting element.
-    const el = typeof element === 'string'
+    const $el = typeof element === 'string'
       ? document.querySelector(element)
       : element
 
-    if (!el) {
-      return
-    }
 
-    this.$el = el  // This node will be replaced after initialization.
-    this.$render()
+    $el && nextTick(() => {
+      const $elements = this.$elements
+      const parent = $el.parentElement
+      parent.insertBefore($elements, $el)
+      parent.removeChild($el)
+    })
   }
 
   constructor () {
@@ -124,6 +148,12 @@ abstract class LC {
     if (typeof this.$models === 'object') {
       moveModelToRootLevel(this, this.$models)
     }
+
+    this.$createAST()
+    this.$compile()
+
+    // Hide private properties.
+    nextTick(() => hidePrivates(this))
   }
 }
 
@@ -152,5 +182,20 @@ function moveModelToRootLevel (lc: LC, $models: $ComponentModels) {
 
     // Save component reference.
     $model.$component = lc
+  })
+}
+
+/**
+ * Hide private properties.
+ *
+ * @param {LC} target
+ */
+function hidePrivates (target: LC) {
+  Object.keys(target).forEach(keyname => {
+    if (keyname.indexOf('$') === 0) {
+      Object.defineProperty(target, keyname, {
+        enumerable: false
+      })
+    }
   })
 }
