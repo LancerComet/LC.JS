@@ -1,5 +1,4 @@
 import { ASTNode } from './ast'
-import { randomID } from '../../utils/random-id'
 import { htmlTagToPascal } from '../../utils/html-tag-to-pascal'
 import { NODE_TYPE } from '../../core/config'
 
@@ -52,13 +51,14 @@ export {
 function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
   let astNode: ASTNode = null
 
-  let attributes = {}
-  const children = []
-  let expression = ''
-  let isComponentAnchor = false
-  let nodeType = node.nodeType
-  let tagName = ''
-  let textContent = null
+  let attributes: ASTNodeElementAttribute = {}
+  const children: AST = []
+  let expression: string = ''
+  let isComponentAnchor: boolean = false
+  let nodeType: number = node.nodeType
+  let tagName: string = ''
+  let textContent: string = null
+  let ComponentCtor = null
 
   switch (nodeType) {
     // Element.
@@ -73,6 +73,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
         // This is a component anchor.
         if ($components[componentName]) {
           isComponentAnchor = true
+          ComponentCtor = $components[componentName].Constructor
           nodeType = NODE_TYPE.comment  // Over NodeType to NODE_TYPE.comment.
         }
       }
@@ -102,9 +103,9 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
   }
 
   astNode = new ASTNode({
-    id: randomID(),
     attributes,
     children,
+    ComponentCtor,
     expression,
     isComponentAnchor,
     nodeType,

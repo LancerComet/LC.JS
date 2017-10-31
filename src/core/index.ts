@@ -10,8 +10,8 @@ import { nextTick } from '../utils/next-tick'
  * Base unit in LC.JS.
  * This is the base class to extend when you create a component class.
  *
- * @export
  * @abstract
+ * @export
  * @class {Component} Class that performs base class of any component.
  */
 abstract class LC {
@@ -132,10 +132,12 @@ abstract class LC {
       ? document.querySelector(element)
       : element
 
-
     $el && nextTick(() => {
       const $elements = this.$elements
       const parent = $el.parentElement
+      if (!parent) {
+        return
+      }
       parent.insertBefore($elements, $el)
       parent.removeChild($el)
     })

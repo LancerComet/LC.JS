@@ -29,6 +29,15 @@ declare class ASTNode {
   children: AST
 
   /**
+   * Componnet Constructor.
+   * Only available if this node is a component anchor.
+   *
+   * @type {Function}
+   * @memberof ASTNode
+   */
+  ComponentCtor: (new () => LC)
+
+  /**
    * Element that refers to this ASTNode.
    *
    * @type {(Element | Text)}
@@ -91,12 +100,12 @@ declare class ASTNode {
   /**
    * Set single expression value.
    *
-   * @param {$ComponentModels} $models
-   * @param {string} [expressionName]
-   * @param {*} [newValue]
+   * @param {$ComponentModels} $models All models in component.
+   * @param {string} [specificExpression] The expression that is given specifically.
+   * @param {*} [newValue] New value for specific expression.
    * @memberof ASTNode
    */
-  setSingleExpressionValue: ($models: $ComponentModels, expressionName?: string, newValue?: any) => void
+  setSingleExpressionValue: ($models: $ComponentModels, specificExpression?: string, newValue?: any) => void
 
   /**
    * Set all expressions' value.
@@ -113,9 +122,9 @@ declare class ASTNode {
  * @interface IASTNodeOption
  */
 interface IASTNodeOption {
-  id: string
   attributes?: ASTNodeElementAttribute
   children?: AST
+  ComponentCtor?: (new () => LC)
   expression: string
   isComponentAnchor?: boolean
   nodeType: ASTNodeType

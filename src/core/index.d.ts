@@ -28,6 +28,6 @@ type $ComponentModels = {[key: string]: ReactiveModel}
  * Component usage delcration of a component.
  */
 type $ComponentUsage = {[key: string]: {
-  reference: LC
+  reference: LC[]
   Constructor: Function
 }}

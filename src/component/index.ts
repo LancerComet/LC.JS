@@ -32,14 +32,25 @@ function Component (option: IComponentOption = {}) {
     const instance = new ClassByUser()
     const keys = Object.keys(instance)
 
-    // TODO: Check vaild key name.
-
     for (let i = 0, length = keys.length; i < length; i++) {
       const key = keys[i]
+
+      // Check key name.
+      if (!checkAvailableKeyName(key)) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error(
+            `[${process.env.NAME}] Invaild keyname "${key}", please do not use a key that starts with "_" and "$".`
+          )
+        }
+        continue
+      }
+
       const value = instance[key]
 
       if (value === null || value === undefined) {
-        console.error(`[${process.env.NAME}] You should provide an initial value for your model "${key}".`)
+        console.error(
+          `[${process.env.NAME}] You should provide an initial value for your model "${key}".`
+        )
         continue
       }
 
@@ -68,4 +79,14 @@ function Component (option: IComponentOption = {}) {
 
 export {
   Component
+}
+
+/**
+ * Check available key name.
+ *
+ * @param {string} keyName
+ * @returns {boolean}
+ */
+function checkAvailableKeyName (keyName: string): boolean {
+  return !/(_|\$).+/.test(keyName)
 }

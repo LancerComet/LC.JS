@@ -3,6 +3,7 @@
 import { isValueDirective, isEventDirective, isDirective } from '../../directives'
 import { NODE_TYPE } from '../../core/config'
 import { nextTick } from '../../utils/next-tick'
+import { randomID } from '../../utils/random-id'
 
 /**
  * AST Node.
@@ -13,6 +14,7 @@ class ASTNode {
   id: string
   attributes: ASTNodeElementAttribute
   children: AST
+  ComponentCtor: (new () => LC)
   element: Element | Text | Comment
   expression: string
   isComponentAnchor: boolean
@@ -74,38 +76,25 @@ class ASTNode {
   /**
    * Set single expression value.
    *
-   * @param {$ComponentModels} $models
-   * @param {string} [expressionName]
-   * @param {*} [newValue]
+   * @param {$ComponentModels} $models All models in component.
+   * @param {string} [specificExpression] The expression that is given specifically.
+   * @param {*} [newValue] New value for specific expression.
    * @memberof ASTNode
    */
-  setSingleExpressionValue ($models: $ComponentModels, expressionName?: string, newValue?: any) {
+  setSingleExpressionValue ($models: $ComponentModels, specificExpression?: string, newValue?: any) {
     const expressions = matchExpression(this.expression)
+
+    // No expression, go return.
     if (!expressions) {
       return
     }
 
-    // Check whether "expressionName" is in "expressions" when it is given.
-    // If there is no "expressionName", just return.
+    // If specific expression is given, check if "expressions" contains this one.
     if (
-      typeof expressionName !== 'undefined' &&
-      typeof newValue !== 'undefined'
+      specificExpression &&
+      expressions.map(getPureExpression).indexOf(specificExpression) < 0
     ) {
-      // Check whether this ASTNodes' expression has "expressionName"
-      const expNameMatching = new RegExp(expressionName, 'g')
-      let containTargetExp = false
-      for (let i = 0, length = expressions.length; i < length; i++) {
-        if (
-          expNameMatching.test(getPureExpression(expressions[i]))
-        ) {
-          containTargetExp = true
-          break
-        }
-      }
-
-      if (!containTargetExp) {
-        return
-      }
+      return
     }
 
     const variables = Object.keys($models)
@@ -120,20 +109,26 @@ class ASTNode {
           }
 
           // Extract expression from attribute value.
-          const attrValue = this.attributes[attrName]
-          const expInThisAttrValue = matchExpression(attrValue)
+          const attrValue = this.attributes[attrName]  // e.g: font-size: {{size}}px
+          const expInThisAttrValue = matchExpression(attrValue) // e.g: [{{size}}]
 
-          if (!expInThisAttrValue) { return }
-
-          expInThisAttrValue.forEach(exp => {
-            const result = evaluateExpression(
-              [expressionName], [newValue], getPureExpression(exp)
+          expInThisAttrValue && expInThisAttrValue.forEach(exp => {
+            this.attributes[attrName] = attrValue.replace(
+              exp,
+              evaluateExpression(variables, values, getPureExpression(exp))
             )
-
-            nextTick(() => {
-              this.attributes[attrName] = attrValue.replace(exp, result)
-            })
           })
+        })
+
+        // Set attributes to element.
+        nextTick(() => {
+          Object.keys(this.attributes)
+            .forEach(attrName => {
+              (<Element> this.element).setAttribute(
+                attrName.replace(/:|@/, ''),  // Map directive to attribute, ":style" => "style".
+                this.attributes[attrName]
+              )
+            })
         })
 
         break
@@ -144,7 +139,7 @@ class ASTNode {
         expressions.forEach(exp => {
           // Replace mastache expression.
           newTextContent = newTextContent.replace(
-            new RegExp(normalizeOperators(exp), 'g'),
+            exp,
             evaluateExpression(variables, values, getPureExpression(exp))
           )
         })
@@ -172,7 +167,7 @@ class ASTNode {
   }
 
   constructor (params: IASTNodeOption) {
-    this.id = params.id
+    this.id = randomID()
     this.attributes = params.attributes || {}
     this.children = params.children || []
     this.expression = params.expression.trim() || ''
@@ -187,6 +182,9 @@ class ASTNode {
       case NODE_TYPE.element:
         this.tagName = params.tagName
         break
+
+      case NODE_TYPE.comment:
+        this.ComponentCtor = params.ComponentCtor || null
     }
 
     this.createElement()
@@ -208,7 +206,7 @@ export {
 function evaluateExpression (variableName: string[], variableValue: any[], expression: string) {
   const evalFunc = Function.apply(
     null,
-    variableName.concat('return ' + expression)
+    variableName.concat('return typeof ' + expression + ' === "undefined" ? "" : ' + expression)
   )
   const result = evalFunc.apply(null, variableValue)
   return result
