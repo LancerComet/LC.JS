@@ -109,15 +109,17 @@ class ASTNode {
           }
 
           // Extract expression from attribute value.
-          const attrValue = this.attributes[attrName]  // e.g: font-size: {{size}}px
+          let attrValue = this.attributes[attrName]  // e.g: font-size: {{size}}px
           const expInThisAttrValue = matchExpression(attrValue) // e.g: [{{size}}]
 
           expInThisAttrValue && expInThisAttrValue.forEach(exp => {
-            this.attributes[attrName] = attrValue.replace(
+            attrValue = attrValue.replace(
               exp,
               evaluateExpression(variables, values, getPureExpression(exp))
             )
           })
+
+          this.attributes[attrName] = attrValue
         })
 
         // Set attributes to element.
