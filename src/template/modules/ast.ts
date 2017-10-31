@@ -19,6 +19,7 @@ class ASTNode {
   expression: string
   isComponentAnchor: boolean
   nodeType: ASTNodeType
+  parentNode: ASTNode
   tagName: string
   textContent: string
 
@@ -35,6 +36,13 @@ class ASTNode {
       case NODE_TYPE.element:
         element = document.createElement(
           this.isComponentAnchor ? 'div' : this.tagName
+        )
+
+        // Add data-style for style scoping.
+        // Use parent's id if it has a parent.
+        element.setAttribute(
+          'data-style-' + getAncestorID(this),
+          ''
         )
 
         // Set attributes.
@@ -186,19 +194,22 @@ class ASTNode {
     this.children = params.children || []
     this.expression = params.expression.trim() || ''
     this.isComponentAnchor = !!params.isComponentAnchor
+    this.parentNode = params.parentNode
     this.nodeType = params.nodeType || NODE_TYPE.element
+    this.tagName = params.tagName
 
     switch (params.nodeType) {
       case NODE_TYPE.textNode:
         this.textContent = params.textContent || ''
+        this.tagName = ''  // Over tagName to empty.
         break
 
       case NODE_TYPE.element:
-        this.tagName = params.tagName
         break
 
       case NODE_TYPE.comment:
         this.ComponentCtor = params.ComponentCtor || null
+        break
     }
 
     this.createElement()
@@ -260,4 +271,16 @@ function normalizeOperators (regExpStr: string) {
   })
 
   return regExpStr
+}
+
+/**
+ * Get ancestor's ID.
+ *
+ * @param {ASTNode} astNode
+ * @returns
+ */
+function getAncestorID (astNode: ASTNode) {
+  return astNode.parentNode
+    ? getAncestorID(astNode.parentNode)
+    : astNode.id
 }

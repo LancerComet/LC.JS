@@ -12,12 +12,12 @@ function Component (option: IComponentOption = {}) {
   return function (ClassByUser: any) {
 
     // Create $components.
-    const $components = {}
+    const $components: $ComponentUsage = {}
     if (option.components) {
       Object.keys(option.components).forEach(key => {
         $components[key] = {
-          reference: null,
-          Constructor: option.components[key]
+          reference: [],
+          Constructor: <new () => LC> option.components[key]
         }
       })
     }
@@ -39,7 +39,7 @@ function Component (option: IComponentOption = {}) {
       if (!checkAvailableKeyName(key)) {
         if (process.env.NODE_ENV === 'development') {
           console.error(
-            `[${process.env.NAME}] Invaild keyname "${key}", please do not use a key that starts with "_" and "$".`
+            `[${process.env.NAME}] Invaild keyname "${key}", please do not use a key that starts with "_" or "$".`
           )
         }
         continue

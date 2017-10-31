@@ -3,15 +3,14 @@ import { MyComponent } from './my-component'
 
 @Component({
   components: {
-    MyComponent
+    'my-component': MyComponent
   },
 
   template: `
     <div class="lc-app">
       <h1 class="title">{{appName}} demo page.</h1>
-      <div :style="font-size: {{time}}px">{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
+      <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
       <div>Time: {{time}}, double time: {{time * 2}}</div>
-      <div>This is: {{$aa}}</div>
       <my-component></my-component>
     </div>
   `
@@ -19,7 +18,6 @@ import { MyComponent } from './my-component'
 class Root extends LC {
   appName: string = process.env.NAME
   time: number = 12
-  $aa: string = '$name'
 }
 
 console.time('createComponent')

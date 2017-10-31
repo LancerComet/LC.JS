@@ -29,5 +29,5 @@ type $ComponentModels = {[key: string]: ReactiveModel}
  */
 type $ComponentUsage = {[key: string]: {
   reference: LC[]
-  Constructor: Function
+  Constructor: new () => LC
 }}

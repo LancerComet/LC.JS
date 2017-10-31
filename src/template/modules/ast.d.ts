@@ -73,6 +73,14 @@ declare class ASTNode {
   nodeType: ASTNodeType
 
   /**
+   * Parent ASTNode.
+   *
+   * @type {ASTNode}
+   * @memberof ASTNode
+   */
+  parentNode: ASTNode
+
+  /**
    * TagName.
    *
    * @type {string}
@@ -128,6 +136,7 @@ interface IASTNodeOption {
   expression: string
   isComponentAnchor?: boolean
   nodeType: ASTNodeType
+  parentNode?: ASTNode
   tagName: string
   textContent?: string
 }

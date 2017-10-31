@@ -1,16 +1,28 @@
-const supportPromise = typeof Promise !== 'undefined' && typeof Promise.resolve === 'function'
+let tickInExec = false
+let jobQueue = []
 
 function nextTick (callback: Function) {
-  const exec = function () {
-    typeof callback === 'function' && callback()
+  if (typeof callback === 'function') {
+    jobQueue.push(callback)
   }
-  if (supportPromise) {
-    Promise.resolve().then(exec)
-  } else {
-    setTimeout(exec, 1)
+
+  if (!tickInExec) {
+    exec()
   }
 }
 
 export {
   nextTick
+}
+
+function exec () {
+  tickInExec = true
+  Promise.resolve().then(() => {
+    for (let i = 0, length = jobQueue.length; i < length; i++) {
+      const callback = jobQueue[i]
+      typeof callback === 'function' && callback()
+    }
+    jobQueue = []
+    tickInExec = false
+  })
 }

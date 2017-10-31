@@ -1,5 +1,4 @@
 import { ASTNode } from './ast'
-import { htmlTagToPascal } from '../../utils/html-tag-to-pascal'
 import { NODE_TYPE } from '../../core/config'
 
 /**
@@ -46,9 +45,10 @@ export {
  *
  * @param {Node} node
  * @param {$ComponentUsage} [$components]
+ * @param {ASTNode} [parentNode]
  * @returns {ASTNode}
  */
-function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
+function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode?: ASTNode): ASTNode {
   let astNode: ASTNode = null
 
   let attributes: ASTNodeElementAttribute = {}
@@ -63,27 +63,17 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
   switch (nodeType) {
     // Element.
     case NODE_TYPE.element:
-      const _tagName = (<HTMLElement> node).tagName.toLowerCase()
+      const tagNameInLowerCase = (<HTMLElement> node).tagName.toLowerCase()
 
       // If component usage is given then
       // check if this node is an anchor for component.
       if ($components) {
-        const componentName = htmlTagToPascal(_tagName)
-
         // This is a component anchor.
-        if ($components[componentName]) {
+        if ($components[tagNameInLowerCase]) {
           isComponentAnchor = true
-          ComponentCtor = $components[componentName].Constructor
+          ComponentCtor = $components[tagNameInLowerCase].Constructor
           nodeType = NODE_TYPE.comment  // Over NodeType to NODE_TYPE.comment.
         }
-      }
-
-      const childrenLength = node.childNodes.length
-      let i = 0
-      while (i < childrenLength){
-        const childNode = node.childNodes[i]
-        children.push(elementToASTNode(childNode, $components))
-        i++
       }
 
       // Get attributes info.
@@ -93,7 +83,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
           expression += item.value  // Save all attribute as expressions for further usage in astNode.setSingleExpressionValue.
         })
 
-      tagName = _tagName
+      tagName = tagNameInLowerCase
       break
 
     // TextNode.
@@ -109,9 +99,21 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage): ASTNode {
     expression,
     isComponentAnchor,
     nodeType,
+    parentNode,
     tagName,
     textContent
   })
+
+  // Deal with children.
+  const childrenLength = node.childNodes.length
+  if (nodeType === NODE_TYPE.element && childrenLength) {
+    let i = 0
+    while (i < childrenLength){
+      const childNode = node.childNodes[i]
+      children.push(elementToASTNode(childNode, $components, astNode))
+      i++
+    }
+  }
 
   return astNode
 }

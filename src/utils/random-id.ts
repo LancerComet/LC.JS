@@ -1,5 +1,5 @@
 function randomID () {
-  return Math.floor(Math.random() * 10000 * Date.now()).toString(16)
+  return Math.floor(Math.random() * Date.now()).toString(16)
 }
 
 export {

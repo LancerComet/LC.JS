@@ -33,6 +33,9 @@ function compileAstToElement (ast: AST, $components: $ComponentUsage, $models: $
     if (astNode.nodeType === NODE_TYPE.comment && astNode.isComponentAnchor) {
       const compInstance: LC = new astNode.ComponentCtor()
       compInstance.mount(<Element> astNode.element)
+
+      // Save component instance to component.
+      $components[astNode.tagName].reference.push(compInstance)
     }
   }
 

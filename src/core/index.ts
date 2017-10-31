@@ -61,6 +61,15 @@ abstract class LC {
   private $elements: DocumentFragment
 
   /**
+   * Mouting element.
+   *
+   * @private
+   * @type {Element}
+   * @memberof LC
+   */
+  private $el: Element
+
+  /**
    * Will be triggered when some model's value has been changed.
    * Called in ReactiveModels.
    *
@@ -90,37 +99,6 @@ abstract class LC {
   }
 
   /**
-   * Generate AST.
-   *
-   * @private
-   * @memberof LC
-   */
-  private $createAST () {
-    let $template = this.$template
-    if (!$template) {
-      return
-    }
-
-    const ast = parseHTMLtoAST($template, this.$components)
-    this.$ast = ast
-  }
-
-  /**
-   * Compile AST.
-   *
-   * @private
-   * @memberof LC
-   */
-  private $compile () {
-    const ast = this.$ast
-    if (!ast) {
-      return
-    }
-
-    this.$elements = compileAstToElement(ast, this.$components, this.$models)
-  }
-
-  /**
    * Mount this component to target element.
    *
    * @param {(string | Element)} element
@@ -132,15 +110,16 @@ abstract class LC {
       ? document.querySelector(element)
       : element
 
-    $el && nextTick(() => {
-      const $elements = this.$elements
-      const parent = $el.parentElement
-      if (!parent) {
-        return
-      }
-      parent.insertBefore($elements, $el)
-      parent.removeChild($el)
-    })
+    if ($el) {
+      nextTick(() => {
+        const $elements = this.$elements
+        const parent = $el.parentElement
+        if (!parent) {
+          return
+        }
+        parent.replaceChild($elements, $el)
+      })
+    }
   }
 
   constructor () {
@@ -151,11 +130,16 @@ abstract class LC {
       moveModelToRootLevel(this, this.$models)
     }
 
-    this.$createAST()
-    this.$compile()
+    // Compile HTML template if it is given.
+    const $template = this.$template
+    if ($template) {
+      const $components = this.$components
+      this.$ast = createAST($template, $components)  // Create AST.
+      this.$elements = compile(this.$ast, $components, this.$models)  // Create elements from AST.
+    }
 
     // Hide private properties.
-    nextTick(() => hidePrivates(this))
+    nextTick(hidePrivates.bind(null, this))
   }
 }
 
@@ -200,4 +184,26 @@ function hidePrivates (target: LC) {
       })
     }
   })
+}
+
+/**
+ * Create AST from HTML string.
+ *
+ * @param {string} htmlString
+ * @returns {AST}
+ */
+function createAST (htmlString: string, $components: $ComponentUsage): AST {
+  return parseHTMLtoAST(htmlString, $components)
+}
+
+/**
+ * Compile AST to element.
+ *
+ * @param {AST} ast
+ * @param {$ComponentUsage} $components
+ * @param {$ComponentModels} $models
+ * @returns {DocumentFragment}
+ */
+function compile (ast: AST, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
+  return compileAstToElement(ast, $components, $models)
 }
