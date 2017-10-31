@@ -89,11 +89,22 @@ class ASTNode {
       return
     }
 
+
     // If specific expression is given, check if "expressions" contains this one.
-    if (
-      specificExpression &&
-      expressions.map(getPureExpression).indexOf(specificExpression) < 0
-    ) {
+    let doUpdate = false
+    if (specificExpression) {
+      const pureExpressions = expressions.map(getPureExpression)
+      pureExpressions.some(item => {
+        if (item.match(new RegExp(specificExpression))) {
+          doUpdate = true
+          return true
+        }
+      })
+    } else {
+      doUpdate = true
+    }
+
+    if (!doUpdate) {
       return
     }
 
@@ -103,6 +114,8 @@ class ASTNode {
     switch (this.nodeType) {
       case NODE_TYPE.element:
         // Replace attribute.
+        const newAttrs = {}
+
         Object.keys(this.attributes).forEach(attrName => {
           if (!isDirective(attrName)) {
             return
@@ -119,16 +132,15 @@ class ASTNode {
             )
           })
 
-          this.attributes[attrName] = attrValue
+          newAttrs[attrName] = attrValue
         })
 
         // Set attributes to element.
         nextTick(() => {
-          Object.keys(this.attributes)
-            .forEach(attrName => {
+          Object.keys(newAttrs).forEach(attrName => {
               (<Element> this.element).setAttribute(
                 attrName.replace(/:|@/, ''),  // Map directive to attribute, ":style" => "style".
-                this.attributes[attrName]
+                newAttrs[attrName]
               )
             })
         })

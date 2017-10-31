@@ -9,7 +9,7 @@ import { MyComponent } from './my-component'
   template: `
     <div class="lc-app">
       <h1 class="title">{{appName}} demo page.</h1>
-      <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
+      <div :style="font-size: {{time}}px">{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
       <div>Time: {{time}}, double time: {{time * 2}}</div>
       <div>This is: {{$aa}}</div>
       <my-component></my-component>
@@ -18,7 +18,7 @@ import { MyComponent } from './my-component'
 })
 class Root extends LC {
   appName: string = process.env.NAME
-  time: number = 0
+  time: number = 12
   $aa: string = '$name'
 }
 
@@ -30,4 +30,4 @@ console.log(root)
 
 setInterval(() => {
   root.time += 1
-}, 10)
+}, 1000)
