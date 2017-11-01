@@ -105,6 +105,33 @@ class ASTNode {
    * @memberof ASTNode
    */
   updateExec ($models: $ComponentModels, specificExpression?: string, newValue?: any) {
+    const variables = Object.keys($models)
+    const values = variables.map(item => $models[item].value)
+
+    // Element type.
+    // ========================
+    if (this.nodeType === NODE_TYPE.element) {
+      // Element only needs to update all directives.
+      this.directives.forEach(directive => {
+        const expression = directive.expression  // 'font-size:' +  size + 'px'
+
+        if (
+          specificExpression &&
+          !expression.match(new RegExp('\\b' + specificExpression + '\\b'))
+        ) {
+          return
+        }
+
+        const value = evaluateExpression(variables, values, expression)
+        directive.update(value)
+      })
+      return
+    }
+
+    // TextNode type.
+    // ========================
+
+    // Update textContent.
     const expressions = matchExpression(this.expression)
 
     // No expression, go return.
@@ -130,49 +157,20 @@ class ASTNode {
       return
     }
 
-    const variables = Object.keys($models)
-    const values = variables.map(item => $models[item].value)
+    let newTextContent = this.expression
 
-    switch (this.nodeType) {
-      // Element only needs to update all directives.
-      case NODE_TYPE.element:
-        // Update all directives.
-        this.directives.forEach(directive => {
-          let attrValue = directive.expression  // font-size: {{size}}px
-                                                // Will be replaced with final value.
-          const expInThisAttrValue = matchExpression(attrValue) // [{{size}}]
+    expressions.forEach(exp => {
+      // Replace mastache expression.
+      newTextContent = newTextContent.replace(
+        exp,
+        evaluateExpression(variables, values, getPureExpression(exp))
+      )
+    })
 
-          expInThisAttrValue && expInThisAttrValue.forEach(exp => {
-            attrValue = attrValue.replace(
-              exp,
-              evaluateExpression(variables, values, getPureExpression(exp))
-            )
-          })
-
-          directive.update(attrValue)
-        })
-
-        break
-
-      // TextNode needs to update textContent.
-      case NODE_TYPE.textNode:
-        let newTextContent = this.expression
-
-        expressions.forEach(exp => {
-          // Replace mastache expression.
-          newTextContent = newTextContent.replace(
-            exp,
-            evaluateExpression(variables, values, getPureExpression(exp))
-          )
-        })
-
-        nextTick(() => {
-          this.textContent = newTextContent
-          this.element.textContent = newTextContent
-        })
-
-        break
-    }
+    nextTick(() => {
+      this.textContent = newTextContent
+      this.element.textContent = newTextContent
+    })
   }
 
   /**
@@ -232,7 +230,7 @@ export {
 function evaluateExpression (variableName: string[], variableValue: any[], expression: string) {
   const evalFunc = Function.apply(
     null,
-    variableName.concat('return typeof ' + expression + ' === "undefined" ? "" : ' + expression)
+    variableName.concat('return ' + expression)
   )
   const result = evalFunc.apply(null, variableValue)
   return result

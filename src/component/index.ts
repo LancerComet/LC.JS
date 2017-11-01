@@ -68,10 +68,12 @@ function Component (option: IComponentOption = {}) {
     }
 
     // Rewrite prototype for inheritance.
-    ClassByUser.prototype = Object.assign(ClassByUser.prototype, <ILcBaseProperties> {
-      $components,
-      $template,
-      $models
+    Object.defineProperty(ClassByUser, 'prototype', {
+      value: Object.assign(ClassByUser.prototype, <ILcBaseProperties> {
+        $components,
+        $template,
+        $models
+      })
     })
   }
 }

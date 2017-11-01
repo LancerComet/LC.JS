@@ -34,10 +34,11 @@ const value = {
 
   [valueFlag + 'style']: createDirectiveConstructor({
     name: valueFlag + 'style',
-    onInstalled (astNode, element) {
-      console.log('style installed: ', element.attributes)
+    onInstalled (astNode, element, newValue) {
+      console.log('style installed: ', astNode)
     },
-    onUpdated (astNode, element) {
+    onUpdated (astNode, element, newValue) {
+      console.log('style updated: ', newValue)
     },
     onUninstalled (astNode, element) {
     }

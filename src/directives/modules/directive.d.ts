@@ -117,4 +117,4 @@ interface IDirectiveOptions {
 /**
  * Directive-hook-function decleration.
  */
-type TDirectiveHook = (astNode: ASTNode, element: Element) => void
+type TDirectiveHook = (astNode: ASTNode, element: Element, newValue?: any) => void

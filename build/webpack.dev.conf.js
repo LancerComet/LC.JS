@@ -49,7 +49,7 @@ module.exports = {
         test: /\.js$/,
         use: {
           loader: 'babel-loader',
-          options: require('../babel.dev.babelrc')
+          options: require('../babel.dev.json')
         },
         include: srcFolders
       },

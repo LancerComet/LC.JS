@@ -51,7 +51,7 @@ const webpackConfig = {
         test: /\.js$/,
         use: {
           loader: 'babel-loader',
-          options: require('../babel.build.babelrc')
+          options: require('../babel.build.json')
         },
         include: srcFolders
       },

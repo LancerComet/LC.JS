@@ -125,7 +125,7 @@ function createDirectiveConstructor (option: IDirectiveOptions) {
 
       if (isFunction(this.onUpdated)) {
         nextTick(() => {
-          this.onUpdated(this.astNode, this.element)
+          this.onUpdated(this.astNode, this.element, newValue)
         })
       }
     }
