@@ -1,6 +1,6 @@
-import { isValueDirective, isEventDirective, isDirective } from '../../directives'
+import { isValueDirective, isEventDirective, isDirective } from '../../directives/modules/utils'
 import { NODE_TYPE } from '../../core/config'
-import { nextTick } from '../../utils/next-tick'
+import { nextTick } from '../../utils'
 
 /**
  * Create HTML Elements by AST.

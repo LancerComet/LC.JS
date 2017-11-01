@@ -38,6 +38,14 @@ declare class ASTNode {
   ComponentCtor: (new () => LC)
 
   /**
+   * Directives in this node.
+   *
+   * @type {Directive[]}
+   * @memberof ASTNode
+   */
+  directives: Directive[]
+
+  /**
    * Element that refers to this ASTNode.
    *
    * @type {(Element | Text)}
@@ -106,14 +114,15 @@ declare class ASTNode {
   createElement: () => void
 
   /**
-   * Set single expression value.
+   * Function to update element.
+   * If a specific expression is given, update this expression only.
    *
    * @param {$ComponentModels} $models All models in component.
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
    * @memberof ASTNode
    */
-  setSingleExpressionValue: ($models: $ComponentModels, specificExpression?: string, newValue?: any) => void
+  updateExec: ($models: $ComponentModels, specificExpression?: string, newValue?: any) => void
 
   /**
    * Set all expressions' value.

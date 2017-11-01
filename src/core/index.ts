@@ -4,7 +4,7 @@ import { Packet } from '_debugger';
 import { ASTNode } from '../template/modules/ast'
 
 import { compileAstToElement, parseHTMLtoAST } from '../template'
-import { nextTick } from '../utils/next-tick'
+import { nextTick } from '../utils'
 
 /**
  * Base unit in LC.JS.
@@ -93,7 +93,7 @@ abstract class LC {
    */
   private $notifyAST (ast: AST, keyName: string, newValue: any) {
     ast.forEach(astNode => {
-      astNode.setSingleExpressionValue(this.$models, keyName, newValue)
+      astNode.updateExec(this.$models, keyName, newValue)
       this.$notifyAST(astNode.children, keyName, newValue)
     })
   }

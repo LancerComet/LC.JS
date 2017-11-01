@@ -1,9 +1,8 @@
 /// <reference path="./ast.d.ts" />
 
-import { isValueDirective, isEventDirective, isDirective } from '../../directives'
-import { NODE_TYPE } from '../../core/config'
-import { nextTick } from '../../utils/next-tick'
-import { randomID } from '../../utils/random-id'
+import { DIRECTIVE, NODE_TYPE } from '../../core/config'
+import { internalDirectives, isDirective, isEventDirective, isValueDirective } from '../../directives'
+import { nextTick, randomID } from '../../utils'
 
 /**
  * AST Node.
@@ -15,6 +14,7 @@ class ASTNode {
   attributes: ASTNodeElementAttribute
   children: AST
   ComponentCtor: (new () => LC)
+  directives: Directive[]
   element: Element | Text | Comment
   expression: string
   isComponentAnchor: boolean
@@ -40,28 +40,44 @@ class ASTNode {
 
         // Add data-style for style scoping.
         // Use parent's id if it has a parent.
-        element.setAttribute(
-          'data-style-' + getAncestorID(this),
-          ''
-        )
+        element.setAttribute('data-style-' + getAncestorID(this), '')
 
         // Set attributes.
         const attributes = Object.keys(this.attributes)
         for (let i = 0, length = attributes.length; i < length; i++) {
           let attrName = attributes[i]
-          const value = this.attributes[attrName]
+          const attrValue = this.attributes[attrName]
 
-          // Value directive.
-          if (isValueDirective(attrName)) {
-            attrName = attrName.replace(':', '')
+          // If this attribute is a directive.
+          if (isDirective(attrName)) {
+            // Event directive.
+            if (isEventDirective(attrName)) {
+              // TODO: ....
+              continue
+            }
+
+            // Value directive.
+            if (isValueDirective(attrName)) {
+              const InternalDirectiveCtor = internalDirectives.value[attrName]
+
+              // An internal directive is detected.
+              // Create a directive object and let it to do all jobs
+              // such as compiling, updating, etc.
+              if (InternalDirectiveCtor) {
+                const directive = new InternalDirectiveCtor(this, element, attrValue)
+                nextTick(() => directive.install())
+                this.directives.push(directive)
+                continue
+
+              // A non-internal directive, just normalize it to a standard html attribute
+              // and set its value.
+              } else {
+                attrName = attrName.replace(DIRECTIVE.flags.value, '')
+              }
+            }
           }
 
-          // TODO: deal with function.
-          if (isEventDirective(attrName)) {
-            continue
-          }
-
-          element.setAttribute(attrName, value)
+          element.setAttribute(attrName, attrValue)
         }
 
         break
@@ -82,21 +98,21 @@ class ASTNode {
   }
 
   /**
-   * Set single expression value.
+   * Function to update element.
+   * If a specific expression is given, update this expression only.
    *
    * @param {$ComponentModels} $models All models in component.
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
    * @memberof ASTNode
    */
-  setSingleExpressionValue ($models: $ComponentModels, specificExpression?: string, newValue?: any) {
+  updateExec ($models: $ComponentModels, specificExpression?: string, newValue?: any) {
     const expressions = matchExpression(this.expression)
 
     // No expression, go return.
     if (!expressions) {
       return
     }
-
 
     // If specific expression is given, check if "expressions" contains this one.
     let doUpdate = false
@@ -105,7 +121,7 @@ class ASTNode {
       pureExpressions.some(item => {
         if (item.match(new RegExp(specificExpression))) {
           doUpdate = true
-          return true
+          return doUpdate
         }
       })
     } else {
@@ -121,17 +137,11 @@ class ASTNode {
 
     switch (this.nodeType) {
       case NODE_TYPE.element:
-        // Replace attribute.
-        const newAttrs = {}
-
-        Object.keys(this.attributes).forEach(attrName => {
-          if (!isDirective(attrName)) {
-            return
-          }
-
-          // Extract expression from attribute value.
-          let attrValue = this.attributes[attrName]  // e.g: font-size: {{size}}px
-          const expInThisAttrValue = matchExpression(attrValue) // e.g: [{{size}}]
+        // Update all directives.
+        this.directives.forEach(directive => {
+          let attrValue = directive.expression  // font-size: {{size}}px
+                                                // Will be replaced with final value.
+          const expInThisAttrValue = matchExpression(attrValue) // [{{size}}]
 
           expInThisAttrValue && expInThisAttrValue.forEach(exp => {
             attrValue = attrValue.replace(
@@ -140,17 +150,7 @@ class ASTNode {
             )
           })
 
-          newAttrs[attrName] = attrValue
-        })
-
-        // Set attributes to element.
-        nextTick(() => {
-          Object.keys(newAttrs).forEach(attrName => {
-              (<Element> this.element).setAttribute(
-                attrName.replace(/:|@/, ''),  // Map directive to attribute, ":style" => "style".
-                newAttrs[attrName]
-              )
-            })
+          directive.update(attrValue)
         })
 
         break
@@ -182,7 +182,7 @@ class ASTNode {
    * @memberof ASTNode
    */
   updateElement ($models: $ComponentModels) {
-    this.setSingleExpressionValue($models)
+    this.updateExec($models)
 
     // Update children too.
     this.children.forEach(child => child.updateElement($models))
@@ -191,6 +191,7 @@ class ASTNode {
   constructor (params: IASTNodeOption) {
     this.id = randomID()
     this.attributes = params.attributes || {}
+    this.directives = []
     this.children = params.children || []
     this.expression = params.expression.trim() || ''
     this.isComponentAnchor = !!params.isComponentAnchor

@@ -1,4 +1,22 @@
 /**
+ * Directive config.
+ *
+ * @abstract
+ * @class DIRECTIVE
+ */
+abstract class DIRECTIVE {
+  static readonly type: {[typeName: string]: TDirectiveType} = {
+    event: 'event',
+    value: 'value'
+  }
+
+  static readonly flags = {
+    event: '@',
+    value: ':'
+  }
+}
+
+/**
  * NodeType.
  *
  * @export
@@ -12,5 +30,6 @@ abstract class NODE_TYPE {
 }
 
 export {
+  DIRECTIVE,
   NODE_TYPE
 }
