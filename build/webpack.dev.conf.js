@@ -42,6 +42,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(png|jpe?g|gif)(\?.*)?$/,
+        loader: 'url-loader',
+        query: {
+          limit: 5120,
+          name: '[name].[ext]'
+        }
+      },
+      {
         test: /\.pug$/,
         loader: 'pug-loader'
       },

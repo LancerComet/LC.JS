@@ -17,7 +17,7 @@ interface IComponentModelItem {
   /**
    * Model type.
    *
-   * @type {('number' | 'string' | 'boolean' | 'array')}
+   * @type {TModelType}
    * @memberof IComponentModel
    */
   type: TModelType
@@ -41,45 +41,11 @@ interface IComponentModelItem {
 }
 
 /**
- * Number model for component.
- *
- * @interface IComponentModel
- */
-interface IComponentModelNumber extends IComponentModelItem {
-  type: NumberConstructor
-  default: number
-}
-
-/**
- * String model for component.
- */
-interface IComponentModelString extends IComponentModelItem {
-  type: StringConstructor
-  default: string
-}
-
-/**
- * Boolean model for component.
- */
-interface IComponentModelBoolean extends IComponentModelItem {
-  type: BooleanConstructor
-  default: boolean
-}
-
-/**
- * Array model for component.
- */
-interface IComponentModelArray extends IComponentModelItem {
-  type: ArrayConstructor
-  default: any[]
-}
-
-/**
  * Supported model types.
  */
-type TModelType = NumberConstructor | StringConstructor | BooleanConstructor | ArrayConstructor
+type TModelType = NumberConstructor | StringConstructor | BooleanConstructor | FunctionConstructor | ArrayConstructor
 
 /**
  * Default value for model.
  */
-type TModelDefaultValue = number | string | boolean | any[]
+type TModelDefaultValue = number | string | boolean | Function | any[]

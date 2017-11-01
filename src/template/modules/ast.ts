@@ -1,7 +1,7 @@
 /// <reference path="./ast.d.ts" />
 
 import { DIRECTIVE, NODE_TYPE } from '../../core/config'
-import { internalDirectives, isDirective, isEventDirective, isValueDirective } from '../../directives'
+import { createDirective, directives, isDirective, isEventDirective, isValueDirective } from '../../directives'
 import { nextTick, randomID } from '../../utils'
 
 /**
@@ -43,38 +43,28 @@ class ASTNode {
         // Set attributes.
         const attributes = Object.keys(this.attributes)
         for (let i = 0, length = attributes.length; i < length; i++) {
-          let attrName = attributes[i]
+          const attrName = attributes[i]
           const attrValue = this.attributes[attrName]
 
           // If this attribute is a directive.
           if (isDirective(attrName)) {
-            // Event directive.
-            if (isEventDirective(attrName)) {
-              // TODO: ....
-              continue
+            // Get Directive Constructor if this directive has been defined.
+            let DirectiveCtor = directives[attrName]
+            let directive = null
+
+            // A non-internal directive, create a directive for this one.
+            if (!DirectiveCtor) {
+              DirectiveCtor = createDirective({ name: attrName })
             }
 
-            // Value directive.
-            if (isValueDirective(attrName)) {
-              const InternalDirectiveCtor = internalDirectives.value[attrName]
-
-              // An internal directive is detected.
-              // Create a directive object and let it to do all jobs
-              // such as compiling, updating, etc.
-              if (InternalDirectiveCtor) {
-                const directive = new InternalDirectiveCtor(this, element, attrValue)
-                nextTick(() => directive.install())
-                this.directives.push(directive)
-                continue
-
-              // A non-internal directive, just normalize it to a standard html attribute
-              // and set its value.
-              } else {
-                attrName = attrName.replace(DIRECTIVE.flags.value, '')
-              }
-            }
+            // Create a directive object and let it to do all jobs such as compiling, updating, etc.
+            directive = new DirectiveCtor(this, element, attrValue)
+            nextTick(() => directive.install())
+            this.directives.push(directive)
+            continue
           }
 
+          // A normal html attribute.
           element.setAttribute(attrName, attrValue)
         }
 
@@ -123,7 +113,7 @@ class ASTNode {
         }
 
         const value = evaluateExpression(variables, values, expression)
-        directive.update(value)
+        directive.update(value, $models)
       })
       return
     }

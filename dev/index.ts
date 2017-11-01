@@ -1,16 +1,20 @@
 import { LC, Component } from '../src'
 import { MyComponent } from './my-component'
+import { HelloWorld } from './hello-world'
 
 @Component({
   components: {
+    'hello-world': HelloWorld,
     'my-component': MyComponent
   },
 
   template: `
     <div class="lc-app">
+      <hello-world></hello-world>
       <h1 class="title">{{appName}} demo page.</h1>
       <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
       <div>Time: {{time}}, double time: {{time * 2}}</div>
+      <button @click="showTime">Show Time</button>
       <my-component></my-component>
     </div>
   `
@@ -18,6 +22,9 @@ import { MyComponent } from './my-component'
 class Root extends LC {
   appName: string = process.env.NAME
   time: number = 12
+  showTime () {
+    console.log(this.time)
+  }
 }
 
 console.time('createComponent')

@@ -8,6 +8,33 @@ declare class Directive {
   expression: string
 
   /**
+   * Element that uses this directive.
+   *
+   * @type {Element}
+   */
+  element: Element
+
+  /**
+   * Event exec function.
+   * Only available for event directive.
+   *
+   * @type {Function}
+   * @memberof Directive
+   */
+  eventExec: Function
+
+  /**
+   * Event that is bound.
+   * This function is bound to element, for example "onlick", "onfocus".
+   * Called when event is triggered, and will call "eventExec" next.
+   * Only available for event directive.
+   *
+   * @type {EventListenerOrEventListenerObject}
+   * @memberof Directive
+   */
+  eventBound: EventListenerOrEventListenerObject
+
+  /**
    * Directive name.
    *
    * @type {string}
@@ -63,8 +90,9 @@ declare class Directive {
    * Update directive values and set them to element.
    *
    * @param {*} newValue
+   * @param {$ComponentModels} [$models]
    */
-  update (newValue: any): void
+  update (newValue: any, $models?: $ComponentModels): void
 }
 
 /**
@@ -89,7 +117,16 @@ interface IDirectiveOptions {
   name: string
 
   /**
-   * This function will be called when this directive is attached to element.
+   * This function will be called when this directive is going to be attached to element.
+   * Will be called only once.
+   *
+   * @type {TDirectiveHook}
+   * @memberof IDirectiveOptions
+   */
+  onInstall?: TDirectiveHook
+
+  /**
+   * This function will be called when this directive has been attached to element.
    * Will be called only once.
    *
    * @type {TDirectiveHook}
@@ -117,4 +154,4 @@ interface IDirectiveOptions {
 /**
  * Directive-hook-function decleration.
  */
-type TDirectiveHook = (astNode: ASTNode, element: Element, newValue?: any) => void
+type TDirectiveHook = (directive: Directive, newValue?: any, $models?: $ComponentModels) => void

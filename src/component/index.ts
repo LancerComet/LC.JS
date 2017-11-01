@@ -29,7 +29,12 @@ function Component (option: IComponentOption = {}) {
     // Create $models.
     const $models = {}
     const instance = new ClassByUser()
-    const keys = Object.keys(instance)
+
+    const instanceKeys = Object.keys(instance)  // Value properties and user-defined methods from prototype.
+    const methodKeys = Object.getOwnPropertyNames(ClassByUser.prototype)
+      .filter(item => item !== 'constructor')
+
+    const keys = instanceKeys.concat(methodKeys)
 
     for (let i = 0, length = keys.length; i < length; i++) {
       const key = keys[i]
@@ -53,13 +58,7 @@ function Component (option: IComponentOption = {}) {
         continue
       }
 
-      // Switch value type, method or model.
-      // Methods.
-      if (typeof value === 'function') {
-        // TODO: deal with function.
-        continue
-      }
-
+      // Create reactive model.
       $models[key] = new ReactiveModel(key, {
         type: value.constructor,
         default: value,

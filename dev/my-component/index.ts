@@ -10,11 +10,6 @@ class MyComponent extends LC {
   isMarried: boolean = false
   address: string[] = ['NewYork', 'Beijing']
   sex: string = 'male'
-
-  // Methods.
-  showMyAge () {
-    alert(this.age)
-  }
 }
 
 export {
