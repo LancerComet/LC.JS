@@ -12,11 +12,11 @@ const valueFlag = DIRECTIVE.flags.value
 const event = {
   [eventFlag + 'click']: createDirectiveConstructor({
     name: eventFlag + 'click',
-    onInstalled (element) {
+    onInstalled (astNode, element) {
     },
-    onUpdated (element) {
+    onUpdated (astNode, element) {
     },
-    onUninstalled (element) {
+    onUninstalled (astNode, element) {
     }
   })
 }
@@ -24,21 +24,22 @@ const event = {
 const value = {
   [valueFlag + 'class']: createDirectiveConstructor({
     name: valueFlag + 'class',
-    onInstalled (element) {
+    onInstalled (astNode, element) {
     },
-    onUpdated (element) {
+    onUpdated (astNode, element) {
     },
-    onUninstalled (element) {
+    onUninstalled (astNode, element) {
     }
   }),
 
   [valueFlag + 'style']: createDirectiveConstructor({
     name: valueFlag + 'style',
-    onInstalled (element) {
+    onInstalled (astNode, element) {
+      console.log('style installed: ', element.attributes)
     },
-    onUpdated (element) {
+    onUpdated (astNode, element) {
     },
-    onUninstalled (element) {
+    onUninstalled (astNode, element) {
     }
   }),
 }

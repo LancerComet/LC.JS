@@ -1,8 +1,6 @@
 /// <reference path="./index.d.ts" />
-import { Packet } from '_debugger';
 
 import { ASTNode } from '../template/modules/ast'
-
 import { compileAstToElement, parseHTMLtoAST } from '../template'
 import { nextTick } from '../utils'
 

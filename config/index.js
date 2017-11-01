@@ -6,7 +6,7 @@ const packageJSON = require('../package.json')
 
 const projectRoot = path.resolve(__dirname, '../')
 
-const STATIC_FILES_URL = `//static-files-path.com`
+const STATIC_FILES_URL = ``
 
 exports.base = {
   app: projectRoot + '/dev/index.ts',

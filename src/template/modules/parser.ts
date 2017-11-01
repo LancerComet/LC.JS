@@ -20,7 +20,7 @@ function parseHTMLtoAST (htmlString: string, components?: $ComponentUsage): AST 
   $el.innerHTML = htmlString
 
   if ($el.childElementCount > 1) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       console.error(`[${process.env.NAME}] Component only accepts one root element, please wrap your all nodes into a single element.`)
     }
     return []

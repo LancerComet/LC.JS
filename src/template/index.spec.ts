@@ -1,9 +1,8 @@
 import { parseHTMLtoAST } from './'
-import { ASTNode } from './modules/ast'
 
 describe('Template testing.', () => {
-  it('Should generate correct ast.', () => {
-    const template1 = `
+  it('Should generate correct AST.', () => {
+    const template = `
       <div class="test-div" data-type="test">
         This is a testing element.
         <h2>Title is here.</h2>
@@ -16,26 +15,19 @@ describe('Template testing.', () => {
           <div class="name-value">LancerComet</div>
         </p>
       </div>
-      <h1>Greeting, LancerComet!</h1>
     `
 
-    const ast1 = parseHTMLtoAST(template1)
-    chai.expect(ast1).to.be.a('array')
-    chai.expect((<ASTNode> ast1[0]).children[0]).to.equals('This is a testing element.')
-    chai.expect((<ASTNode> (<ASTNode> ast1[0]).children[1]).children[0]).to.equals('Title is here.')
-    chai.expect((<ASTNode> (<ASTNode> ast1[0]).children[1]).tagName).to.equals('h2')
-    chai.expect((<ASTNode> ast1[1]).tagName).to.equals('h1')
-    chai.expect((<ASTNode> ast1[1]).children[0]).to.equals('Greeting, LancerComet!')
+    const ast = parseHTMLtoAST(template)
+    chai.expect(ast).to.be.a('array')
 
-    const template2 = `
-      <div>
-        Hello, {{name}}!
-        <br/>
-        I'm glad to tell you a thing.
-      </div>
-    `
+    const divNode = ast[1]
+    chai.expect(divNode.tagName).to.equal('div')
+    chai.expect(divNode.children[0].textContent).contain('This is a testing element.')
 
-    const ast2 = parseHTMLtoAST(template2)
-    chai.expect(ast2.length).to.equals(1)
+    const h2Node = divNode.children[1]
+    chai.expect(h2Node.tagName).to.equals('h2')
+
+    const brNode = divNode.children[3]
+    chai.expect(brNode.attributes['class']).to.equal('this-is-a-br')
   })
 })

@@ -1,19 +1,74 @@
 const path = require('path')
 const webpack = require('webpack')
-const merge = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 
 const config = require('../config')
-const baseWebpackConfig = require('./webpack.base.conf')
 const resolve = filepath => path.resolve(__dirname, '../' + filepath)
+
+const srcFolders = ['dev', 'src', 'test'].map(resolve)
 
 // add hot-reload related code to entry chunks
 // Object.keys(baseWebpackConfig.entry).forEach(function (name) {
 //   baseWebpackConfig.entry[name] = ['./build/utils/dev-client'].concat(baseWebpackConfig.entry[name])
 // })
 
-module.exports = merge(baseWebpackConfig, {
+module.exports = {
+  entry: {
+    app: config.base.app
+  },
+
+  output: {
+    path: config.build.assetsRoot,
+    filename: '[name].js',
+    publicPath: process.env.NODE_ENV === 'production'
+      ? config.build.assetsPublicPath
+      : config.dev.assetsPublicPath
+  },
+
+  resolve: {
+    extensions: ['.js', '.ts', '.json'],
+
+    modules: [
+      resolve('src'),
+      resolve('node_modules')
+    ],
+
+    alias: {
+      'src': resolve('src')
+    }
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.pug$/,
+        loader: 'pug-loader'
+      },
+      {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: require('../babel.dev.babelrc')
+        },
+        include: srcFolders
+      },
+      {
+        test: /\.tsx?$/,
+        use: [
+          // 'cache-loader',
+          // 'thread-loader',
+          'babel-loader',
+          {
+            loader: 'ts-loader',
+            // options: { happyPackMode: true }
+          }
+        ],
+        include: srcFolders
+      }
+    ]
+  },
+
   devtool: '#cheap-module-eval-source-map',
 
   plugins: [
@@ -43,4 +98,4 @@ module.exports = merge(baseWebpackConfig, {
   },
 
   watch: true
-})
+}

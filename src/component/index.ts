@@ -10,7 +10,6 @@ import { ReactiveModel } from './modules/reactive-model'
  */
 function Component (option: IComponentOption = {}) {
   return function (ClassByUser: any) {
-
     // Create $components.
     const $components: $ComponentUsage = {}
     if (option.components) {

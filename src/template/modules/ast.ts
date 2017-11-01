@@ -34,9 +34,7 @@ class ASTNode {
     switch (this.nodeType) {
       // Component anchor or html element.
       case NODE_TYPE.element:
-        element = document.createElement(
-          this.isComponentAnchor ? 'div' : this.tagName
-        )
+        element = document.createElement(this.tagName)
 
         // Add data-style for style scoping.
         // Use parent's id if it has a parent.
@@ -136,6 +134,7 @@ class ASTNode {
     const values = variables.map(item => $models[item].value)
 
     switch (this.nodeType) {
+      // Element only needs to update all directives.
       case NODE_TYPE.element:
         // Update all directives.
         this.directives.forEach(directive => {
@@ -155,6 +154,7 @@ class ASTNode {
 
         break
 
+      // TextNode needs to update textContent.
       case NODE_TYPE.textNode:
         let newTextContent = this.expression
 

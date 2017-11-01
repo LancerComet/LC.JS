@@ -8,15 +8,66 @@ const OptimizeJsPlugin = require('optimize-js-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 
 const config = require('../config')
-const baseWebpackConfig = require('./webpack.base.conf')
-
 const env = process.env.NODE_ENV === 'testing'
   ? require('../config/envs/env.test.js')
   : config.build.env
 
-const webpackConfig = merge(baseWebpackConfig, {
+const resolve = filepath => path.resolve(__dirname, '../' + filepath)
+const srcFolders = ['dev', 'src', 'test'].map(resolve)
+
+const webpackConfig = {
+  entry: {
+    lc: resolve('src/index.ts')
+  },
+
+  output: {
+    path: config.build.assetsRoot,
+    filename: '[name].dist.js',
+    chunkFilename: '[name].dist.js',
+    library: 'LC',
+    libraryTarget: 'commonjs2'
+  },
+
+  resolve: {
+    extensions: ['.js', '.ts', '.json'],
+
+    modules: [
+      resolve('src'),
+      resolve('node_modules')
+    ],
+
+    alias: {
+      'src': resolve('src')
+    }
+  },
+
   module: {
     rules: [
+      {
+        test: /\.pug$/,
+        loader: 'pug-loader'
+      },
+      {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: require('../babel.build.babelrc')
+        },
+        include: srcFolders
+      },
+      {
+        test: /\.tsx?$/,
+        use: [
+          // 'cache-loader',
+          // 'thread-loader',
+          'babel-loader',
+          {
+            loader: 'ts-loader',
+            // options: { happyPackMode: true }
+          }
+        ],
+        include: srcFolders
+      },
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
@@ -43,12 +94,6 @@ const webpackConfig = merge(baseWebpackConfig, {
 
   devtool: config.build.productionSourceMap ? '#source-map' : false,
 
-  output: {
-    path: config.build.assetsRoot,
-    filename: utils.assetsPath('js/[name].[chunkhash].js'),
-    chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
-  },
-
   plugins: [
     new webpack.DefinePlugin(Object.assign({
       'process.env': env
@@ -65,7 +110,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     }),
 
     new ExtractTextPlugin({
-      filename: utils.assetsPath('css/[name].[contenthash].css')
+      filename: '[name].[contenthash].css'
     }),
 
     new OptimizeCSSPlugin({
@@ -73,42 +118,9 @@ const webpackConfig = merge(baseWebpackConfig, {
       cssProcessorOptions: {
         autoprefixer: false
       }
-    }),
-
-    new HtmlWebpackPlugin({
-      filename: process.env.NODE_ENV === 'testing'
-        ? 'index.html'
-        : config.build.index,
-      template: config.base.template,
-      inject: config.base.inject,
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeAttributeQuotes: true
-      },
-      chunksSortMode: 'dependency'
-    }),
-
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      minChunks: function (module, count) {
-        // any required modules inside node_modules are extracted to vendor
-        return (
-          module.resource &&
-          /\.js$/.test(module.resource) &&
-          module.resource.indexOf(
-            path.join(__dirname, '../node_modules')
-          ) === 0
-        )
-      }
-    }),
-
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'manifest',
-      chunks: Infinity
     })
   ]
-})
+}
 
 if (config.build.productionGzip) {
   const CompressionWebpackPlugin = require('compression-webpack-plugin')
