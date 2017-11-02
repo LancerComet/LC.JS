@@ -42,24 +42,25 @@ class ASTNode {
         element.setAttribute('data-style-' + getAncestorID(this), '')
 
         // Set attributes.
-        const attributes = Object.keys(this.attributes)
-        for (let i = 0, length = attributes.length; i < length; i++) {
-          const attrName = attributes[i]
-          const attrValue = this.attributes[attrName]
+        const attrNames = Object.keys(this.attributes)
+        for (let i = 0, length = attrNames.length; i < length; i++) {
+          const attrName = attrNames[i]
+          const { value: attrValue } = this.attributes[attrName]
 
           // If this attribute is a directive.
           if (isDirective(attrName)) {
             // Get Directive Constructor if this directive has been defined.
             let DirectiveCtor = directives[attrName]
-            let directive = null
 
             // A non-internal directive, create a directive for this one.
             if (!DirectiveCtor) {
-              DirectiveCtor = createDirective({ name: attrName })
+              DirectiveCtor = createDirective({
+                name: attrName
+              })
             }
 
             // Create a directive object and let it to do all jobs such as compiling, updating, etc.
-            directive = new DirectiveCtor(this, element, attrValue)
+            const directive = new DirectiveCtor(this, element, attrValue)
             nextTick(() => directive.install())
             this.directives.push(directive)
             continue

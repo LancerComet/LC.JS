@@ -12,8 +12,8 @@ const directiveType = DIRECTIVE.type
  */
 const directives = {}
 
-// Create intenral directives.
-// @model
+// Create internal directives.
+// @model.
 directives[eventFlag + 'model'] = createDirective({
   name: eventFlag + 'model',
 
@@ -27,11 +27,25 @@ directives[eventFlag + 'model'] = createDirective({
     element.addEventListener('input', handler)
   },
 
-  onInstalled (directive, newValue, component) {
+  onInstalled (directive: Directive, newValue, component) {
     directive.eventExec = function (event) {
       const keyName = directive.expression
-      const newValue = (<HTMLInputElement> event.target).value
       const $model = <ReactiveModel> (component)['$models'][keyName]
+      let newValue: any = (<HTMLInputElement> event.target).value
+
+      // Detect decorators.
+      const decorators = directive.astNode.attributes[eventFlag + 'model'].decorators
+
+      // Number decorator.
+      if (decorators.indexOf('number') > -1) {
+        newValue = parseInt(newValue || 0)
+      }
+
+      // Trim decorator.
+      if (decorators.indexOf('trim') > -1) {
+        newValue = newValue.trim()
+      }
+
       $model.value = newValue
     }
   },
@@ -74,19 +88,18 @@ function createDirective (option: IDirectiveOptions) {
    */
   class Directive {
     /**
-     * ASTNode that uses this directive.
-     *
-     * @private
-     * @type {ASTNode}
-     */
-    private astNode: ASTNode
-
-    /**
      * Whether this directive is installed to element.
      *
      * @type {boolean}
      */
     private isInstalled: boolean
+
+    /**
+     * ASTNode that uses this directive.
+     *
+     * @type {ASTNode}
+     */
+    astNode: ASTNode
 
     /**
      * Directive expression.
@@ -274,7 +287,20 @@ function createDirective (option: IDirectiveOptions) {
   return Directive
 }
 
+/**
+ * Get decorators from directive name.
+ *
+ * @param {string} directiveName
+ * @return {string[]}
+ */
+function getDecorators (directiveName: string): string[] {
+  return (
+    directiveName.match(/\.\w+/g) || []
+  ).map(item => item.replace('.', ''))
+}
+
 export {
   createDirective,
-  directives
+  directives,
+  getDecorators
 }

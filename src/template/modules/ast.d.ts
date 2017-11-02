@@ -163,7 +163,10 @@ interface IASTNodeOption {
 /**
  * AST Node Attribute.
  */
-type ASTNodeElementAttribute = {[attribute: string]: string}
+type ASTNodeElementAttribute = {[attribute: string]: {
+  value: string
+  decorators: string[]
+}}
 
 /**
  * AST Node type.

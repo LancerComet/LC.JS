@@ -16,7 +16,7 @@ import { HelloWorld } from './hello-world'
       <div>Time: {{time}}, double time: {{time * 2}}</div>
       <button @click="showTime">Show Time</button>
       <button @click="add">Add 1000</button>
-      <input type="number" @focus="onFocus" @blur="onBlur" @model="time">
+      <input @focus="onFocus" @blur="onBlur" @model.number="time">
       <input @model="appName">
       <my-component></my-component>
     </div>

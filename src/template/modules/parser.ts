@@ -1,6 +1,6 @@
 import { ASTNode } from './ast'
 import { NODE_TYPE } from '../../core/config'
-import { isValueDirective } from '../../directives'
+import { isValueDirective, getDecorators } from '../../directives'
 
 /**
  * Convert html string to AST.
@@ -50,8 +50,6 @@ export {
  * @returns {ASTNode}
  */
 function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode?: ASTNode): ASTNode {
-  let astNode: ASTNode = null
-
   let attributes: ASTNodeElementAttribute = {}
   const children: AST = []
   let ComponentCtor = null
@@ -67,8 +65,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
     case NODE_TYPE.element:
       const tagNameInLowerCase = (<HTMLElement> node).tagName.toLowerCase()
 
-      // If component usage is given then
-      // check if this node is an anchor for component.
+      // If component usage is given then check if this node is an anchor for component.
       if ($components && $components[tagNameInLowerCase]) {
         // This is a component anchor.
         isComponentAnchor = true
@@ -81,13 +78,18 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
         .forEach(item => {
           const attrName = item.name
 
-          // Save props.
+          // Save this attribute as a prop.
           if (isComponentAnchor && isValueDirective(attrName)) {
             props[attrName] = item.value
 
-          // Save attribute.
+          // Save as an attribute.
           } else {
-            attributes[attrName] = item.value
+            const attrNameWithoutDecorators = (attrName.match(/\W\w+\b/) || [])[0] || attrName
+            const decorators = getDecorators(attrName)
+            attributes[attrNameWithoutDecorators] = {
+              value: item.value,
+              decorators
+            }
           }
         })
 
@@ -100,7 +102,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
       break
   }
 
-  astNode = new ASTNode({
+  const astNode = new ASTNode({
     attributes,
     children,
     ComponentCtor,
