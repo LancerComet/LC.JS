@@ -1,14 +1,15 @@
 import { ASTNode } from './ast'
 import { NODE_TYPE } from '../../core/config'
+import { isValueDirective } from '../../directives'
 
 /**
  * Convert html string to AST.
  *
  * @param {string} htmlString
- * @param {$ComponentUsage} [components]
+ * @param {$ComponentUsage} $components
  * @returns {AST}
  */
-function parseHTMLtoAST (htmlString: string, components?: $ComponentUsage): AST {
+function parseHTMLtoAST (htmlString: string, $components: $ComponentUsage): AST {
   if (!htmlString) {
     return []
   }
@@ -29,7 +30,7 @@ function parseHTMLtoAST (htmlString: string, components?: $ComponentUsage): AST 
   for (let i = 0, length = $el.childNodes.length; i < length; i++) {
     const currentNode = $el.childNodes[i]
     ast.push(
-      elementToASTNode(currentNode, components)
+      elementToASTNode(currentNode, $components)
     )
   }
 
@@ -53,12 +54,13 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
   let attributes: ASTNodeElementAttribute = {}
   const children: AST = []
+  let ComponentCtor = null
   let expression: string = ''
   let isComponentAnchor: boolean = false
   let nodeType: number = node.nodeType
+  let props: {} = {}
   let tagName: string = ''
   let textContent: string = null
-  let ComponentCtor = null
 
   switch (nodeType) {
     // Element.
@@ -67,20 +69,26 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
       // If component usage is given then
       // check if this node is an anchor for component.
-      if ($components) {
+      if ($components && $components[tagNameInLowerCase]) {
         // This is a component anchor.
-        if ($components[tagNameInLowerCase]) {
-          isComponentAnchor = true
-          ComponentCtor = $components[tagNameInLowerCase].Constructor
-          nodeType = NODE_TYPE.comment  // Over NodeType to NODE_TYPE.comment.
-        }
+        isComponentAnchor = true
+        ComponentCtor = $components[tagNameInLowerCase].Constructor
+        nodeType = NODE_TYPE.comment  // Over NodeType to NODE_TYPE.comment.
       }
 
       // Get attributes info.
       Array.prototype.slice.call(node.attributes)
         .forEach(item => {
-          attributes[item.name] = item.value
-          expression += item.value  // Save all attribute as expressions for further usage in astNode.setSingleExpressionValue.
+          const attrName = item.name
+
+          // Save props.
+          if (isComponentAnchor && isValueDirective(attrName)) {
+            props[attrName] = item.value
+
+          // Save attribute.
+          } else {
+            attributes[attrName] = item.value
+          }
         })
 
       tagName = tagNameInLowerCase
@@ -100,6 +108,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
     isComponentAnchor,
     nodeType,
     parentNode,
+    props,
     tagName,
     textContent
   })

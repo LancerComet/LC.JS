@@ -20,6 +20,7 @@ class ASTNode {
   isComponentAnchor: boolean
   nodeType: ASTNodeType
   parentNode: ASTNode
+  props: ASTNodeProps
   tagName: string
   textContent: string
 
@@ -152,10 +153,14 @@ class ASTNode {
     let newTextContent = this.expression
 
     expressions.forEach(exp => {
+      const pureExpression = getPureExpression(exp)
+
       // Replace mastache expression.
       newTextContent = newTextContent.replace(
         exp,
-        evaluateExpression(variables, values, getPureExpression(exp))
+        pureExpression === specificExpression && typeof newValue !== 'undefined'
+          ? newValue  // Use specific value.
+          : evaluateExpression(variables, values, pureExpression)  // Evaluate new value.
       )
     })
 
@@ -200,6 +205,7 @@ class ASTNode {
 
       case NODE_TYPE.comment:
         this.ComponentCtor = params.ComponentCtor || null
+        this.props = params.props || {}
         break
     }
 
@@ -222,7 +228,7 @@ export {
 function evaluateExpression (variableName: string[], variableValue: any[], expression: string) {
   const evalFunc = Function.apply(
     null,
-    variableName.concat('return ' + expression)
+    variableName.concat('try { return ' + expression + '} catch (error) { return "" }')
   )
   const result = evalFunc.apply(null, variableValue)
   return result
