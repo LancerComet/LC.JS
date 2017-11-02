@@ -1,5 +1,12 @@
 declare class Directive {
   /**
+   * ASTNode that uses this directive.
+   *
+   * @type {ASTNode}
+   */
+  astNode: ASTNode
+
+  /**
    * Directive expression.
    *
    * @private

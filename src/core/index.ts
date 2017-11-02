@@ -97,6 +97,14 @@ abstract class LC {
   }
 
   /**
+   * Parent component.
+   *
+   * @type {LC}
+   * @memberof LC
+   */
+  $parent: LC
+
+  /**
    * Mount this component to target element.
    *
    * @param {(string | Element)} element
@@ -188,6 +196,7 @@ function hidePrivates (target: LC) {
  * Create AST from HTML string.
  *
  * @param {string} htmlString
+ * @param {$ComponentUsage} $components
  * @returns {AST}
  */
 function createAST (htmlString: string, $components: $ComponentUsage): AST {

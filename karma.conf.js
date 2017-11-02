@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Tue Oct 24 2017 21:22:31 GMT+0800 (中国标准时间)
 
-const webpackConfig = require('./build/webpack.base.conf')
+const webpackConfig = require('./build/webpack.prod.conf')
 delete webpackConfig.entry
 
 module.exports = function (config) {

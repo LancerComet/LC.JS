@@ -1,7 +1,7 @@
 /// <reference path="./ast.d.ts" />
 
-import { DIRECTIVE, NODE_TYPE } from '../../core/config'
-import { createDirective, directives, isDirective, isEventDirective, isValueDirective } from '../../directives'
+import { NODE_TYPE } from '../../core/config'
+import { createDirective, directives, isDirective } from '../../directives'
 import { nextTick, randomID } from '../../utils'
 
 /**
@@ -20,6 +20,7 @@ class ASTNode {
   isComponentAnchor: boolean
   nodeType: ASTNodeType
   parentNode: ASTNode
+  props: ASTNodeProps
   tagName: string
   textContent: string
 
@@ -41,24 +42,25 @@ class ASTNode {
         element.setAttribute('data-style-' + getAncestorID(this), '')
 
         // Set attributes.
-        const attributes = Object.keys(this.attributes)
-        for (let i = 0, length = attributes.length; i < length; i++) {
-          const attrName = attributes[i]
-          const attrValue = this.attributes[attrName]
+        const attrNames = Object.keys(this.attributes)
+        for (let i = 0, length = attrNames.length; i < length; i++) {
+          const attrName = attrNames[i]
+          const { value: attrValue } = this.attributes[attrName]
 
           // If this attribute is a directive.
           if (isDirective(attrName)) {
             // Get Directive Constructor if this directive has been defined.
             let DirectiveCtor = directives[attrName]
-            let directive = null
 
             // A non-internal directive, create a directive for this one.
             if (!DirectiveCtor) {
-              DirectiveCtor = createDirective({ name: attrName })
+              DirectiveCtor = createDirective({
+                name: attrName
+              })
             }
 
             // Create a directive object and let it to do all jobs such as compiling, updating, etc.
-            directive = new DirectiveCtor(this, element, attrValue)
+            const directive = new DirectiveCtor(this, element, attrValue)
             nextTick(() => directive.install())
             this.directives.push(directive)
             continue
@@ -96,27 +98,34 @@ class ASTNode {
    */
   updateExec (component: LC, specificExpression?: string, newValue?: any) {
     const variables = Object.keys(component)
-    const values = variables.map(item => component[item])
+    // const values = variables.map(item => component[item])
+    const values = []
+    for (let i = 0, length = variables.length; i < length; i++) {
+      values[i] = component[variables[i]]
+    }
 
     // Element type.
     // ========================
     if (this.nodeType === NODE_TYPE.element) {
       // Element only needs to update all directives.
-      this.directives.forEach(directive => {
+      for (let i = 0, length = this.directives.length; i < length; i++) {
+        const directive = this.directives[i]
         const expression = directive.expression  // 'font-size:' +  size + 'px'
 
         if (
           specificExpression &&
           !expression.match(new RegExp('\\b' + specificExpression + '\\b'))
         ) {
-          return
+          continue
         }
 
         const value = typeof newValue !== 'undefined'
           ? newValue
           : evaluateExpression(variables, values, expression)
+
         directive.update(value, component)
-      })
+      }
+
       return
     }
 
@@ -131,10 +140,11 @@ class ASTNode {
       return
     }
 
+    const pureExpressions = expressions.map(getPureExpression)
+
     // If specific expression is given, check if "expressions" contains this one.
     let doUpdate = false
     if (specificExpression) {
-      const pureExpressions = expressions.map(getPureExpression)
       pureExpressions.some(item => {
         if (item.match(new RegExp(specificExpression))) {
           doUpdate = true
@@ -151,11 +161,20 @@ class ASTNode {
 
     let newTextContent = this.expression
 
-    expressions.forEach(exp => {
+    expressions.forEach((exp, index) => {
+      // If specific expression and vaule is given, override newValue to original value.
+      if (exp.indexOf(specificExpression) > -1 && typeof newValue !== 'undefined') {
+        const expIndex = variables.indexOf(specificExpression)
+        if (expIndex > -1) {
+          values[expIndex] = newValue
+        }
+      }
+
       // Replace mastache expression.
+      const pureExpression = pureExpressions[index]
       newTextContent = newTextContent.replace(
         exp,
-        evaluateExpression(variables, values, getPureExpression(exp))
+        evaluateExpression(variables, values, pureExpression)  // Evaluate new value.
       )
     })
 
@@ -192,7 +211,7 @@ class ASTNode {
     switch (params.nodeType) {
       case NODE_TYPE.textNode:
         this.textContent = params.textContent || ''
-        this.tagName = ''  // Over tagName to empty.
+        this.tagName = ''  // Override tagName to empty.
         break
 
       case NODE_TYPE.element:
@@ -200,6 +219,7 @@ class ASTNode {
 
       case NODE_TYPE.comment:
         this.ComponentCtor = params.ComponentCtor || null
+        this.props = params.props || {}
         break
     }
 
@@ -222,7 +242,7 @@ export {
 function evaluateExpression (variableName: string[], variableValue: any[], expression: string) {
   const evalFunc = Function.apply(
     null,
-    variableName.concat('return ' + expression)
+    variableName.concat('try { return ' + expression + '} catch (error) { return "" }')
   )
   const result = evalFunc.apply(null, variableValue)
   return result

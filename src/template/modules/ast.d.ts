@@ -89,6 +89,15 @@ declare class ASTNode {
   parentNode: ASTNode
 
   /**
+   * Props' name collection.
+   * This property will only be available if this is component anchor.
+   *
+   * @type {ASTNodeProps}
+   * @memberof ASTNode
+   */
+  props: ASTNodeProps
+
+  /**
    * TagName.
    *
    * @type {string}
@@ -146,6 +155,7 @@ interface IASTNodeOption {
   isComponentAnchor?: boolean
   nodeType: ASTNodeType
   parentNode?: ASTNode
+  props?: ASTNodeProps
   tagName: string
   textContent?: string
 }
@@ -153,7 +163,10 @@ interface IASTNodeOption {
 /**
  * AST Node Attribute.
  */
-type ASTNodeElementAttribute = {[attribute: string]: string}
+type ASTNodeElementAttribute = {[attribute: string]: {
+  value: string
+  decorators: string[]
+}}
 
 /**
  * AST Node type.
@@ -163,6 +176,16 @@ type ASTNodeElementAttribute = {[attribute: string]: string}
  *  - 9: Comment
  */
 type ASTNodeType = number
+
+/**
+ * AST Node props.
+ * @example
+ *  {
+ *    :name: 'login ? myName : '',
+ *    :isLogin: 'isLogin'
+ *  }
+ */
+type ASTNodeProps = {[propName: string]: string}
 
 /**
  * Template elements AST.

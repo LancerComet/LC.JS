@@ -1,12 +1,9 @@
 /**
- * Project configuration..
+ * Project configuration.
  */
 const path = require('path')
-const packageJSON = require('../package.json')
 
 const projectRoot = path.resolve(__dirname, '../')
-
-const STATIC_FILES_URL = ``
 
 exports.base = {
   app: projectRoot + '/dev/index.ts',
@@ -29,13 +26,8 @@ exports.build = {
   index: path.resolve(__dirname, '../dist/index.html'),
   assetsRoot: path.resolve(__dirname, '../dist'),
   assetsSubDirectory: 'static',
-  assetsPublicPath: STATIC_FILES_URL,
-  productionSourceMap: true,  // SourceMap is off by default.
-
-  // Gzip is off by default.
-  // Run npm install --save-dev compression-webpack-plugin before enable it.
-  productionGzip: false,
-  productionGzipExtensions: ['js', 'css'],
+  assetsPublicPath: '',
+  productionSourceMap: false,  // SourceMap is off by default.
 
   // Run the build command with an extra argument to
   // View the bundle analyzer report after build finishes:
