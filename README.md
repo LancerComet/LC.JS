@@ -27,10 +27,11 @@ import { HelloWorld } from './hello-world'
 
   template: `
     <div class="demo-app">
-      <h1 :style="'color: ' + color">Hello, {{appName}}!</h1>
-      <hello-world></hello-world>
+      <h1 :style="'color: ' + color">Hello, {{appName || '--'}}!</h1>
+      <hello-world :app-name="appName"></hello-world>
       <div>
         <input type="text" @model="appName" place="Change your app name.">
+        <button @click="showAppName">Show AppName</button>
       </div>
     </div>
   `
@@ -38,6 +39,9 @@ import { HelloWorld } from './hello-world'
 class AppRoot extends LC {
   appName: string = 'My App'
   color: string = '#2090e3'
+  showAppName () {
+    alert(this.appName)
+  }
 }
 
 const myApp = new AppRoot()

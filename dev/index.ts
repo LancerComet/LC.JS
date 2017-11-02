@@ -2,16 +2,6 @@ import { LC, Component, createDirective } from '../src'
 import { MyComponent } from './my-component'
 import { HelloWorld } from './hello-world'
 
-createDirective({
-  name: '@lancer',
-  onInstall (directive) {
-    const element = directive.element
-    element.addEventListener('click', event => {
-      console.log('wow')
-    })
-  }
-})
-
 @Component({
   components: {
     'hello-world': HelloWorld,
@@ -54,7 +44,8 @@ console.time('createComponent')
 const root = new Root()
 root.mount('#lc-app')
 console.timeEnd('createComponent')
+console.log(root)
 
-// setInterval(() => {
-//   root.time++
-// }, 1000)
+setInterval(() => {
+  root.time++
+}, 1000)

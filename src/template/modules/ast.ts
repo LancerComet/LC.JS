@@ -97,13 +97,18 @@ class ASTNode {
    */
   updateExec (component: LC, specificExpression?: string, newValue?: any) {
     const variables = Object.keys(component)
-    const values = variables.map(item => component[item])
+    // const values = variables.map(item => component[item])
+    const values = []
+    for (let i = 0, length = variables.length; i < length; i++) {
+      values[i] = component[variables[i]]
+    }
 
     // Element type.
     // ========================
     if (this.nodeType === NODE_TYPE.element) {
       // Element only needs to update all directives.
-      this.directives.forEach(directive => {
+      for (let i = 0, length = this.directives.length; i < length; i++) {
+        const directive = this.directives[i]
         const expression = directive.expression  // 'font-size:' +  size + 'px'
 
         if (
@@ -116,8 +121,10 @@ class ASTNode {
         const value = typeof newValue !== 'undefined'
           ? newValue
           : evaluateExpression(variables, values, expression)
+
         directive.update(value, component)
-      })
+      }
+
       return
     }
 
@@ -132,10 +139,11 @@ class ASTNode {
       return
     }
 
+    const pureExpressions = expressions.map(getPureExpression)
+
     // If specific expression is given, check if "expressions" contains this one.
     let doUpdate = false
     if (specificExpression) {
-      const pureExpressions = expressions.map(getPureExpression)
       pureExpressions.some(item => {
         if (item.match(new RegExp(specificExpression))) {
           doUpdate = true
@@ -152,15 +160,20 @@ class ASTNode {
 
     let newTextContent = this.expression
 
-    expressions.forEach(exp => {
-      const pureExpression = getPureExpression(exp)
+    expressions.forEach((exp, index) => {
+      // If specific expression and vaule is given, override newValue to original value.
+      if (exp.indexOf(specificExpression) > -1 && typeof newValue !== 'undefined') {
+        const expIndex = variables.indexOf(specificExpression)
+        if (expIndex > -1) {
+          values[expIndex] = newValue
+        }
+      }
 
       // Replace mastache expression.
+      const pureExpression = pureExpressions[index]
       newTextContent = newTextContent.replace(
         exp,
-        pureExpression === specificExpression && typeof newValue !== 'undefined'
-          ? newValue  // Use specific value.
-          : evaluateExpression(variables, values, pureExpression)  // Evaluate new value.
+        evaluateExpression(variables, values, pureExpression)  // Evaluate new value.
       )
     })
 

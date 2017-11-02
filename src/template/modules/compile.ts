@@ -6,10 +6,10 @@ import { ReactiveModel } from '../../component/modules/reactive-model'
 /**
  * Create HTML Elements by AST.
  *
- * @param {AST} ast
- * @param {LC} component
- * @param {$ComponentUsage} $components
- * @param {$ComponentModels} $models
+ * @param {AST} ast AST.
+ * @param {LC} component Component that the AST belongs to.
+ * @param {$ComponentUsage} $components Quick reference to "component.$components".
+ * @param {$ComponentModels} $models Quick reference to "component.$models".
  * @returns {Element}
  */
 function compileAstToElement (ast: AST, component: LC, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
