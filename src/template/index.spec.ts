@@ -3,12 +3,12 @@ import { parseHTMLtoAST } from './'
 describe('Template testing.', () => {
   it('Should generate correct AST.', () => {
     const template = `
-      <div class="test-div" data-type="test">
+      <div class="test-div">
         This is a testing element.
         <h2>Title is here.</h2>
         F@♂
         <br class="this-is-a-br"/>
-        <input class="test-input" data-value="none" type="text"/>
+        <input class="test-input" type="text"/>
         <hr/>
         F@♂
         <p class="my-name" id="lancer">
@@ -28,6 +28,6 @@ describe('Template testing.', () => {
     chai.expect(h2Node.tagName).to.equals('h2')
 
     const brNode = divNode.children[3]
-    chai.expect(brNode.attributes['class']).to.equal('this-is-a-br')
+    chai.expect(brNode.attributes['class'].value).to.equal('this-is-a-br')
   })
 })
