@@ -91,10 +91,18 @@ abstract class LC {
    */
   private $notifyAST (ast: AST, keyName: string, newValue: any) {
     ast.forEach(astNode => {
-      astNode.updateExec(this.$models, keyName, newValue)
+      astNode.updateExec(this, keyName, newValue)
       this.$notifyAST(astNode.children, keyName, newValue)
     })
   }
+
+  /**
+   * Parent component.
+   *
+   * @type {LC}
+   * @memberof LC
+   */
+  $parent: LC
 
   /**
    * Mount this component to target element.
@@ -133,7 +141,7 @@ abstract class LC {
     if ($template) {
       const $components = this.$components
       this.$ast = createAST($template, $components)  // Create AST.
-      this.$elements = compile(this.$ast, $components, this.$models)  // Create elements from AST.
+      this.$elements = compile(this.$ast, this, $components, this.$models)  // Create elements from AST.
     }
 
     // Hide private properties.
@@ -188,6 +196,7 @@ function hidePrivates (target: LC) {
  * Create AST from HTML string.
  *
  * @param {string} htmlString
+ * @param {$ComponentUsage} $components
  * @returns {AST}
  */
 function createAST (htmlString: string, $components: $ComponentUsage): AST {
@@ -198,10 +207,11 @@ function createAST (htmlString: string, $components: $ComponentUsage): AST {
  * Compile AST to element.
  *
  * @param {AST} ast
+ * @param {LC} component
  * @param {$ComponentUsage} $components
  * @param {$ComponentModels} $models
  * @returns {DocumentFragment}
  */
-function compile (ast: AST, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
-  return compileAstToElement(ast, $components, $models)
+function compile (ast: AST, component: LC, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
+  return compileAstToElement(ast, component, $components, $models)
 }

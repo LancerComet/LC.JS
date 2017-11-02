@@ -8,6 +8,14 @@ declare class ReactiveModel {
   $component: LC
 
   /**
+   * Components that use this ReactiveModel as prop.
+   *
+   * @type {LC[]}
+   * @memberof ReactiveModel
+   */
+  $propComponents: LC[]
+
+  /**
    * Name of this reactive model.
    * This value is the keyname of this model in component.
    *

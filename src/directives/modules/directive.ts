@@ -12,63 +12,35 @@ const directiveType = DIRECTIVE.type
  */
 const directives = {}
 
-// @click.
-directives[eventFlag + 'click'] = createDirective({
-  name: eventFlag + 'click',
+// Create intenral directives.
+// @model
+directives[eventFlag + 'model'] = createDirective({
+  name: eventFlag + 'model',
 
-  onInstall (directive: Directive) {
+  onInstall (directive) {
     const element = directive.element
-    const handler = function (event) {
+    const handler = event => {
       const eventExec = directive.eventExec
-      typeof eventExec === 'function' && eventExec()
+      typeof eventExec === 'function' && eventExec(event)
     }
-    element.addEventListener(directive.nameInHTML, handler)
     directive.eventBound = handler
+    element.addEventListener('input', handler)
   },
 
-  onUpdated (directive: Directive, newEventExec: Function, $models: $ComponentModels) {
-    if (typeof newEventExec === 'function') {
-      console.log('bind click')
-      directive.eventExec = function () {
-        const scope = {}
-        Object.keys($models).forEach(modelName => {
-          scope[modelName] = $models[modelName].value
-        })
-        newEventExec.call(scope)
-      }
+  onInstalled (directive, newValue, component) {
+    directive.eventExec = function (event) {
+      const keyName = directive.expression
+      const newValue = (<HTMLInputElement> event.target).value
+      const $model = <ReactiveModel> (component)['$models'][keyName]
+      $model.value = newValue
     }
   },
 
-  onUninstalled (directive: Directive) {
-    const handler = directive.eventBound
-    const element = directive.element
-    if (element && handler) {
-      element.removeEventListener(directive.nameInHTML, handler)
-    }
+  onUpdated (directive, newValue, component) {
+    const element = <HTMLInputElement> directive.element
+    element.value = newValue
   }
 })
-
-// directives[valueFlag + 'class'] = createDirective({
-//   name: valueFlag + 'class',
-//   onInstalled (astNode, element) {
-//   },
-//   onUpdated (astNode, element) {
-//   },
-//   onUninstalled (astNode, element) {
-//   }
-// })
-
-// directives[valueFlag + 'style'] = createDirective({
-//   name: valueFlag + 'style',
-//   onInstalled (astNode, element, newValue) {
-//     console.log('style installed: ', astNode)
-//   },
-//   onUpdated (astNode, element, newValue) {
-//     console.log('style updated: ', newValue)
-//   },
-//   onUninstalled (astNode, element) {
-//   }
-// })
 
 /**
  * Create directive constructor.
@@ -212,36 +184,61 @@ function createDirective (option: IDirectiveOptions) {
      * @memberof Directive
      */
     install () {
-      isFunction(this.onInstall) && this.onInstall(this)
+      switch (this.type) {
+        // Event type. Bind event to element.
+        case directiveType.event:
+          const element = this.element
+          const handler = (event) => {
+            const eventExec = this.eventExec
+            typeof eventExec === 'function' && eventExec(event)
+          }
+          element.addEventListener(this.nameInHTML, handler)
+          this.eventBound = handler
+          isFunction(this.onInstall) && this.onInstall(this)
+          break
+
+        // Value type. Seems to do nothing.
+        case directiveType.value:
+        break
+      }
     }
 
     /**
      * Update directive values and set them to element.
      *
      * @param {*} newValue
-     * @param {$ComponentModels} [$models]
+     * @param {LC} component
      * @memberof Directive
      */
-    update (newValue: any, $models?: $ComponentModels) {
+    update (newValue: any, component: LC) {
       switch (this.type) {
         case directiveType.event:
-          this.updateEvent(<Function> newValue, $models)
+          if (typeof newValue === 'function') {
+            this.eventExec = function () {
+              newValue.call(component)
+            }
+          }
           break
 
         case directiveType.value:
-          this.updateValue(<string> newValue)
+          nextTick(() => {
+            this.element.setAttribute(this.nameInHTML, newValue)
+          })
           break
       }
 
       // Call onInstalled for first.
       if (!this.isInstalled) {
-        isFunction(this.onInstalled) && this.onInstalled(this, newValue, $models)
+        isFunction(this.onInstalled) && nextTick(() => {
+          this.onInstalled(this, newValue, component)
+        })
         this.isInstalled = true
       }
 
+      // Call onUpdate.
       if (isFunction(this.onUpdated)) {
         nextTick(() => {
-          this.onUpdated(this, newValue, $models)
+          this.onUpdated(this, newValue, component)
         })
       }
     }
@@ -253,28 +250,6 @@ function createDirective (option: IDirectiveOptions) {
      */
     uninstall () {
       isFunction(this.onUninstalled) && this.onUninstalled(this)
-    }
-
-    /**
-     * Update function for event directive.
-     *
-     * @private
-     * @param {Function} newFunc
-     * @param {$ComponentModels} $models
-     * @memberof Directive
-     */
-    private updateEvent (newFunc: Function, $models: $ComponentModels) {
-    }
-
-    /**
-     * Update function for value directive.
-     *
-     * @private
-     */
-    private updateValue (newValue: string) {
-      nextTick(() => {
-        this.element.setAttribute(this.nameInHTML, newValue)
-      })
     }
 
     constructor (astNode: ASTNode, element: Element, expression: string) {
