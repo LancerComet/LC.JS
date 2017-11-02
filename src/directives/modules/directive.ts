@@ -12,6 +12,36 @@ const directiveType = DIRECTIVE.type
  */
 const directives = {}
 
+// Create intenral directives.
+// @model
+directives[eventFlag + 'model'] = createDirective({
+  name: eventFlag + 'model',
+
+  onInstall (directive) {
+    const element = directive.element
+    const handler = event => {
+      const eventExec = directive.eventExec
+      typeof eventExec === 'function' && eventExec(event)
+    }
+    directive.eventBound = handler
+    element.addEventListener('input', handler)
+  },
+
+  onInstalled (directive, newValue, component) {
+    directive.eventExec = function (event) {
+      const keyName = directive.expression
+      const newValue = (<HTMLInputElement> event.target).value
+      const $model = <ReactiveModel> (component)['$models'][keyName]
+      $model.value = newValue
+    }
+  },
+
+  onUpdated (directive, newValue, component) {
+    const element = <HTMLInputElement> directive.element
+    element.value = newValue
+  }
+})
+
 /**
  * Create directive constructor.
  *
@@ -160,7 +190,7 @@ function createDirective (option: IDirectiveOptions) {
           const element = this.element
           const handler = (event) => {
             const eventExec = this.eventExec
-            typeof eventExec === 'function' && eventExec()
+            typeof eventExec === 'function' && eventExec(event)
           }
           element.addEventListener(this.nameInHTML, handler)
           this.eventBound = handler

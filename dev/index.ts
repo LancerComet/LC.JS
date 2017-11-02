@@ -2,6 +2,16 @@ import { LC, Component, createDirective } from '../src'
 import { MyComponent } from './my-component'
 import { HelloWorld } from './hello-world'
 
+createDirective({
+  name: '@lancer',
+  onInstall (directive) {
+    const element = directive.element
+    element.addEventListener('click', event => {
+      console.log('wow')
+    })
+  }
+})
+
 @Component({
   components: {
     'hello-world': HelloWorld,
@@ -16,23 +26,23 @@ import { HelloWorld } from './hello-world'
       <div>Time: {{time}}, double time: {{time * 2}}</div>
       <button @click="showTime">Show Time</button>
       <button @click="add">Add 1000</button>
-      <input @focus="onFocus" @blur="onBlur">
+      <input type="number" @focus="onFocus" @blur="onBlur" @model="time">
       <my-component></my-component>
     </div>
   `
 })
 class Root extends LC {
   appName: string = process.env.NAME
-  time: number = 12
+  time: number = 2017
   showTime () {
-    console.log(this.time)
+    alert(this.time)
   }
   add () {
     this.time = this.time + 1000
     console.log(this.time)
   }
-  onFocus () {
-    console.log('onFocus')
+  onFocus (time) {
+    console.log('onFocus', time)
   }
   onBlur () {
     console.log('onBlur')
@@ -46,5 +56,5 @@ console.timeEnd('createComponent')
 console.log(root)
 
 setInterval(() => {
-  root.time += 1
+  root.time++
 }, 1000)

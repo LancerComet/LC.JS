@@ -47,8 +47,10 @@ class ReactiveModel {
   set value (newValue) {
     // Imcompatible type.
     if (newValue.constructor !== this.type) {
-      console.error(`[${process.env.NAME}] Model "${this.name}" should be a "${this.type.name}", but a "${newValue.constructor.name}" is given.`)
-      return
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[${process.env.NAME}] Model "${this.name}" should be a "${this.type.name}", but a "${newValue.constructor.name}" is given:`, newValue)
+      }
+      // return
     }
 
     const oldValue = this._value

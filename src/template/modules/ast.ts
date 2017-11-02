@@ -112,7 +112,9 @@ class ASTNode {
           return
         }
 
-        const value = evaluateExpression(variables, values, expression)
+        const value = typeof newValue !== 'undefined'
+          ? newValue
+          : evaluateExpression(variables, values, expression)
         directive.update(value, component)
       })
       return
