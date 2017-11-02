@@ -12,60 +12,6 @@ const directiveType = DIRECTIVE.type
  */
 const directives = {}
 
-// @click.
-directives[eventFlag + 'click'] = createDirective({
-  name: eventFlag + 'click',
-
-  onInstall (directive: Directive) {
-    const element = directive.element
-    const handler = function (event) {
-      const eventExec = directive.eventExec
-      typeof eventExec === 'function' && eventExec()
-    }
-    element.addEventListener(directive.nameInHTML, handler)
-    directive.eventBound = handler
-  },
-
-  onUpdated (directive: Directive, newEventExec: Function, component: LC) {
-    if (typeof newEventExec === 'function') {
-      console.log('bind click')
-      directive.eventExec = function () {
-        newEventExec.call(component)
-      }
-    }
-  },
-
-  onUninstalled (directive: Directive) {
-    const handler = directive.eventBound
-    const element = directive.element
-    if (element && handler) {
-      element.removeEventListener(directive.nameInHTML, handler)
-    }
-  }
-})
-
-// directives[valueFlag + 'class'] = createDirective({
-//   name: valueFlag + 'class',
-//   onInstalled (astNode, element) {
-//   },
-//   onUpdated (astNode, element) {
-//   },
-//   onUninstalled (astNode, element) {
-//   }
-// })
-
-// directives[valueFlag + 'style'] = createDirective({
-//   name: valueFlag + 'style',
-//   onInstalled (astNode, element, newValue) {
-//     console.log('style installed: ', astNode)
-//   },
-//   onUpdated (astNode, element, newValue) {
-//     console.log('style updated: ', newValue)
-//   },
-//   onUninstalled (astNode, element) {
-//   }
-// })
-
 /**
  * Create directive constructor.
  *
@@ -208,7 +154,23 @@ function createDirective (option: IDirectiveOptions) {
      * @memberof Directive
      */
     install () {
-      isFunction(this.onInstall) && this.onInstall(this)
+      switch (this.type) {
+        // Event type. Bind event to element.
+        case directiveType.event:
+          const element = this.element
+          const handler = (event) => {
+            const eventExec = this.eventExec
+            typeof eventExec === 'function' && eventExec()
+          }
+          element.addEventListener(this.nameInHTML, handler)
+          this.eventBound = handler
+          isFunction(this.onInstall) && this.onInstall(this)
+          break
+
+        // Value type. Seems to do nothing.
+        case directiveType.value:
+        break
+      }
     }
 
     /**
@@ -221,20 +183,29 @@ function createDirective (option: IDirectiveOptions) {
     update (newValue: any, component: LC) {
       switch (this.type) {
         case directiveType.event:
-          this.updateEvent(<Function> newValue, component)
+          if (typeof newValue === 'function') {
+            this.eventExec = function () {
+              newValue.call(component)
+            }
+          }
           break
 
         case directiveType.value:
-          this.updateValue(<string> newValue, component)
+          nextTick(() => {
+            this.element.setAttribute(this.nameInHTML, newValue)
+          })
           break
       }
 
       // Call onInstalled for first.
       if (!this.isInstalled) {
-        isFunction(this.onInstalled) && this.onInstalled(this, newValue, component)
+        isFunction(this.onInstalled) && nextTick(() => {
+          this.onInstalled(this, newValue, component)
+        })
         this.isInstalled = true
       }
 
+      // Call onUpdate.
       if (isFunction(this.onUpdated)) {
         nextTick(() => {
           this.onUpdated(this, newValue, component)
@@ -249,31 +220,6 @@ function createDirective (option: IDirectiveOptions) {
      */
     uninstall () {
       isFunction(this.onUninstalled) && this.onUninstalled(this)
-    }
-
-    /**
-     * Update function for event directive.
-     *
-     * @private
-     * @param {Function} newFunc
-     * @param {LC} component
-     * @memberof Directive
-     */
-    private updateEvent (newFunc: Function, component: LC) {
-    }
-
-    /**
-     * Update function for value directive.
-     *
-     * @private
-     * @param {string} newValue
-     * @param {LC} component
-     * @memberof Directive
-     */
-    private updateValue (newValue: string, component: LC) {
-      nextTick(() => {
-        this.element.setAttribute(this.nameInHTML, newValue)
-      })
     }
 
     constructor (astNode: ASTNode, element: Element, expression: string) {

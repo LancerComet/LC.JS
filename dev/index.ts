@@ -1,4 +1,4 @@
-import { LC, Component } from '../src'
+import { LC, Component, createDirective } from '../src'
 import { MyComponent } from './my-component'
 import { HelloWorld } from './hello-world'
 
@@ -16,6 +16,7 @@ import { HelloWorld } from './hello-world'
       <div>Time: {{time}}, double time: {{time * 2}}</div>
       <button @click="showTime">Show Time</button>
       <button @click="add">Add 1000</button>
+      <input @focus="onFocus" @blur="onBlur">
       <my-component></my-component>
     </div>
   `
@@ -29,6 +30,12 @@ class Root extends LC {
   add () {
     this.time = this.time + 1000
     console.log(this.time)
+  }
+  onFocus () {
+    console.log('onFocus')
+  }
+  onBlur () {
+    console.log('onBlur')
   }
 }
 
