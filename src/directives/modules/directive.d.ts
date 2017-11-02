@@ -90,9 +90,9 @@ declare class Directive {
    * Update directive values and set them to element.
    *
    * @param {*} newValue
-   * @param {$ComponentModels} [$models]
+   * @param {LC} component
    */
-  update (newValue: any, $models?: $ComponentModels): void
+  update (newValue: any, component: LC): void
 }
 
 /**
@@ -154,4 +154,4 @@ interface IDirectiveOptions {
 /**
  * Directive-hook-function decleration.
  */
-type TDirectiveHook = (directive: Directive, newValue?: any, $models?: $ComponentModels) => void
+type TDirectiveHook = (directive: Directive, newValue?: any, component?: LC) => void

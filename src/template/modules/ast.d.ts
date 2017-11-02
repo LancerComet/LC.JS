@@ -117,20 +117,20 @@ declare class ASTNode {
    * Function to update element.
    * If a specific expression is given, update this expression only.
    *
-   * @param {$ComponentModels} $models All models in component.
+   * @param {LC} component Component object.
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
    * @memberof ASTNode
    */
-  updateExec: ($models: $ComponentModels, specificExpression?: string, newValue?: any) => void
+  updateExec: (component: LC, specificExpression?: string, newValue?: any) => void
 
   /**
    * Set all expressions' value.
    *
-   * @param {$ComponentModels} $models
+   * @param {LC} component
    * @memberof ASTNode
    */
-  updateElement: ($models: $ComponentModels) => void
+  updateElement: (component: LC) => void
 }
 
 /**

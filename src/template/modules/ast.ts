@@ -89,14 +89,14 @@ class ASTNode {
    * Function to update element.
    * If a specific expression is given, update this expression only.
    *
-   * @param {$ComponentModels} $models All models in component.
+   * @param {LC} component All models in component.
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
    * @memberof ASTNode
    */
-  updateExec ($models: $ComponentModels, specificExpression?: string, newValue?: any) {
-    const variables = Object.keys($models)
-    const values = variables.map(item => $models[item].value)
+  updateExec (component: LC, specificExpression?: string, newValue?: any) {
+    const variables = Object.keys(component)
+    const values = variables.map(item => component[item])
 
     // Element type.
     // ========================
@@ -113,7 +113,7 @@ class ASTNode {
         }
 
         const value = evaluateExpression(variables, values, expression)
-        directive.update(value, $models)
+        directive.update(value, component)
       })
       return
     }
@@ -166,14 +166,14 @@ class ASTNode {
   /**
    * Set all expressions' value.
    *
-   * @param {$ComponentModels} $models
+   * @param {LC} component
    * @memberof ASTNode
    */
-  updateElement ($models: $ComponentModels) {
-    this.updateExec($models)
+  updateElement (component: LC) {
+    this.updateExec(component)
 
     // Update children too.
-    this.children.forEach(child => child.updateElement($models))
+    this.children.forEach(child => child.updateElement(component))
   }
 
   constructor (params: IASTNodeOption) {

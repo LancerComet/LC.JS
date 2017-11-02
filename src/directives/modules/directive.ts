@@ -26,15 +26,11 @@ directives[eventFlag + 'click'] = createDirective({
     directive.eventBound = handler
   },
 
-  onUpdated (directive: Directive, newEventExec: Function, $models: $ComponentModels) {
+  onUpdated (directive: Directive, newEventExec: Function, component: LC) {
     if (typeof newEventExec === 'function') {
       console.log('bind click')
       directive.eventExec = function () {
-        const scope = {}
-        Object.keys($models).forEach(modelName => {
-          scope[modelName] = $models[modelName].value
-        })
-        newEventExec.call(scope)
+        newEventExec.call(component)
       }
     }
   },
@@ -219,29 +215,29 @@ function createDirective (option: IDirectiveOptions) {
      * Update directive values and set them to element.
      *
      * @param {*} newValue
-     * @param {$ComponentModels} [$models]
+     * @param {LC} component
      * @memberof Directive
      */
-    update (newValue: any, $models?: $ComponentModels) {
+    update (newValue: any, component: LC) {
       switch (this.type) {
         case directiveType.event:
-          this.updateEvent(<Function> newValue, $models)
+          this.updateEvent(<Function> newValue, component)
           break
 
         case directiveType.value:
-          this.updateValue(<string> newValue)
+          this.updateValue(<string> newValue, component)
           break
       }
 
       // Call onInstalled for first.
       if (!this.isInstalled) {
-        isFunction(this.onInstalled) && this.onInstalled(this, newValue, $models)
+        isFunction(this.onInstalled) && this.onInstalled(this, newValue, component)
         this.isInstalled = true
       }
 
       if (isFunction(this.onUpdated)) {
         nextTick(() => {
-          this.onUpdated(this, newValue, $models)
+          this.onUpdated(this, newValue, component)
         })
       }
     }
@@ -260,18 +256,21 @@ function createDirective (option: IDirectiveOptions) {
      *
      * @private
      * @param {Function} newFunc
-     * @param {$ComponentModels} $models
+     * @param {LC} component
      * @memberof Directive
      */
-    private updateEvent (newFunc: Function, $models: $ComponentModels) {
+    private updateEvent (newFunc: Function, component: LC) {
     }
 
     /**
      * Update function for value directive.
      *
      * @private
+     * @param {string} newValue
+     * @param {LC} component
+     * @memberof Directive
      */
-    private updateValue (newValue: string) {
+    private updateValue (newValue: string, component: LC) {
       nextTick(() => {
         this.element.setAttribute(this.nameInHTML, newValue)
       })

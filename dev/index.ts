@@ -15,6 +15,7 @@ import { HelloWorld } from './hello-world'
       <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
       <div>Time: {{time}}, double time: {{time * 2}}</div>
       <button @click="showTime">Show Time</button>
+      <button @click="add">Add 1000</button>
       <my-component></my-component>
     </div>
   `
@@ -23,6 +24,10 @@ class Root extends LC {
   appName: string = process.env.NAME
   time: number = 12
   showTime () {
+    console.log(this.time)
+  }
+  add () {
+    this.time = this.time + 1000
     console.log(this.time)
   }
 }
