@@ -187,12 +187,11 @@ function createDirective (option: IDirectiveOptions) {
       switch (this.type) {
         // Event type. Bind event to element.
         case directiveType.event:
-          const element = this.element
           const handler = (event) => {
             const eventExec = this.eventExec
             typeof eventExec === 'function' && eventExec(event)
           }
-          element.addEventListener(this.nameInHTML, handler)
+          this.element.addEventListener(this.nameInHTML, handler)
           this.eventBound = handler
           isFunction(this.onInstall) && this.onInstall(this)
           break

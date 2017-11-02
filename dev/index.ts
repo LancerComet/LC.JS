@@ -1,4 +1,4 @@
-import { LC, Component, createDirective } from '../src'
+import { LC, Component } from '../src'
 import { MyComponent } from './my-component'
 import { HelloWorld } from './hello-world'
 
@@ -30,7 +30,6 @@ class Root extends LC {
   }
   add () {
     this.time = this.time + 1000
-    console.log(this.time)
   }
   onFocus (time) {
     console.log('onFocus', time)

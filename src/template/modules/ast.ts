@@ -1,7 +1,7 @@
 /// <reference path="./ast.d.ts" />
 
-import { DIRECTIVE, NODE_TYPE } from '../../core/config'
-import { createDirective, directives, isDirective, isEventDirective, isValueDirective } from '../../directives'
+import { NODE_TYPE } from '../../core/config'
+import { createDirective, directives, isDirective } from '../../directives'
 import { nextTick, randomID } from '../../utils'
 
 /**
@@ -115,7 +115,7 @@ class ASTNode {
           specificExpression &&
           !expression.match(new RegExp('\\b' + specificExpression + '\\b'))
         ) {
-          return
+          continue
         }
 
         const value = typeof newValue !== 'undefined'
@@ -210,7 +210,7 @@ class ASTNode {
     switch (params.nodeType) {
       case NODE_TYPE.textNode:
         this.textContent = params.textContent || ''
-        this.tagName = ''  // Over tagName to empty.
+        this.tagName = ''  // Override tagName to empty.
         break
 
       case NODE_TYPE.element:
