@@ -9,7 +9,7 @@ import { HelloWorld } from './hello-world'
   },
 
   template: `
-    <div class="lc-app">
+    <div class="lc-app" data-title="wow">
       <hello-world :app-name="appName"></hello-world>
       <h1 class="title">{{appName}} demo page.</h1>
       <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>

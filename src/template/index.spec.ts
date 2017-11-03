@@ -3,9 +3,9 @@ import { parseHTMLtoAST } from './'
 describe('Template testing.', () => {
   it('Should generate correct AST.', () => {
     const template = `
-      <div class="test-div">
+      <div class="test-div" data-name="wow">
         This is a testing element.
-        <h2>Title is here.</h2>
+        <h2 data-title="titlenpm">Title is here.</h2>
         F@♂
         <br class="this-is-a-br"/>
         <input class="test-input" type="text"/>

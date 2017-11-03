@@ -1,6 +1,6 @@
 import { ASTNode } from './ast'
 import { NODE_TYPE } from '../../core/config'
-import { isValueDirective, getDecorators } from '../../directives'
+import { isDirective, isValueDirective, getDecorators } from '../../directives'
 
 /**
  * Convert html string to AST.
@@ -84,8 +84,16 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
           // Save as an attribute.
           } else {
-            const attrNameWithoutDecorators = (attrName.match(/\W\w+\b/) || [])[0] || attrName
-            const decorators = getDecorators(attrName)
+            let attrNameWithoutDecorators = attrName
+            let decorators = []
+
+            // If this is a directive, get both attribute name which is without decorators
+            // and decorators.
+            if (isDirective(attrName)) {
+              attrNameWithoutDecorators = (attrName.match(/\W\w+\b/) || [])[0] || attrName
+              decorators = getDecorators(attrName)
+            }
+
             attributes[attrNameWithoutDecorators] = {
               value: item.value,
               decorators

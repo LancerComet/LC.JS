@@ -10,7 +10,7 @@ const directiveType = DIRECTIVE.type
 /**
  * The object that keeps all directives.
  */
-const directives = {}
+const directives: {[directiveName: string]: typeof Directive} = {}
 
 // Create internal directives.
 // @model.
@@ -264,6 +264,14 @@ function createDirective (option: IDirectiveOptions) {
       isFunction(this.onUninstalled) && this.onUninstalled(this)
     }
 
+    /**
+     * Creates an instance of Directive.
+     *
+     * @param {ASTNode} astNode
+     * @param {Element} element
+     * @param {string} expression
+     * @memberof Directive
+     */
     constructor (astNode: ASTNode, element: Element, expression: string) {
       this.name = option.name
 

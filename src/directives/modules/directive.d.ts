@@ -67,6 +67,14 @@ declare class Directive {
   type: TDirectiveType
 
   /**
+   * This function will be called when this directive is going to be attached to element.
+   * Will be called only once.
+   *
+   * @type {TDirectiveHook}
+   */
+  onInstall: TDirectiveHook
+
+  /**
    * This function will be called when this directive is attached to element.
    * Will be called only once.
    *
@@ -100,6 +108,23 @@ declare class Directive {
    * @param {LC} component
    */
   update (newValue: any, component: LC): void
+
+  /**
+   * Uninstall directive from element.
+   *
+   * @memberof Directive
+   */
+  uninstall (): void
+
+  /**
+   * Creates an instance of Directive.
+   *
+   * @param {ASTNode} astNode
+   * @param {Element} element
+   * @param {string} expression
+   * @memberof Directive
+   */
+  constructor (astNode: ASTNode, element: Element, expression: string)
 }
 
 /**
