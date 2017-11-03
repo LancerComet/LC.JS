@@ -73,6 +73,14 @@ declare class ASTNode {
   isComponentAnchor: boolean
 
   /**
+   * If this node is an anchor for slot,
+   *
+   * @type {boolean}
+   * @memberof ASTNode
+   */
+  isSlotAnchor: boolean
+
+  /**
    * Node type.
    *
    * @type {ASTNodeType}
@@ -153,6 +161,7 @@ interface IASTNodeOption {
   ComponentCtor?: (new () => LC)
   expression: string
   isComponentAnchor?: boolean
+  isSlotAnchor?: boolean
   nodeType: ASTNodeType
   parentNode?: ASTNode
   props?: ASTNodeProps

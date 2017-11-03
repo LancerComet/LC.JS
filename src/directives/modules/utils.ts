@@ -1,8 +1,8 @@
-import { DIRECTIVE } from '../../core/config'
+import { DirectiveConfig } from '../../core/config'
 import { strStartsWith } from '../../utils'
 
-const eventFlag = DIRECTIVE.flags.event  // "@"
-const valueFlag = DIRECTIVE.flags.value  // ":"
+const eventFlag = DirectiveConfig.flags.event  // "@"
+const valueFlag = DirectiveConfig.flags.value  // ":"
 
 /**
  * Whether a directive is a event-function directive.

@@ -35,13 +35,13 @@ class Root extends LC {
     console.log('onFocus', time)
   }
   onBlur () {
-    console.log('onBlur')
+    console.log(this.$components)
   }
 }
 
 console.time('createComponent')
 const root = new Root()
-root.mount('#lc-app')
+root.$mount('#lc-app')
 console.timeEnd('createComponent')
 console.log(root)
 

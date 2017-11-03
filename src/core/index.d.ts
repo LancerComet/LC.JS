@@ -1,5 +1,29 @@
 declare abstract class LC {
   /**
+   * Components.
+   *
+   * @type {$ComponentUsage}
+   * @memberof LC
+   */
+  $components: $ComponentUsage
+
+  /**
+   * Template.
+   *
+   * @type {string}
+   * @memberof LC
+   */
+  $template: string
+
+  /**
+   * Keep all model reference.
+   *
+   * @type {$ComponentModels}
+   * @memberof LC
+   */
+  $models: $ComponentModels
+
+  /**
    * Parent component.
    *
    * @type {LC}
@@ -13,18 +37,7 @@ declare abstract class LC {
    * @param {(string | Element)} element
    * @memberof LC
    */
-  mount (element: string | Element): void
-}
-
-/**
- * Base properties in class LC.
- *
- * @interface ILcBaseProperty
- */
-interface ILcBaseProperties {
-  $components: $ComponentUsage
-  $template: string
-  $models: $ComponentModels
+  $mount (element: string | Element): void
 }
 
 /**
@@ -37,5 +50,5 @@ type $ComponentModels = {[key: string]: ReactiveModel}
  */
 type $ComponentUsage = {[key: string]: {
   reference: LC[]
-  Constructor: new () => LC
+  Constructor: ComponentClass
 }}

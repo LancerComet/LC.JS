@@ -5,20 +5,25 @@ import { ReactiveModel } from './modules/reactive-model'
 /**
  * Assign this class as a component.
  *
- * @param {IComponentOption} [option={}]
+ * @param {IComponentOption} [option]
  * @returns
  */
-function Component (option: IComponentOption = {}) {
-  return function (ClassByUser: any) {
+function Component (component: ComponentClass)
+function Component (option: IComponentOption)
+function Component (param: ComponentClass | IComponentOption) {
+  const option = <IComponentOption> param || {}
+  return function (ClassByUser: ComponentClass) {
     // Create $components.
     const $components: $ComponentUsage = {}
-    if (option.components) {
-      Object.keys(option.components).forEach(key => {
-        $components[key] = {
+    if (typeof option.components === 'object') {
+      const componentNames = Object.keys(option.components)
+      for (let i = 0, length = componentNames.length; i < length; i++) {
+        const compName = componentNames[i]
+        $components[compName] = {
           reference: [],
-          Constructor: <new () => LC> option.components[key]
+          Constructor: <ComponentClass> option.components[compName]
         }
-      })
+      }
     }
 
     // Create $template.
@@ -27,7 +32,7 @@ function Component (option: IComponentOption = {}) {
       : ''
 
     // Create $models.
-    const $models = {}
+    const $models: $ComponentModels = {}
     const instance = new ClassByUser()
 
     const instanceKeys = Object.keys(instance)  // Value properties and user-defined methods from prototype.
@@ -68,7 +73,7 @@ function Component (option: IComponentOption = {}) {
 
     // Rewrite prototype for inheritance.
     Object.defineProperty(ClassByUser, 'prototype', {
-      value: Object.assign(ClassByUser.prototype, <ILcBaseProperties> {
+      value: Object.assign(ClassByUser.prototype, {
         $components,
         $template,
         $models

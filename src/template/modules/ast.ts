@@ -1,6 +1,6 @@
 /// <reference path="./ast.d.ts" />
 
-import { NODE_TYPE } from '../../core/config'
+import { NodeType } from '../../core/config'
 import { createDirective, directives, isDirective } from '../../directives'
 import { nextTick, randomID } from '../../utils'
 
@@ -18,6 +18,7 @@ class ASTNode {
   element: Element | Text | Comment
   expression: string
   isComponentAnchor: boolean
+  isSlotAnchor: boolean
   nodeType: ASTNodeType
   parentNode: ASTNode
   props: ASTNodeProps
@@ -34,7 +35,7 @@ class ASTNode {
 
     switch (this.nodeType) {
       // Component anchor or html element.
-      case NODE_TYPE.element:
+      case NodeType.element:
         element = document.createElement(this.tagName)
 
         // Add data-style for style scoping.
@@ -73,13 +74,13 @@ class ASTNode {
         break
 
       // TextNode.
-      case NODE_TYPE.textNode:
+      case NodeType.textNode:
         element = document.createTextNode(this.textContent)
         break
 
       // Comment.
       // This might be a component anchor.
-      case NODE_TYPE.comment:
+      case NodeType.comment:
         element = document.createComment('')
         break
     }
@@ -106,7 +107,7 @@ class ASTNode {
 
     // Element type.
     // ========================
-    if (this.nodeType === NODE_TYPE.element) {
+    if (this.nodeType === NodeType.element) {
       // Element only needs to update all directives.
       for (let i = 0, length = this.directives.length; i < length; i++) {
         const directive = this.directives[i]
@@ -204,20 +205,21 @@ class ASTNode {
     this.children = params.children || []
     this.expression = params.expression.trim() || ''
     this.isComponentAnchor = !!params.isComponentAnchor
+    this.isSlotAnchor = !!params.isSlotAnchor
     this.parentNode = params.parentNode
-    this.nodeType = params.nodeType || NODE_TYPE.element
+    this.nodeType = params.nodeType || NodeType.element
     this.tagName = params.tagName
 
     switch (params.nodeType) {
-      case NODE_TYPE.textNode:
+      case NodeType.textNode:
         this.textContent = params.textContent || ''
         this.tagName = ''  // Override tagName to empty.
         break
 
-      case NODE_TYPE.element:
+      case NodeType.element:
         break
 
-      case NODE_TYPE.comment:
+      case NodeType.comment:
         this.ComponentCtor = params.ComponentCtor || null
         this.props = params.props || {}
         break

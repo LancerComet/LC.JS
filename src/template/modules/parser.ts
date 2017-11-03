@@ -1,5 +1,5 @@
 import { ASTNode } from './ast'
-import { NODE_TYPE } from '../../core/config'
+import { NodeType } from '../../core/config'
 import { isDirective, isValueDirective, getDecorators } from '../../directives'
 
 /**
@@ -55,6 +55,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
   let ComponentCtor = null
   let expression: string = ''
   let isComponentAnchor: boolean = false
+  let isSlotAnchor: boolean = false
   let nodeType: number = node.nodeType
   let props: {} = {}
   let tagName: string = ''
@@ -62,15 +63,25 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
   switch (nodeType) {
     // Element.
-    case NODE_TYPE.element:
+    case NodeType.element:
       const tagNameInLowerCase = (<HTMLElement> node).tagName.toLowerCase()
+
+      // Reserved element, such as "slot".
+      switch (tagNameInLowerCase) {
+        case 'slot':
+          isSlotAnchor = true
+          break
+
+        case 'transition':
+          break
+      }
 
       // If component usage is given then check if this node is an anchor for component.
       if ($components && $components[tagNameInLowerCase]) {
         // This is a component anchor.
         isComponentAnchor = true
         ComponentCtor = $components[tagNameInLowerCase].Constructor
-        nodeType = NODE_TYPE.comment  // Over NodeType to NODE_TYPE.comment.
+        nodeType = NodeType.comment  // Over NodeType to NODE_TYPE.comment.
       }
 
       // Get attributes info.
@@ -105,7 +116,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
       break
 
     // TextNode.
-    case NODE_TYPE.textNode:
+    case NodeType.textNode:
       expression = textContent = node.textContent || node.nodeValue || ''
       break
   }
@@ -116,6 +127,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
     ComponentCtor,
     expression,
     isComponentAnchor,
+    isSlotAnchor,
     nodeType,
     parentNode,
     props,
@@ -125,7 +137,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
   // Deal with children.
   const childrenLength = node.childNodes.length
-  if (nodeType === NODE_TYPE.element && childrenLength) {
+  if (nodeType === NodeType.element && childrenLength) {
     let i = 0
     while (i < childrenLength){
       const childNode = node.childNodes[i]

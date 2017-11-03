@@ -42,6 +42,16 @@ declare class Directive {
   eventBound: EventListenerOrEventListenerObject
 
   /**
+   * Whether this is a custom directive.
+   * A custom directive will be controlled by creator.
+   * No internal funcitons will be executed.
+   *
+   * @type {boolean}
+   * @memberof Directive
+   */
+  isCustom: boolean
+
+  /**
    * Directive name.
    *
    * @type {string}
@@ -94,7 +104,7 @@ declare class Directive {
    *
    * @type {TDirectiveHook}
    */
-  onUninstalled: TDirectiveHook
+  onUninstall: TDirectiveHook
 
   /**
    * Install this directive to target ASTNode and element.
@@ -149,6 +159,15 @@ interface IDirectiveOptions {
   name: string
 
   /**
+   * A custom directive will be controlled by creator.
+   * No internal funcitons will be executed.
+   *
+   * @type {boolean}
+   * @memberof IDirectiveOptions
+   */
+  isCustom?: boolean
+
+  /**
    * This function will be called when this directive is going to be attached to element.
    * Will be called only once.
    *
@@ -180,7 +199,7 @@ interface IDirectiveOptions {
    * @type {TDirectiveHook}
    * @memberof IDirectiveOptions
    */
-  onUninstalled?: TDirectiveHook
+  onUninstall?: TDirectiveHook
 }
 
 /**

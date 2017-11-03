@@ -16,29 +16,26 @@ abstract class LC {
   /**
    * Component reference in this component.
    *
-   * @private
    * @type {$ComponentUsage}
    * @memberof LC
    */
-  private $components: any
+  $components: $ComponentUsage
 
   /**
    * Model storage.
    *
-   * @implements
    * @type {{ [key: string]: ReactiveModel }}
    * @memberof LC
    */
-  private $models: $ComponentModels
+  $models: $ComponentModels
 
   /**
    * Template string.
    *
-   * @implements
    * @type {string}
    * @memberof LC
    */
-  private $template: string
+  $template: string
 
   /**
    * AST.
@@ -110,7 +107,7 @@ abstract class LC {
    * @param {(string | Element)} element
    * @memberof LC
    */
-  mount (element: string | Element) {
+  $mount (element: string | Element) {
     // Get mounting element.
     const $el = typeof element === 'string'
       ? document.querySelector(element)
@@ -161,7 +158,9 @@ export {
  * @param {$ComponentModels} $models
  */
 function moveModelToRootLevel (lc: LC, $models: $ComponentModels) {
-  Object.keys($models).forEach(key => {
+  const $modelsKey = Object.keys($models)
+  for (let i = 0, length = $modelsKey.length; i < length; i++) {
+    const key = $modelsKey[i]
     const $model = $models[key]
 
     Object.defineProperty(lc, key, {
@@ -174,7 +173,7 @@ function moveModelToRootLevel (lc: LC, $models: $ComponentModels) {
 
     // Save component reference.
     $model.$component = lc
-  })
+  }
 }
 
 /**

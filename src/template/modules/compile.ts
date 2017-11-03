@@ -1,5 +1,5 @@
 import { isValueDirective, isEventDirective, isDirective } from '../../directives'
-import { DIRECTIVE, NODE_TYPE } from '../../core/config'
+import { DirectiveConfig, NodeType } from '../../core/config'
 import { nextTick } from '../../utils'
 import { ReactiveModel } from '../../component/modules/reactive-model'
 
@@ -25,14 +25,14 @@ function compileAstToElement (ast: AST, component: LC, $components: $ComponentUs
     const childElement = compileAstToElement(astNode.children, component, $components, $models)
 
     // Append children elements.
-    if (childElement && astNode.nodeType === NODE_TYPE.element) {
+    if (childElement && astNode.nodeType === NodeType.element) {
       element.appendChild(childElement)
     }
 
     fragment.appendChild(element)
 
     // Mount element if this is a component anchor.
-    if (astNode.nodeType === NODE_TYPE.comment && astNode.isComponentAnchor) {
+    if (astNode.nodeType === NodeType.comment && astNode.isComponentAnchor) {
       // Deal with props.
       const props = astNode.props
       const propsKeys = Object.keys(props).map(transformPropNameToPascal)
@@ -65,7 +65,7 @@ function compileAstToElement (ast: AST, component: LC, $components: $ComponentUs
         $propModel.$propComponents.push(compInstance)
       })
 
-      compInstance.mount(<Element> astNode.element)
+      compInstance.$mount(<Element> astNode.element)
 
       // Save component instance to component.
       $components[astNode.tagName].reference.push(compInstance)
@@ -100,7 +100,7 @@ function transformPropNameToPascal (propName: string) {
       )
     })
 
-    return result.replace(new RegExp(DIRECTIVE.flags.value, 'g'), '')
+    return result.replace(new RegExp(DirectiveConfig.flags.value, 'g'), '')
   } else {
     return propName
   }
