@@ -1,4 +1,4 @@
-import { ASTNode } from '../../core/ast'
+import { AST, ASTNode } from '../../core/ast'
 import { NodeType } from '../../core/config'
 import { isDirective, isValueDirective, getDecorators } from '../../directives'
 
@@ -11,10 +11,10 @@ import { isDirective, isValueDirective, getDecorators } from '../../directives'
  */
 function parseHTMLtoAST (htmlString: string, $components: $ComponentUsage): AST {
   if (!htmlString) {
-    return []
+    return null
   }
 
-  const ast: AST = []
+  const ast = new AST()
 
   // Generate elements and convert to AST.
   const $el = document.createElement('div')
@@ -24,12 +24,12 @@ function parseHTMLtoAST (htmlString: string, $components: $ComponentUsage): AST 
     if (process.env.NODE_ENV !== 'production') {
       console.error(`[${process.env.NAME}] Component only accepts one root element, please wrap your all nodes into a single element.`)
     }
-    return []
+    return null
   }
 
   for (let i = 0, length = $el.childNodes.length; i < length; i++) {
     const currentNode = $el.childNodes[i]
-    ast.push(
+    ast.addNode(
       elementToASTNode(currentNode, $components)
     )
   }
@@ -51,7 +51,7 @@ export {
  */
 function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode?: ASTNode): ASTNode {
   let attributes: ASTNodeElementAttribute = {}
-  const children: AST = []
+  const childAST: AST = new AST()
   let ComponentCtor = null
   let expression: string = ''
   let isComponentAnchor: boolean = false
@@ -123,7 +123,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
   const astNode = new ASTNode({
     attributes,
-    children,
+    childAST,
     ComponentCtor,
     expression,
     isComponentAnchor,
@@ -141,7 +141,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
     let i = 0
     while (i < childrenLength){
       const childNode = node.childNodes[i]
-      children.push(elementToASTNode(childNode, $components, astNode))
+      childAST.addNode(elementToASTNode(childNode, $components, astNode))
       i++
     }
   }

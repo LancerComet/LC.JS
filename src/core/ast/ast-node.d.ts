@@ -26,7 +26,7 @@ declare class ASTNode {
    * @type {AST}
    * @memberof ASTNode
    */
-  children: AST
+  childAST: AST
 
   /**
    * Componnet Constructor.
@@ -131,23 +131,24 @@ declare class ASTNode {
   createElement: () => void
 
   /**
-   * Function to update element.
-   * If a specific expression is given, update this expression only.
+   * Update this ASTNode by given expression and new value.
+   * Then the element of this ASTNode will be updated.
+   * If a specific expression is given, update the element if it contains this expression.
    *
    * @param {LC} component Component object.
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
    * @memberof ASTNode
    */
-  updateExec: (component: LC, specificExpression?: string, newValue?: any) => void
+  update: (component: LC, specificExpression?: string, newValue?: any) => void
 
   /**
-   * Set all expressions' value.
+   * Creates an instance of ASTNode.
    *
-   * @param {LC} component
+   * @param {IASTNodeOption} params
    * @memberof ASTNode
    */
-  updateElement: (component: LC) => void
+  constructor (params: IASTNodeOption)
 }
 
 /**
@@ -157,7 +158,7 @@ declare class ASTNode {
  */
 interface IASTNodeOption {
   attributes?: ASTNodeElementAttribute
-  children?: AST
+  childAST?: AST
   ComponentCtor?: (new () => LC)
   expression: string
   isComponentAnchor?: boolean
@@ -195,8 +196,3 @@ type ASTNodeType = number
  *  }
  */
 type ASTNodeProps = {[propName: string]: string}
-
-/**
- * Template elements AST.
- */
-type AST = Array<ASTNode>

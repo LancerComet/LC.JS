@@ -15,14 +15,14 @@ import { ReactiveModel } from '../../component/modules/reactive-model'
 function compileAstToElement (ast: AST, component: LC, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
   const fragment = document.createDocumentFragment()
 
-  for (let i = 0, length = ast.length; i < length; i++) {
-    const astNode = ast[i]
+  for (let i = 0, length = ast.nodes.length; i < length; i++) {
+    const astNode: ASTNode = ast.nodes[i]
 
     // Fill all values to expression.
-    astNode.updateElement(component)
+    astNode.update(component)
 
     const element = astNode.element
-    const childElement = compileAstToElement(astNode.children, component, $components, $models)
+    const childElement = compileAstToElement(astNode.childAST, component, $components, $models)
 
     // Append children elements.
     if (childElement && astNode.nodeType === NodeType.element) {

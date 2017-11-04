@@ -1,8 +1,8 @@
-/// <reference path="./ast.d.ts" />
+/// <reference path="./ast-node.d.ts" />
 
-import { NodeType } from './config'
-import { createDirective, directives, isDirective } from '../directives'
-import { nextTick, randomID } from '../utils'
+import { NodeType } from '../config'
+import { createDirective, directives, isDirective } from '../../directives'
+import { nextTick, randomID } from '../../utils'
 
 /**
  * AST Node.
@@ -12,7 +12,7 @@ import { nextTick, randomID } from '../utils'
 class ASTNode {
   id: string
   attributes: ASTNodeElementAttribute
-  children: AST
+  childAST: AST
   ComponentCtor: (new () => LC)
   directives: Directive[]
   element: Element | Text | Comment
@@ -25,11 +25,6 @@ class ASTNode {
   tagName: string
   textContent: string
 
-  /**
-   * Create HTML element.
-   *
-   * @memberof ASTNode
-   */
   createElement () {
     let element: Element | Text | Comment = null
 
@@ -88,22 +83,9 @@ class ASTNode {
     this.element = element
   }
 
-  /**
-   * Function to update element.
-   * If a specific expression is given, update this expression only.
-   *
-   * @param {LC} component All models in component.
-   * @param {string} [specificExpression] The expression that is given specifically.
-   * @param {*} [newValue] New value for specific expression.
-   * @memberof ASTNode
-   */
-  updateExec (component: LC, specificExpression?: string, newValue?: any) {
+  update (component: LC, specificExpression?: string, newValue?: any) {
     const variables = Object.keys(component)
-    // const values = variables.map(item => component[item])
-    const values = []
-    for (let i = 0, length = variables.length; i < length; i++) {
-      values[i] = component[variables[i]]
-    }
+    const values = variables.map(item => component[item])
 
     // Element type.
     // ========================
@@ -185,24 +167,11 @@ class ASTNode {
     })
   }
 
-  /**
-   * Set all expressions' value.
-   *
-   * @param {LC} component
-   * @memberof ASTNode
-   */
-  updateElement (component: LC) {
-    this.updateExec(component)
-
-    // Update children too.
-    this.children.forEach(child => child.updateElement(component))
-  }
-
   constructor (params: IASTNodeOption) {
     this.id = randomID()
     this.attributes = params.attributes || {}
     this.directives = []
-    this.children = params.children || []
+    this.childAST = params.childAST || null
     this.expression = params.expression.trim() || ''
     this.isComponentAnchor = !!params.isComponentAnchor
     this.isSlotAnchor = !!params.isSlotAnchor

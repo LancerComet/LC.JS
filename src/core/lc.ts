@@ -74,23 +74,7 @@ abstract class LC {
    * @memberof LC
    */
   private $notify (keyName: string, newValue: any, oldValue: any) {
-    this.$notifyAST(this.$ast, keyName, newValue)
-  }
-
-  /**
-   * Notify $ast to update ASTNodes in $ast.
-   *
-   * @private
-   * @param {AST} ast
-   * @param {string} keyName
-   * @param {*} newValue
-   * @memberof LC
-   */
-  private $notifyAST (ast: AST, keyName: string, newValue: any) {
-    ast.forEach(astNode => {
-      astNode.updateExec(this, keyName, newValue)
-      this.$notifyAST(astNode.children, keyName, newValue)
-    })
+    this.$ast && this.$ast.notify(this, keyName, newValue)
   }
 
   /**
