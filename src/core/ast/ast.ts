@@ -2,11 +2,6 @@
 
 import { ASTNode } from './ast-node'
 
-/**
- * AST.
- *
- * @class AST
- */
 class AST {
   nodes: ASTNodes
 

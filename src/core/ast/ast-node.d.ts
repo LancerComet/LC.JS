@@ -1,5 +1,6 @@
 /**
  * AST Node.
+ * ASTNode is a ViewModel-like object that connects to both code and view.
  *
  * @class ASTNode
  */

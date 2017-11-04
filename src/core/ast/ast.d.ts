@@ -1,4 +1,17 @@
+/**
+ * AST.
+ * AST is a data structure that contains branch of ASTNodes.
+ * An ASTNode represenets a HTML element in view, and a ViewModel in code.
+ *
+ * @class AST
+ */
 declare class AST {
+  /**
+   * ASTNodes in this AST.
+   *
+   * @type {ASTNodes}
+   * @memberof AST
+   */
   nodes: ASTNodes
 
   /**

@@ -1,6 +1,6 @@
 /// <reference path="./lc.d.ts" />
 
-import { ASTNode } from './ast'
+import { ASTNode } from './ast/ast-node'
 import { compileAstToElement, parseHTMLtoAST } from '../template'
 import { nextTick } from '../utils'
 

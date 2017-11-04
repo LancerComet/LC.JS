@@ -6,13 +6,15 @@
  */
 abstract class DirectiveConfig {
   static readonly type: {[typeName: string]: TDirectiveType} = {
+    internal: 'internal',
     event: 'event',
     value: 'value'
   }
 
   static readonly flags = {
+    internal: 'lc-',
     event: '@',
-    value: ':'
+    value: ':',
   }
 }
 

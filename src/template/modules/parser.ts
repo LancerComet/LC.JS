@@ -1,4 +1,4 @@
-import { AST, ASTNode } from '../../core/ast'
+import { AST, ASTNode } from '../../core'
 import { NodeType } from '../../core/config'
 import { isDirective, isValueDirective, getDecorators } from '../../directives'
 

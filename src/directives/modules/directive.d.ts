@@ -140,7 +140,7 @@ declare class Directive {
 /**
  * Directive type.
  */
-type TDirectiveType = 'event' | 'value'
+type TDirectiveType = 'internal' | 'event' | 'value'
 
 /**
  * Option for Directive Constructor.

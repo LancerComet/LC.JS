@@ -1,5 +1,5 @@
-import { DirectiveConfig } from '../../../core/config'
-import { createDirective } from '../directive'
+import { DirectiveConfig } from '../../core/config'
+import { createDirective } from '../modules/directive'
 
 function initModel (directiveStore: {[directiveName: string]: typeof Directive}) {
   const DIRECTIVE_NAME = DirectiveConfig.flags.event + 'model'

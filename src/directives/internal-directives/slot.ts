@@ -1,7 +1,8 @@
-import { createDirective } from '../directive'
+import { DirectiveConfig } from '../../core/config'
+import { createDirective } from '../modules/directive'
 
 function initSlot (directiveStore: {[directiveName: string]: typeof Directive}) {
-  const DIRECTIVE_NAME = 'slot'
+  const DIRECTIVE_NAME = `${DirectiveConfig.flags.internal}slot`
 
   const Slot = createDirective({
     name: DIRECTIVE_NAME,
@@ -11,11 +12,9 @@ function initSlot (directiveStore: {[directiveName: string]: typeof Directive}) 
     },
 
     onInstalled (directive: Directive, newValue: any, component: LC) {
-
     },
 
     onUpdated (directive: Directive, newValue: any, component: LC) {
-
     }
   })
 
