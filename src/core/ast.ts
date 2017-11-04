@@ -1,8 +1,8 @@
 /// <reference path="./ast.d.ts" />
 
-import { NodeType } from '../../core/config'
-import { createDirective, directives, isDirective } from '../../directives'
-import { nextTick, randomID } from '../../utils'
+import { NodeType } from './config'
+import { createDirective, directives, isDirective } from '../directives'
+import { nextTick, randomID } from '../utils'
 
 /**
  * AST Node.
