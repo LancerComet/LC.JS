@@ -66,16 +66,6 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
     case NodeType.element:
       const tagNameInLowerCase = (<HTMLElement> node).tagName.toLowerCase()
 
-      // Reserved element, such as "slot".
-      switch (tagNameInLowerCase) {
-        case 'slot':
-          isSlotAnchor = true
-          break
-
-        case 'transition':
-          break
-      }
-
       // If component usage is given then check if this node is an anchor for component.
       if ($components && $components[tagNameInLowerCase]) {
         // This is a component anchor.
@@ -85,32 +75,32 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
       }
 
       // Get attributes info.
-      Array.prototype.slice.call(node.attributes)
-        .forEach(item => {
-          const attrName = item.name
+      Array.prototype.slice.call(node.attributes).forEach(item => {
+        const attrName = item.name
+        const attrValue = item.value
 
-          // Save this attribute as a prop.
-          if (isComponentAnchor && isValueDirective(attrName)) {
-            props[attrName] = item.value
+        // Save this attribute as a prop.
+        if (isComponentAnchor && isValueDirective(attrName)) {
+          props[attrName] = attrValue
 
-          // Save as an attribute.
-          } else {
-            let attrNameWithoutDecorators = attrName
-            let decorators = []
+        // Save as an attribute.
+        } else {
+          let attrNameWithoutDecorators = attrName
+          let decorators = []
 
-            // If this is a directive, get both attribute name which is without decorators
-            // and decorators.
-            if (isDirective(attrName)) {
-              attrNameWithoutDecorators = (attrName.match(/\W\w+\b/) || [])[0] || attrName
-              decorators = getDecorators(attrName)
-            }
-
-            attributes[attrNameWithoutDecorators] = {
-              value: item.value,
-              decorators
-            }
+          // If this is a directive, get attribute name which is without decorators
+          // and decorators.
+          if (isDirective(attrName)) {
+            attrNameWithoutDecorators = (attrName.match(/^\W\w+\b/) || [])[0] || attrName
+            decorators = getDecorators(attrName)
           }
-        })
+
+          attributes[attrNameWithoutDecorators] = {
+            value: attrValue,
+            decorators
+          }
+        }
+      })
 
       tagName = tagNameInLowerCase
       break

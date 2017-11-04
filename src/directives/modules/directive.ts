@@ -4,8 +4,9 @@ import { DirectiveConfig } from '../../core/config'
 import { isFunction, nextTick } from '../../utils'
 import { isEventDirective, isValueDirective } from './utils'
 
-import { initModel } from '../internal-directives/@model'
+import { initIf } from '../internal-directives/if'
 import { initSlot } from '../internal-directives/slot'
+import { initModel } from '../internal-directives/@model'
 
 const { event: eventFlag, value: valueFlag } = DirectiveConfig.flags
 const directiveType = DirectiveConfig.type
@@ -16,8 +17,9 @@ const directiveType = DirectiveConfig.type
 const directives: {[directiveName: string]: typeof Directive} = {}
 
 // Create internal directives.
-initModel(directives)
+initIf(directives)
 initSlot(directives)
+initModel(directives)
 
 // slot.
 directives['slot'] = createDirective({
