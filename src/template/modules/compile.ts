@@ -21,30 +21,27 @@ function compileAstToElement (ast: AST, component: LC, $components: $ComponentUs
     // Fill all values to expression.
     astNode.update(component)
 
-    const element = astNode.element
-    const childElement = compileAstToElement(astNode.childAST, component, $components, $models)
-
     // Append children elements.
-    if (childElement && astNode.nodeType === NodeType.element) {
-      element.appendChild(childElement)
+    if (astNode.childAST.nodes.length && astNode.nodeType === NodeType.element) {
+      const childrenElements = compileAstToElement(astNode.childAST, component, $components, $models)
+      astNode.element.appendChild(childrenElements)
     }
 
-    fragment.appendChild(element)
+    fragment.appendChild(astNode.element)
 
     // Mount element if this is a component anchor.
     if (astNode.nodeType === NodeType.comment && astNode.isComponentAnchor) {
-      // Deal with props.
+      // Deal with props if there is.
       const props = astNode.props
       const propsKeys = Object.keys(props).map(transformPropNameToPascal)
-
       if (propsKeys.length) {
         const $presetModels = {}
 
         // Create new reactive model for child component for initial values.
         propsKeys.forEach(propName => {
           $presetModels[propName] = new ReactiveModel(propName, {
-            type: component['$models'][propName].type,
-            default: component['$models'][propName].value
+            type: $models[propName].type,
+            default: $models[propName].value
           })
         })
 
@@ -61,11 +58,14 @@ function compileAstToElement (ast: AST, component: LC, $components: $ComponentUs
 
       // Save child component "compInstance" to "$propComponents" in prop's model in this component.
       propsKeys.forEach(propName => {
-        const $propModel = <ReactiveModel> component['$models'][propName]
+        const $propModel = <ReactiveModel> $models[propName]
         $propModel.$propComponents.push(compInstance)
       })
 
-      compInstance.$mount(<Element> astNode.element)
+      // Mount component.
+      astNode.componentInstance = compInstance
+      astNode.mountComponent()
+      // compInstance.$mount()
 
       // Save component instance to component.
       $components[astNode.tagName].reference.push(compInstance)

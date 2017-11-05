@@ -1,8 +1,8 @@
 /// <reference path="./ast-node.d.ts" />
 
-import { NodeType } from '../config'
+import { DirectiveConfig, NodeType } from '../config'
 import { createDirective, directives, isDirective } from '../../directives'
-import { nextTick, randomID } from '../../utils'
+import { matchExpression, nextTick, randomID } from '../../utils'
 
 /**
  * AST Node.
@@ -10,10 +10,12 @@ import { nextTick, randomID } from '../../utils'
  * @class ASTNode
  */
 class ASTNode {
+  $if: boolean = true
   id: string
   attributes: ASTNodeElementAttribute
   childAST: AST
-  ComponentCtor: (new () => LC)
+  ComponentCtor: ComponentClass
+  componentInstance: LC
   directives: Directive[]
   element: Element | Text | Comment
   expression: string
@@ -76,16 +78,77 @@ class ASTNode {
       // Comment.
       // This might be a component anchor.
       case NodeType.comment:
-        element = document.createComment('')
+        element = document.createComment(this.id)
         break
     }
 
     this.element = element
   }
 
+  mountComponent () {
+    if (!this.$if || !this.isComponentAnchor) {
+      return
+    }
+
+    // Access to component's element.
+    // Because only one root element is allowed when create a component,
+    // You can get component's element by finding first node in comopnent's AST.
+    const componentElements = getElementFromComponent(this.componentInstance)
+    if (!componentElements) {
+      return
+    }
+
+    // Mount elements.
+    nextTick(() => {
+      const element = this.element
+      const parent = element.parentElement
+      parent.insertBefore(componentElements, element)
+      parent.removeChild(element)
+    })
+  }
+
+  unMountComponent () {
+    if (!this.isComponentAnchor) {
+      return
+    }
+
+    const componentElements = getElementFromComponent(this.componentInstance)
+    if (!componentElements) {
+      return
+    }
+
+    const parent = componentElements.parentElement
+
+    // If no parent element, component must be never-mounted.
+    if (!parent) {
+      return
+    }
+
+    nextTick(() => {
+      parent.insertBefore(this.element, componentElements)
+      parent.removeChild(componentElements)
+    })
+  }
+
   update (component: LC, specificExpression?: string, newValue?: any) {
     const variables = Object.keys(component)
     const values = variables.map(item => component[item])
+
+    // Deal with internal directives first.
+    // lc-if.
+    const ifFlag = this.attributes[DirectiveConfig.flags.internal + 'if']
+    // TODO: Optimise processing.
+    if (ifFlag) {
+      const controlExpValue = !!evaluateExpression(variables, values, ifFlag.value)  // true or false.
+      if (!controlExpValue) {
+        this.$if = false
+        this.isComponentAnchor && this.unMountComponent()
+        return
+      } else if (controlExpValue && !this.$if) {
+        this.$if = true
+        this.isComponentAnchor && this.mountComponent()
+      }
+    }
 
     // Element type.
     // ========================
@@ -97,7 +160,7 @@ class ASTNode {
 
         if (
           specificExpression &&
-          !expression.match(new RegExp('\\b' + specificExpression + '\\b'))
+          !checkIfHasTargetExpression(expression, specificExpression)
         ) {
           continue
         }
@@ -220,13 +283,14 @@ function evaluateExpression (variableName: string[], variableValue: any[], expre
 }
 
 /**
- * Match expression from any html string.
+ * Check if specificExpression is in wholeExpression.
  *
- * @param {string} string
- * @returns
+ * @param {string} wholeExpression
+ * @param {string} specificExpression
+ * @returns {boolean}
  */
-function matchExpression (string: string) {
-  return string.match(/{{(\w|\d)+}}|{.+}/g)
+function checkIfHasTargetExpression (wholeExpression: string, specificExpression: string): boolean {
+  return !!wholeExpression.match(new RegExp('\\b' + specificExpression + '\\b'))
 }
 
 /**
@@ -265,4 +329,25 @@ function getAncestorID (astNode: ASTNode) {
   return astNode.parentNode
     ? getAncestorID(astNode.parentNode)
     : astNode.id
+}
+
+/**
+ * Get component's element by accessing its AST.
+ *
+ * @param {LC} component
+ * @returns
+ */
+function getElementFromComponent (component: LC) {
+  if (!component) {
+    return
+  }
+
+  try {
+    return (<AST> component['$ast']).nodes[0].element
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`[${process.env.NAME}] Failed to get element from component: `, error)
+    }
+    return null
+  }
 }

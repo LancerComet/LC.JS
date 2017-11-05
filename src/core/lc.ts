@@ -8,11 +8,10 @@ import { nextTick } from '../utils'
  * Base unit in LC.JS.
  * This is the base class to extend when you create a component class.
  *
- * @abstract
  * @export
  * @class {Component} Class that performs base class of any component.
  */
-abstract class LC {
+class LC {
   /**
    * Component reference in this component.
    *
@@ -20,6 +19,15 @@ abstract class LC {
    * @memberof LC
    */
   $components: $ComponentUsage
+
+  /**
+   * Elements of this component.
+   *
+   * @private
+   * @type {DocumentFragment}
+   * @memberof LC
+   */
+  $elements: DocumentFragment
 
   /**
    * Model storage.
@@ -45,15 +53,6 @@ abstract class LC {
    * @memberof LC
    */
   private $ast: AST
-
-  /**
-   * Elements of this component.
-   *
-   * @private
-   * @type {DocumentFragment}
-   * @memberof LC
-   */
-  private $elements: DocumentFragment
 
   /**
    * Mouting element.
@@ -88,10 +87,10 @@ abstract class LC {
   /**
    * Mount this component to target element.
    *
-   * @param {(string | Element)} element
+   * @param {string | Element | Node} element
    * @memberof LC
    */
-  $mount (element: string | Element) {
+  $mount (element: string | Element | Node) {
     // Get mounting element.
     const $el = typeof element === 'string'
       ? document.querySelector(element)
@@ -121,8 +120,8 @@ abstract class LC {
     const $template = this.$template
     if ($template) {
       const $components = this.$components
-      this.$ast = createAST($template, $components)  // Create AST.
-      this.$elements = compile(this.$ast, this, $components, this.$models)  // Create elements from AST.
+      this.$ast = parseHTMLtoAST($template, $components)  // Create AST.
+      this.$elements = compileAstToElement(this.$ast, this, $components, this.$models)  // Create elements from AST.
     }
 
     // Hide private properties.
@@ -173,28 +172,4 @@ function hidePrivates (target: LC) {
       })
     }
   })
-}
-
-/**
- * Create AST from HTML string.
- *
- * @param {string} htmlString
- * @param {$ComponentUsage} $components
- * @returns {AST}
- */
-function createAST (htmlString: string, $components: $ComponentUsage): AST {
-  return parseHTMLtoAST(htmlString, $components)
-}
-
-/**
- * Compile AST to element.
- *
- * @param {AST} ast
- * @param {LC} component
- * @param {$ComponentUsage} $components
- * @param {$ComponentModels} $models
- * @returns {DocumentFragment}
- */
-function compile (ast: AST, component: LC, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
-  return compileAstToElement(ast, component, $components, $models)
 }

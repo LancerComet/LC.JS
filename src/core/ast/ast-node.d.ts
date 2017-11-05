@@ -6,6 +6,14 @@
  */
 declare class ASTNode {
   /**
+   *
+   *
+   * @type {boolean}
+   * @memberof ASTNode
+   */
+  $if: boolean
+
+  /**
    * ID.
    *
    * @type {string}
@@ -33,10 +41,19 @@ declare class ASTNode {
    * Componnet Constructor.
    * Only available if this node is a component anchor.
    *
-   * @type {Function}
+   * @type {ComponentClass}
    * @memberof ASTNode
    */
-  ComponentCtor: (new () => LC)
+  ComponentCtor: ComponentClass
+
+  /**
+   * Component instance reference.
+   * Only available if this node is a component anchor.
+   *
+   * @type {LC}
+   * @memberof ASTNode
+   */
+  componentInstance: LC
 
   /**
    * Directives in this node.
@@ -129,7 +146,24 @@ declare class ASTNode {
    *
    * @memberof ASTNode
    */
-  createElement: () => void
+  createElement (): void
+
+  /**
+   * Mount attached-component to this node's element.
+   * Will find elements through ASTNode in "componentInstance.$ast.nodes[0]".
+   * Only available when it's a component anchor.
+   *
+   * @memberof ASTNode
+   */
+  mountComponent (): void
+
+  /**
+   * Unmount attached-component to this node's element.
+   * Only available when it's a component anchor.
+   *
+   * @memberof ASTNode
+   */
+  unMountComponent (): void
 
   /**
    * Update this ASTNode by given expression and new value.
@@ -160,7 +194,7 @@ declare class ASTNode {
 interface IASTNodeOption {
   attributes?: ASTNodeElementAttribute
   childAST?: AST
-  ComponentCtor?: (new () => LC)
+  ComponentCtor?: ComponentClass
   expression: string
   isComponentAnchor?: boolean
   isSlotAnchor?: boolean

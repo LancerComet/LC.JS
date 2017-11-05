@@ -14,7 +14,7 @@ import { HelloWorld } from './hello-world'
       <h1 class="title">{{appName}} demo page.</h1>
       <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
       <div>Time: {{time}}, double time: {{time * 2}}</div>
-      <button @click="showComponent">Show My Component</button>
+      <button @click="toggleComponent">Toggle My Component</button>
       <button @click="add">Add 1000</button>
       <input @focus="onFocus" @blur="onBlur" @model.number="time">
       <input @model="appName">
@@ -26,8 +26,8 @@ class Root extends LC {
   appName: string = process.env.NAME
   time: number = 2017
   showMyComponent: boolean = false
-  showComponent () {
-    this.showMyComponent = true
+  toggleComponent () {
+    this.showMyComponent = !this.showMyComponent
   }
   add () {
     this.time = this.time + 1000

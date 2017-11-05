@@ -52,7 +52,7 @@ export {
 function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode?: ASTNode): ASTNode {
   let attributes: ASTNodeElementAttribute = {}
   const childAST: AST = new AST()
-  let ComponentCtor = null
+  let ComponentCtor: ComponentClass = null
   let expression: string = ''
   let isComponentAnchor: boolean = false
   let isSlotAnchor: boolean = false
@@ -76,7 +76,7 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
       // Get attributes info.
       Array.prototype.slice.call(node.attributes).forEach(item => {
-        const attrName = item.name
+        let attrName = item.name
         const attrValue = item.value
 
         // Save this attribute as a prop.
@@ -85,17 +85,16 @@ function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode
 
         // Save as an attribute.
         } else {
-          let attrNameWithoutDecorators = attrName
           let decorators = []
 
           // If this is a directive, get attribute name which is without decorators
           // and decorators.
           if (isDirective(attrName)) {
-            attrNameWithoutDecorators = (attrName.match(/^\W\w+\b/) || [])[0] || attrName
+            attrName = (attrName.match(/^\W\w+\b/) || [])[0] || attrName
             decorators = getDecorators(attrName)
           }
 
-          attributes[attrNameWithoutDecorators] = {
+          attributes[attrName] = {
             value: attrValue,
             decorators
           }

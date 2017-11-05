@@ -1,4 +1,4 @@
-declare abstract class LC {
+declare class LC {
   /**
    * Components.
    *
@@ -6,6 +6,15 @@ declare abstract class LC {
    * @memberof LC
    */
   $components: $ComponentUsage
+
+  /**
+   * Elements of this component.
+   *
+   * @private
+   * @type {DocumentFragment}
+   * @memberof LC
+   */
+  $elements: DocumentFragment
 
   /**
    * Template.
@@ -34,10 +43,10 @@ declare abstract class LC {
   /**
    * Mount this component to target element.
    *
-   * @param {(string | Element)} element
+   * @param {(string | Element | Node)} element
    * @memberof LC
    */
-  $mount (element: string | Element): void
+  $mount (element: string | Element | Node): void
 }
 
 /**
