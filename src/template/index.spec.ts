@@ -1,4 +1,5 @@
 import { parseHTMLtoAST } from './'
+import { AST, ASTNodeElement, ASTNodeText } from '../core'
 
 describe('Template testing.', () => {
   it('Should generate correct AST.', () => {
@@ -18,16 +19,16 @@ describe('Template testing.', () => {
     `
 
     const ast = parseHTMLtoAST(template)
-    chai.expect(ast).to.be.a('array')
+    chai.expect(ast instanceof AST).to.equal(true)
 
-    const divNode = ast[1]
+    const divNode = ast.nodes[1] as ASTNodeElement
     chai.expect(divNode.tagName).to.equal('div')
-    chai.expect(divNode.children[0].textContent).contain('This is a testing element.')
+    chai.expect((divNode.childAST.nodes[0] as ASTNodeText).textContent).contain('This is a testing element.')
 
-    const h2Node = divNode.children[1]
+    const h2Node = divNode.childAST.nodes[1] as ASTNodeElement
     chai.expect(h2Node.tagName).to.equals('h2')
 
-    const brNode = divNode.children[3]
+    const brNode = divNode.childAST.nodes[3]
     chai.expect(brNode.attributes['class'].value).to.equal('this-is-a-br')
   })
 })

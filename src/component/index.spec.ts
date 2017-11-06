@@ -3,7 +3,7 @@ import { LC } from '../core/lc'
 
 describe('Component testing.', () => {
   it('Should create a component successfully.', () => {
-    @Component
+    @Component({})
     class MyInfo extends LC {
       name: string = 'LancerComet'
       age: number = 27
