@@ -1,6 +1,9 @@
 /// <reference path="./ast.d.ts" />
 
-import { ASTNode, ASTNodeComponent, ASTNodeElement, ASTNodeText } from './ast-node'
+import { ASTNode } from './node.base'
+import { ASTNodeComponent } from './node.component'
+import { ASTNodeElement } from './node.element'
+import { ASTNodeText } from './node.text'
 
 class AST {
   component: LC

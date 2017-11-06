@@ -104,6 +104,8 @@ export {
  */
 function transformPropNameToPascal (propName: string) {
   const matching = propName.match(/-\w/g)
+  const replaceRegExp = new RegExp(DirectiveConfig.flags.value, 'g')
+
   if (matching) {
     let result = propName
     matching.forEach(item => {
@@ -113,8 +115,8 @@ function transformPropNameToPascal (propName: string) {
       )
     })
 
-    return result.replace(new RegExp(DirectiveConfig.flags.value, 'g'), '')
+    return result.replace(replaceRegExp, '')
   } else {
-    return propName
+    return propName.replace(replaceRegExp, '')
   }
 }
