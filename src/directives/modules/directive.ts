@@ -6,6 +6,7 @@ import { isEventDirective, isValueDirective } from './utils'
 
 import { initIf } from '../internal-directives/if'
 import { initSlot } from '../internal-directives/slot'
+import { initText } from '../internal-directives/text'
 import { initModel } from '../internal-directives/@model'
 
 const { event: eventFlag, value: valueFlag } = DirectiveConfig.flags
@@ -18,6 +19,7 @@ const directives: {[directiveName: string]: typeof Directive} = {}
 
 // Create internal directives.
 initIf(directives)
+initText(directives)
 initSlot(directives)
 initModel(directives)
 

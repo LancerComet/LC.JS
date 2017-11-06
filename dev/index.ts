@@ -2,6 +2,8 @@ import { LC, Component } from '../src'
 import { MyComponent } from './my-component'
 import { HelloWorld } from './hello-world'
 
+console.time('createComponent')
+
 @Component({
   components: {
     'hello-world': HelloWorld,
@@ -38,13 +40,14 @@ class Root extends LC {
   onBlur () {
     console.log(this.$components)
   }
+  mounted () {
+    console.timeEnd('createComponent')
+    console.log(this)
+  }
 }
 
-console.time('createComponent')
 const root = new Root()
 root.$mount('#lc-app')
-console.timeEnd('createComponent')
-console.log(root)
 
 setInterval(() => {
   root.time++

@@ -38,6 +38,14 @@ class LC {
   $models: $ComponentModels
 
   /**
+   * Parent component.
+   *
+   * @type {LC}
+   * @memberof LC
+   */
+  $parent: LC
+
+  /**
    * Template string.
    *
    * @type {string}
@@ -77,14 +85,6 @@ class LC {
   }
 
   /**
-   * Parent component.
-   *
-   * @type {LC}
-   * @memberof LC
-   */
-  $parent: LC
-
-  /**
    * Mount this component to target element.
    *
    * @param {string | Element | Node} element
@@ -104,8 +104,25 @@ class LC {
           return
         }
         parent.replaceChild($elements, $el)
+        typeof this.mounted === 'function' && this.mounted()
       })
     }
+  }
+
+  /**
+   * Lifecycle function executes before component is created.
+   *
+   * @memberof LC
+   */
+  created (): void {
+  }
+
+  /**
+   * Lifecycle function executes after component has been mounted to HTML.
+   *
+   * @memberof LC
+   */
+  mounted (): void {
   }
 
   constructor () {
@@ -124,8 +141,13 @@ class LC {
       this.$elements = compileAstToElement(this.$ast, this, $components, this.$models)  // Create elements from AST.
     }
 
-    // Hide private properties.
-    nextTick(hidePrivates.bind(null, this))
+    nextTick(() => {
+      // Hide private properties.
+      hidePrivates(this)
+
+      // Call created.
+      typeof this.created === 'function' && this.created()
+    })
   }
 }
 

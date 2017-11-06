@@ -4,6 +4,12 @@ const resolver = filepath => path.resolve(__dirname, '../' + filepath)
 const isProd = process.env.NODE_ENV === 'production'
 const srcFolders = ['dev', 'src', 'test'].map(resolver)
 
+const babelConfig = require('../babelrc.json')
+
+if (!isProd) {
+  babelConfig.plugins = ["transform-runtime"]
+}
+
 const rules = [
   {
     test: /\.(png|jpe?g|gif)(\?.*)?$/,
@@ -21,9 +27,7 @@ const rules = [
     test: /\.js$/,
     use: {
       loader: 'babel-loader',
-      options: isProd
-        ? require('../babel.build.json')
-        : require('../babel.dev.json')
+      options: babelConfig
     },
     include: srcFolders
   },
@@ -32,9 +36,7 @@ const rules = [
     use: [
       {
         loader: 'babel-loader',
-        options: isProd
-          ? require('../babel.build.json')
-          : require('../babel.dev.json')
+        options: babelConfig
       },
       {
         loader: 'ts-loader',

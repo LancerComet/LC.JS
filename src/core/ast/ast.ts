@@ -3,6 +3,12 @@
 import { ASTNode } from './ast-node'
 
 class AST {
+  get element (): Element | Text | Comment {
+    return this.nodes.length
+      ? this.nodes[0].element
+      : null
+  }
+
   nodes: ASTNodes
 
   addNode (node: ASTNode) {

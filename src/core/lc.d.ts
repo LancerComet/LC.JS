@@ -47,6 +47,20 @@ declare class LC {
    * @memberof LC
    */
   $mount (element: string | Element | Node): void
+
+  /**
+   * Lifecycle function executes before component is created.
+   *
+   * @memberof LC
+   */
+  created: () => void
+
+  /**
+   * Lifecycle function executes after component has been mounted to HTML.
+   *
+   * @memberof LC
+   */
+  mounted: () => void
 }
 
 /**

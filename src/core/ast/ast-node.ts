@@ -86,14 +86,16 @@ class ASTNode {
   }
 
   mountComponent () {
-    if (!this.$if || !this.isComponentAnchor) {
+    const compInstance = this.componentInstance
+
+    if (!this.$if || !this.isComponentAnchor || !compInstance) {
       return
     }
 
     // Access to component's element.
     // Because only one root element is allowed when create a component,
     // You can get component's element by finding first node in comopnent's AST.
-    const componentElements = getElementFromComponent(this.componentInstance)
+    const componentElements = (<AST> compInstance['$ast']).element
     if (!componentElements) {
       return
     }
@@ -104,15 +106,19 @@ class ASTNode {
       const parent = element.parentElement
       parent.insertBefore(componentElements, element)
       parent.removeChild(element)
+      typeof compInstance.mounted === 'function' &&
+        compInstance.mounted()
     })
   }
 
   unMountComponent () {
-    if (!this.isComponentAnchor) {
+    const compInstance = this.componentInstance
+
+    if (!this.isComponentAnchor || !compInstance) {
       return
     }
 
-    const componentElements = getElementFromComponent(this.componentInstance)
+    const componentElements = (<AST> compInstance['$ast']).element
     if (!componentElements) {
       return
     }
@@ -329,25 +335,4 @@ function getAncestorID (astNode: ASTNode) {
   return astNode.parentNode
     ? getAncestorID(astNode.parentNode)
     : astNode.id
-}
-
-/**
- * Get component's element by accessing its AST.
- *
- * @param {LC} component
- * @returns
- */
-function getElementFromComponent (component: LC) {
-  if (!component) {
-    return
-  }
-
-  try {
-    return (<AST> component['$ast']).nodes[0].element
-  } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error(`[${process.env.NAME}] Failed to get element from component: `, error)
-    }
-    return null
-  }
 }

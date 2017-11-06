@@ -6,18 +6,7 @@ function initIf (directiveStore: {[directiveName: string]: typeof Directive}) {
 
   const If = createDirective({
     name: DIRECTIVE_NAME,
-    isCustom: true,
-
-    onInstall (directive: Directive) {
-      console.log('lc-if oninstall')
-    },
-
-    onInstalled (directive: Directive, newValue: any, component: LC) {
-      console.log('lc-if oninstalled')
-    },
-
-    onUpdated (directive: Directive, newValue: any, component: LC) {
-    }
+    isCustom: true
   })
 
   directiveStore[DIRECTIVE_NAME] = If

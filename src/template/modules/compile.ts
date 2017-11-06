@@ -54,6 +54,7 @@ function compileAstToElement (ast: AST, component: LC, $components: $ComponentUs
         })
       }
 
+      // TODO: Can't instantiate component in here.
       const compInstance: LC = new astNode.ComponentCtor()
 
       // Save child component "compInstance" to "$propComponents" in prop's model in this component.
@@ -65,7 +66,6 @@ function compileAstToElement (ast: AST, component: LC, $components: $ComponentUs
       // Mount component.
       astNode.componentInstance = compInstance
       astNode.mountComponent()
-      // compInstance.$mount()
 
       // Save component instance to component.
       $components[astNode.tagName].reference.push(compInstance)

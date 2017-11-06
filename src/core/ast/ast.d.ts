@@ -7,6 +7,15 @@
  */
 declare class AST {
   /**
+   * Get element of this AST.
+   * This will be the element for the component of this AST.
+   *
+   * @type {HTMLElement}
+   * @memberof AST
+   */
+  element: Element | Text | Comment
+
+  /**
    * ASTNodes in this AST.
    *
    * @type {ASTNodes}

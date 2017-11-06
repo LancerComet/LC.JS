@@ -10,6 +10,14 @@ class MyComponent extends LC {
   isMarried: boolean = false
   address: string[] = ['NewYork', 'Beijing']
   sex: string = 'male'
+
+  created () {
+    console.log('MyComponent created')
+  }
+
+  mounted () {
+    console.log('MyComponent mounted')
+  }
 }
 
 export {
