@@ -20,7 +20,7 @@ console.time('createComponent')
       <button @click="add">Add 1000</button>
       <input @focus="onFocus" @blur="onBlur" @model.number="time">
       <input @model="appName">
-      <my-component lc-if="showMyComponent"></my-component>
+      <my-component lc-if="showMyComponent" :time="time"></my-component>
     </div>
   `
 })
