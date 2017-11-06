@@ -1,9 +1,10 @@
 import { Component } from './'
+import { LC } from '../core/lc'
 
 describe('Component testing.', () => {
   it('Should create a component successfully.', () => {
-    @Component()
-    class MyInfo {
+    @Component({})
+    class MyInfo extends LC {
       name: string = 'LancerComet'
       age: number = 27
       isMarried: boolean = false

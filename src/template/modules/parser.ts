@@ -1,20 +1,35 @@
-import { ASTNode } from './ast'
-import { NODE_TYPE } from '../../core/config'
-import { isValueDirective, getDecorators } from '../../directives'
+import { AST, ASTNodeComponent, ASTNodeElement, ASTNodeText } from '../../core'
+import { NodeType } from '../../core/config'
+import { isDirective, isValueDirective, getDecorators } from '../../directives'
 
 /**
  * Convert html string to AST.
  *
- * @param {string} htmlString
- * @param {$ComponentUsage} $components
  * @returns {AST}
  */
-function parseHTMLtoAST (htmlString: string, $components: $ComponentUsage): AST {
-  if (!htmlString) {
-    return []
+function parseHTMLtoAST (htmlString: string): AST
+function parseHTMLtoAST (component: LC): AST
+function parseHTMLtoAST (param: string | LC): AST {
+  let htmlString: string = ''
+  let component: LC = null
+  let $components: $ComponentUsage = null
+
+  if (typeof param === 'string') {
+    htmlString = param
+  } else if (typeof param === 'object') {
+    component = param
+    $components = param.$components
+    htmlString = param.$template
+  } else {
+    return
   }
 
-  const ast: AST = []
+  if (!htmlString) {
+    return null
+  }
+
+  // Create AST.
+  const ast = new AST(component)
 
   // Generate elements and convert to AST.
   const $el = document.createElement('div')
@@ -24,13 +39,13 @@ function parseHTMLtoAST (htmlString: string, $components: $ComponentUsage): AST 
     if (process.env.NODE_ENV !== 'production') {
       console.error(`[${process.env.NAME}] Component only accepts one root element, please wrap your all nodes into a single element.`)
     }
-    return []
+    return null
   }
 
   for (let i = 0, length = $el.childNodes.length; i < length; i++) {
     const currentNode = $el.childNodes[i]
-    ast.push(
-      elementToASTNode(currentNode, $components)
+    ast.addNode(
+      elementToASTNode(ast, currentNode, $components)
     )
   }
 
@@ -44,84 +59,102 @@ export {
 /**
  * Convert single HTML node to ASTNode.
  *
+ * @param {AST} ast
  * @param {Node} node
  * @param {$ComponentUsage} [$components]
- * @param {ASTNode} [parentNode]
+ * @param {ASTNodeTypes} [parentNode]
  * @returns {ASTNode}
  */
-function elementToASTNode (node: Node, $components?: $ComponentUsage, parentNode?: ASTNode): ASTNode {
-  let attributes: ASTNodeElementAttribute = {}
-  const children: AST = []
-  let ComponentCtor = null
-  let expression: string = ''
-  let isComponentAnchor: boolean = false
+function elementToASTNode (ast: AST, node: Node, $components?: $ComponentUsage, parentNode?: ASTNodeTypes): ASTNodeTypes {
+  let astNode: ASTNodeTypes = null
+  const attributes: ASTNodeElementAttribute = {}
+  const childAST: AST = new AST()
   let nodeType: number = node.nodeType
-  let props: {} = {}
   let tagName: string = ''
-  let textContent: string = null
 
   switch (nodeType) {
     // Element.
-    case NODE_TYPE.element:
+    case NodeType.element:
+      const props: {} = {}
       const tagNameInLowerCase = (<HTMLElement> node).tagName.toLowerCase()
-
-      // If component usage is given then check if this node is an anchor for component.
-      if ($components && $components[tagNameInLowerCase]) {
-        // This is a component anchor.
-        isComponentAnchor = true
-        ComponentCtor = $components[tagNameInLowerCase].Constructor
-        nodeType = NODE_TYPE.comment  // Over NodeType to NODE_TYPE.comment.
-      }
+      const isComponentAnchor = $components && $components[tagNameInLowerCase]
+      tagName = tagNameInLowerCase
 
       // Get attributes info.
-      Array.prototype.slice.call(node.attributes)
-        .forEach(item => {
-          const attrName = item.name
+      Array.prototype.slice.call(node.attributes).forEach(item => {
+        let attrName = item.name
+        const attrValue = item.value
 
-          // Save this attribute as a prop.
-          if (isComponentAnchor && isValueDirective(attrName)) {
-            props[attrName] = item.value
+        // Save this attribute as a prop.
+        if (isComponentAnchor && isValueDirective(attrName)) {
+          props[attrName] = attrValue
 
-          // Save as an attribute.
-          } else {
-            const attrNameWithoutDecorators = (attrName.match(/\W\w+\b/) || [])[0] || attrName
-            const decorators = getDecorators(attrName)
-            attributes[attrNameWithoutDecorators] = {
-              value: item.value,
-              decorators
-            }
+        // Save as an attribute.
+        } else {
+          let decorators = []
+
+          // If this is a directive, get attribute name which is without decorators
+          // and decorators.
+          if (isDirective(attrName)) {
+            attrName = (attrName.match(/^\W\w+\b/) || [])[0] || attrName
+            decorators = getDecorators(attrName)
           }
+
+          attributes[attrName] = {
+            value: attrValue,
+            decorators
+          }
+        }
+      })
+
+      // This is a component anchor.
+      if (isComponentAnchor) {
+        nodeType = NodeType.comment  // Over NodeType to NODE_TYPE.comment.
+        const ComponentCtor = $components[tagNameInLowerCase].Constructor
+
+        astNode = new ASTNodeComponent({
+          ast,
+          attributes,
+          ComponentCtor,
+          componentInstance: null,
+          parentNode,
+          props,
+          tagName
         })
 
-      tagName = tagNameInLowerCase
+      // Normal element.
+      } else {
+        astNode = new ASTNodeElement({
+          ast,
+          attributes,
+          childAST,
+          parentNode,
+          tagName
+        })
+      }
+
       break
 
     // TextNode.
-    case NODE_TYPE.textNode:
-      expression = textContent = node.textContent || node.nodeValue || ''
+    case NodeType.textNode:
+      const nodeContent =  node.textContent || node.nodeValue || ''
+      astNode = new ASTNodeText({
+        ast,
+        expression: nodeContent,
+        parentNode,
+        tagName,
+        textContent: nodeContent
+      })
       break
   }
 
-  const astNode = new ASTNode({
-    attributes,
-    children,
-    ComponentCtor,
-    expression,
-    isComponentAnchor,
-    nodeType,
-    parentNode,
-    props,
-    tagName,
-    textContent
-  })
-
   // Deal with children.
   const childrenLength = node.childNodes.length
-  if (nodeType === NODE_TYPE.element && childrenLength) {
+  if (nodeType === NodeType.element && childrenLength) {
     let i = 0
     while (i < childrenLength){
       const childNode = node.childNodes[i]
-      children.push(elementToASTNode(childNode, $components, astNode))
+      childAST.addNode(elementToASTNode(ast, childNode, $components, astNode))
       i++
     }
   }

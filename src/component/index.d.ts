@@ -49,3 +49,9 @@ type TModelType = NumberConstructor | StringConstructor | BooleanConstructor | F
  * Default value for model.
  */
 type TModelDefaultValue = number | string | boolean | Function | any[]
+
+/**
+ * Component class type.
+ * The class that is created by user.
+ */
+type ComponentClass = typeof LC

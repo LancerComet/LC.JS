@@ -1,4 +1,7 @@
 div.hello-world
-  img(:src="img", width="300", height="300")
-  p This value is given via props:
-  p Hello, {{appName || '--'}}
+  div
+    img(:src="img", width="300", height="300")
+    p This value is given via props:
+    p Hello, {{appName || '--'}}
+
+  slot(name="wow")

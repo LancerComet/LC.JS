@@ -1,59 +1,32 @@
 /// <reference path="./directive.d.ts" />
 
-import { DIRECTIVE } from '../../core/config'
+import { DirectiveConfig } from '../../core/config'
 import { isFunction, nextTick } from '../../utils'
 import { isEventDirective, isValueDirective } from './utils'
 
-const { event: eventFlag, value: valueFlag } = DIRECTIVE.flags
-const directiveType = DIRECTIVE.type
+import { initIf } from '../internal-directives/if'
+import { initSlot } from '../internal-directives/slot'
+import { initText } from '../internal-directives/text'
+import { initModel } from '../internal-directives/@model'
+
+const { event: eventFlag, value: valueFlag } = DirectiveConfig.flags
+const directiveType = DirectiveConfig.type
 
 /**
  * The object that keeps all directives.
  */
-const directives = {}
+const directives: {[directiveName: string]: typeof Directive} = {}
 
 // Create internal directives.
-// @model.
-directives[eventFlag + 'model'] = createDirective({
-  name: eventFlag + 'model',
+initIf(directives)
+initText(directives)
+initSlot(directives)
+initModel(directives)
 
-  onInstall (directive) {
-    const element = directive.element
-    const handler = event => {
-      const eventExec = directive.eventExec
-      typeof eventExec === 'function' && eventExec(event)
-    }
-    directive.eventBound = handler
-    element.addEventListener('input', handler)
-  },
-
-  onInstalled (directive: Directive, newValue, component) {
-    directive.eventExec = function (event) {
-      const keyName = directive.expression
-      const $model = <ReactiveModel> (component)['$models'][keyName]
-      let newValue: any = (<HTMLInputElement> event.target).value
-
-      // Detect decorators.
-      const decorators = directive.astNode.attributes[eventFlag + 'model'].decorators
-
-      // Number decorator.
-      if (decorators.indexOf('number') > -1) {
-        newValue = parseInt(newValue || 0)
-      }
-
-      // Trim decorator.
-      if (decorators.indexOf('trim') > -1) {
-        newValue = newValue.trim()
-      }
-
-      $model.value = newValue
-    }
-  },
-
-  onUpdated (directive, newValue, component) {
-    const element = <HTMLInputElement> directive.element
-    element.value = newValue
-  }
+// slot.
+directives['slot'] = createDirective({
+  name: 'slot',
+  isCustom: true
 })
 
 /**
@@ -94,109 +67,26 @@ function createDirective (option: IDirectiveOptions) {
      */
     private isInstalled: boolean
 
-    /**
-     * ASTNode that uses this directive.
-     *
-     * @type {ASTNode}
-     */
     astNode: ASTNode
-
-    /**
-     * Directive expression.
-     *
-     * @private
-     * @type {string}
-     */
     expression: string
-
-    /**
-     * Element that uses this directive.
-     *
-     * @type {Element}
-     */
     element: Element
-
-    /**
-     * Event exec function.
-     * Only available for event directive.
-     *
-     * @type {Function}
-     * @memberof Directive
-     */
     eventExec: Function
-
-    /**
-     * Event that is bound.
-     * This function is bound to element, for example "onlick", "onfocus".
-     * Called when event is triggered, and will call "eventExec" next.
-     * Only available for event directive.
-     *
-     * @type {EventListenerOrEventListenerObject}
-     * @memberof Directive
-     */
     eventBound: EventListenerOrEventListenerObject
-
-    /**
-     * Directive name.
-     *
-     * @type {string}
-     * @example
-     *  :class, @click, :style
-     */
+    isCustom: boolean
     name: string
-
-    /**
-     * Directive name in html.
-     *
-     * @type {string}
-     * @example
-     *  class, click, style
-     */
     nameInHTML: string
-
-    /**
-     * Directive type.
-     *
-     * @type {TDirectiveType}
-     */
     type: TDirectiveType
-
-    /**
-     * This function will be called when this directive is going to be attached to element.
-     * Will be called only once.
-     *
-     * @type {TDirectiveHook}
-     */
     onInstall: TDirectiveHook
-
-    /**
-     * This function will be called when this directive has been attached to element.
-     * Will be called only once.
-     *
-     * @type {TDirectiveHook}
-     */
     onInstalled: TDirectiveHook
-
-    /**
-     * This function will be called when its ASTNode is being updated.
-     *
-     * @type {TDirectiveHook}
-     */
     onUpdated: TDirectiveHook
+    onUninstall: TDirectiveHook
 
-    /**
-     * This function will be called when it's going to be unistalled from its ASTNode.
-     *
-     * @type {TDirectiveHook}
-     */
-    onUninstalled: TDirectiveHook
-
-    /**
-     * Install this directive to target ASTNode and element.
-     *
-     * @memberof Directive
-     */
     install () {
+      if (this.isCustom) {
+        isFunction(this.onInstall) && this.onInstall(this)
+        return
+      }
+
       switch (this.type) {
         // Event type. Bind event to element.
         case directiveType.event:
@@ -215,28 +105,23 @@ function createDirective (option: IDirectiveOptions) {
       }
     }
 
-    /**
-     * Update directive values and set them to element.
-     *
-     * @param {*} newValue
-     * @param {LC} component
-     * @memberof Directive
-     */
     update (newValue: any, component: LC) {
-      switch (this.type) {
-        case directiveType.event:
-          if (typeof newValue === 'function') {
-            this.eventExec = function () {
-              newValue.call(component)
+      if (!this.isCustom) {
+        switch (this.type) {
+          case directiveType.event:
+            if (typeof newValue === 'function') {
+              this.eventExec = function () {
+                newValue.call(component)
+              }
             }
-          }
-          break
+            break
 
-        case directiveType.value:
-          nextTick(() => {
-            this.element.setAttribute(this.nameInHTML, newValue)
-          })
-          break
+          case directiveType.value:
+            nextTick(() => {
+              this.element.setAttribute(this.nameInHTML, newValue)
+            })
+            break
+        }
       }
 
       // Call onInstalled for first.
@@ -255,17 +140,13 @@ function createDirective (option: IDirectiveOptions) {
       }
     }
 
-    /**
-     * Uninstall directive from element.
-     *
-     * @memberof Directive
-     */
     uninstall () {
-      isFunction(this.onUninstalled) && this.onUninstalled(this)
+      isFunction(this.onUninstall) && this.onUninstall(this)
     }
 
     constructor (astNode: ASTNode, element: Element, expression: string) {
       this.name = option.name
+      this.isCustom = !!option.isCustom
 
       this.astNode = astNode
       this.element = element
@@ -277,7 +158,7 @@ function createDirective (option: IDirectiveOptions) {
       this.onInstall = option.onInstall
       this.onInstalled = option.onInstalled
       this.onUpdated = option.onUpdated
-      this.onUninstalled = option.onUninstalled
+      this.onUninstall = option.onUninstall
     }
   }
 

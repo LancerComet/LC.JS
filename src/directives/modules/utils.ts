@@ -1,8 +1,7 @@
-import { DIRECTIVE } from '../../core/config'
+import { DirectiveConfig } from '../../core/config'
 import { strStartsWith } from '../../utils'
 
-const eventFlag = DIRECTIVE.flags.event  // "@"
-const valueFlag = DIRECTIVE.flags.value  // ":"
+const { event: eventFlag, value: valueFlag, internal: internalFlag } = DirectiveConfig.flags
 
 /**
  * Whether a directive is a event-function directive.
@@ -12,6 +11,16 @@ const valueFlag = DIRECTIVE.flags.value  // ":"
  */
 function isEventDirective (directiveName: string) {
   return strStartsWith(directiveName, eventFlag)
+}
+
+/**
+ * Whether a directive is a internal directive.
+ *
+ * @param {string} directiveName
+ * @returns
+ */
+function isInternalDirective (directiveName: string) {
+  return strStartsWith(directiveName, internalFlag)
 }
 
 /**
@@ -32,11 +41,13 @@ function isValueDirective (directiveName: string) {
  */
 function isDirective (directiveName: string) {
   return isValueDirective(directiveName) ||
-    isEventDirective(directiveName)
+    isEventDirective(directiveName) ||
+    isInternalDirective(directiveName)
 }
 
 export {
   isDirective,
   isEventDirective,
+  isInternalDirective,
   isValueDirective
 }

@@ -1,5 +1,6 @@
+import { ASTNodeComponent, ASTNodeElement, ASTNodeText } from '../../core'
 import { isValueDirective, isEventDirective, isDirective } from '../../directives'
-import { DIRECTIVE, NODE_TYPE } from '../../core/config'
+import { DirectiveConfig, NodeType } from '../../core/config'
 import { nextTick } from '../../utils'
 import { ReactiveModel } from '../../component/modules/reactive-model'
 
@@ -8,68 +9,80 @@ import { ReactiveModel } from '../../component/modules/reactive-model'
  *
  * @param {AST} ast AST.
  * @param {LC} component Component that the AST belongs to.
- * @param {$ComponentUsage} $components Quick reference to "component.$components".
- * @param {$ComponentModels} $models Quick reference to "component.$models".
  * @returns {Element}
  */
-function compileAstToElement (ast: AST, component: LC, $components: $ComponentUsage, $models: $ComponentModels): DocumentFragment {
+function compileAstToElement (ast: AST, component: LC): DocumentFragment {
   const fragment = document.createDocumentFragment()
+  const $components = component.$components
+  const $models = component.$models
 
-  for (let i = 0, length = ast.length; i < length; i++) {
-    const astNode = ast[i]
+  for (let i = 0, length = ast.nodes.length; i < length; i++) {
+    const astNode: ASTNodeTypes = ast.nodes[i]
 
     // Fill all values to expression.
-    astNode.updateElement(component)
+    astNode.update()
 
-    const element = astNode.element
-    const childElement = compileAstToElement(astNode.children, component, $components, $models)
+    switch (true) {
+      // ASTNodeComponent.
+      case astNode instanceof ASTNodeComponent:
+        const componentNode = <ASTNodeComponent> astNode
+        const props = componentNode.props
 
-    // Append children elements.
-    if (childElement && astNode.nodeType === NODE_TYPE.element) {
-      element.appendChild(childElement)
-    }
+        // Deal with props if there is.
+        const propsKeys = Object.keys(props).map(transformPropNameToPascal)
+        if (propsKeys.length) {
+          const $presetModels = {}
 
-    fragment.appendChild(element)
-
-    // Mount element if this is a component anchor.
-    if (astNode.nodeType === NODE_TYPE.comment && astNode.isComponentAnchor) {
-      // Deal with props.
-      const props = astNode.props
-      const propsKeys = Object.keys(props).map(transformPropNameToPascal)
-
-      if (propsKeys.length) {
-        const $presetModels = {}
-
-        // Create new reactive model for child component for initial values.
-        propsKeys.forEach(propName => {
-          $presetModels[propName] = new ReactiveModel(propName, {
-            type: component['$models'][propName].type,
-            default: component['$models'][propName].value
+          // Create new reactive model for child component for initial values.
+          propsKeys.forEach(propName => {
+            $presetModels[propName] = new ReactiveModel(propName, {
+              type: $models[propName].type,
+              default: $models[propName].value
+            })
           })
+
+          // Combine props to Component's "$models".
+          Object.defineProperty(componentNode.ComponentCtor.prototype, '$models', {
+            value: Object.assign(
+              componentNode.ComponentCtor.prototype['$models'],
+              $presetModels
+            )
+          })
+        }
+
+        // TODO: Can't instantiate component in here.
+        const compInstance: LC = new (<ASTNodeComponent> astNode).ComponentCtor()
+
+        // Save child component "compInstance" to "$propComponents" in prop's model in this component.
+        propsKeys.forEach(propName => {
+          const $propModel = <ReactiveModel> $models[propName]
+          $propModel.$propComponents.push(compInstance)
         })
 
-        // Combine props to Component's "$models".
-        Object.defineProperty(astNode.ComponentCtor.prototype, '$models', {
-          value: Object.assign(
-            astNode.ComponentCtor.prototype['$models'],
-            $presetModels
-          )
-        })
-      }
+        // Mount component.
+        componentNode.componentInstance = compInstance
+        componentNode.mountComponent()
 
-      const compInstance: LC = new astNode.ComponentCtor()
+        // Save component instance to component.
+        $components[astNode.tagName].reference.push(compInstance)
+        break
 
-      // Save child component "compInstance" to "$propComponents" in prop's model in this component.
-      propsKeys.forEach(propName => {
-        const $propModel = <ReactiveModel> component['$models'][propName]
-        $propModel.$propComponents.push(compInstance)
-      })
+      // ASTNodeElement.
+      case astNode instanceof ASTNodeElement:
+        // Append children elements.
+        const childAST = (<ASTNodeElement> astNode).childAST
+        if (childAST.nodes.length) {
+          const childrenElements = compileAstToElement(childAST, component)
+          astNode.element.appendChild(childrenElements)
+        }
+        break
 
-      compInstance.mount(<Element> astNode.element)
-
-      // Save component instance to component.
-      $components[astNode.tagName].reference.push(compInstance)
+      // ASTNodeText.
+      case astNode instanceof ASTNodeText:
+        break
     }
+
+    fragment.appendChild(astNode.element)
   }
 
   return fragment
@@ -100,7 +113,7 @@ function transformPropNameToPascal (propName: string) {
       )
     })
 
-    return result.replace(new RegExp(DIRECTIVE.flags.value, 'g'), '')
+    return result.replace(new RegExp(DirectiveConfig.flags.value, 'g'), '')
   } else {
     return propName
   }

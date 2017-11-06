@@ -42,6 +42,16 @@ declare class Directive {
   eventBound: EventListenerOrEventListenerObject
 
   /**
+   * Whether this is a custom directive.
+   * A custom directive will be controlled by creator.
+   * No internal funcitons will be executed.
+   *
+   * @type {boolean}
+   * @memberof Directive
+   */
+  isCustom: boolean
+
+  /**
    * Directive name.
    *
    * @type {string}
@@ -67,6 +77,14 @@ declare class Directive {
   type: TDirectiveType
 
   /**
+   * This function will be called when this directive is going to be attached to element.
+   * Will be called only once.
+   *
+   * @type {TDirectiveHook}
+   */
+  onInstall: TDirectiveHook
+
+  /**
    * This function will be called when this directive is attached to element.
    * Will be called only once.
    *
@@ -86,7 +104,7 @@ declare class Directive {
    *
    * @type {TDirectiveHook}
    */
-  onUninstalled: TDirectiveHook
+  onUninstall: TDirectiveHook
 
   /**
    * Install this directive to target ASTNode and element.
@@ -100,12 +118,29 @@ declare class Directive {
    * @param {LC} component
    */
   update (newValue: any, component: LC): void
+
+  /**
+   * Uninstall directive from element.
+   *
+   * @memberof Directive
+   */
+  uninstall (): void
+
+  /**
+   * Creates an instance of Directive.
+   *
+   * @param {ASTNodeElement} astNode
+   * @param {Element} element
+   * @param {string} expression
+   * @memberof Directive
+   */
+  constructor (astNode: ASTNodeElement, element: Element, expression: string)
 }
 
 /**
  * Directive type.
  */
-type TDirectiveType = 'event' | 'value'
+type TDirectiveType = 'internal' | 'event' | 'value'
 
 /**
  * Option for Directive Constructor.
@@ -122,6 +157,15 @@ interface IDirectiveOptions {
    *  :class, @click
    */
   name: string
+
+  /**
+   * A custom directive will be controlled by creator.
+   * No internal funcitons will be executed.
+   *
+   * @type {boolean}
+   * @memberof IDirectiveOptions
+   */
+  isCustom?: boolean
 
   /**
    * This function will be called when this directive is going to be attached to element.
@@ -155,7 +199,7 @@ interface IDirectiveOptions {
    * @type {TDirectiveHook}
    * @memberof IDirectiveOptions
    */
-  onUninstalled?: TDirectiveHook
+  onUninstall?: TDirectiveHook
 }
 
 /**

@@ -5,29 +5,44 @@ import { ReactiveModel } from './modules/reactive-model'
 /**
  * Assign this class as a component.
  *
- * @param {IComponentOption} [option={}]
+ * @param {IComponentOption} [option]
  * @returns
  */
-function Component (option: IComponentOption = {}) {
-  return function (ClassByUser: any) {
-    // Create $components.
-    const $components: $ComponentUsage = {}
-    if (option.components) {
-      Object.keys(option.components).forEach(key => {
-        $components[key] = {
-          reference: [],
-          Constructor: <new () => LC> option.components[key]
+function Component (component: ComponentClass)
+function Component (option: IComponentOption)
+function Component (optionOrCtor: ComponentClass | IComponentOption) {
+  return function (ClassByUser: ComponentClass) {
+    let $template: string = ''
+    let $components: $ComponentUsage = {}
+
+    // Override ClassByUser if param is the class.
+    if (typeof optionOrCtor === 'function') {
+      ClassByUser = <ComponentClass> optionOrCtor
+
+    // IComponentOption.
+    } else {
+      const option = <IComponentOption> optionOrCtor
+
+      // Create $components.
+      if (typeof option.components === 'object') {
+        const componentNames = Object.keys(option.components)
+        for (let i = 0, length = componentNames.length; i < length; i++) {
+          const compName = componentNames[i]
+          $components[compName] = {
+            reference: [],
+            Constructor: <ComponentClass> option.components[compName]
+          }
         }
-      })
+      }
+
+      // Create $template.
+      $template = typeof option.template === 'string'
+        ? option.template
+        : ''
     }
 
-    // Create $template.
-    const $template = typeof option.template === 'string'
-      ? option.template
-      : ''
-
     // Create $models.
-    const $models = {}
+    const $models: $ComponentModels = {}
     const instance = new ClassByUser()
 
     const instanceKeys = Object.keys(instance)  // Value properties and user-defined methods from prototype.
@@ -68,7 +83,7 @@ function Component (option: IComponentOption = {}) {
 
     // Rewrite prototype for inheritance.
     Object.defineProperty(ClassByUser, 'prototype', {
-      value: Object.assign(ClassByUser.prototype, <ILcBaseProperties> {
+      value: Object.assign(ClassByUser.prototype, {
         $components,
         $template,
         $models
