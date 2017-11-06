@@ -7,6 +7,14 @@
  */
 declare class AST {
   /**
+   * Component that uses this AST.
+   *
+   * @type {LC}
+   * @memberof AST
+   */
+  component: LC
+
+  /**
    * Get element of this AST.
    * This will be the element for the component of this AST.
    *
@@ -26,30 +34,28 @@ declare class AST {
   /**
    * Add an ASTNode to this AST.
    *
-   * @param {ASTNode} node
+   * @param {ASTNodeTypes} node
    * @memberof AST
    */
-  addNode (node: ASTNode): void
+  addNode (node: ASTNodeTypes): void
 
   /**
    * Notify all ASTNodes to update their value with new one.
    *
-   * @param {LC} component
    * @param {string} keyName
    * @param {*} newValue
    * @memberof AST
    */
-  notify (component: LC, keyName: string, newValue: any): void
+  notify (keyName: string, newValue: any): void
 
   /**
    * Update all ASTNodes.
    *
-   * @param {LC} component
    * @param {string} [specificExpression]
    * @param {*} [newValue]
    * @memberof AST
    */
-  updateNodes (component: LC, specificExpression?: string, newValue?: any): void
+  updateNodes (specificExpression?: string, newValue?: any): void
 
   /**
    * Creates an instance of AST.
@@ -63,4 +69,4 @@ declare class AST {
 /**
  * Nodes in AST,
  */
-type ASTNodes = ASTNode[]
+type ASTNodes = ASTNodeTypes[]

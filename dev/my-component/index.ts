@@ -12,7 +12,7 @@ class MyComponent extends LC {
   sex: string = 'male'
 
   created () {
-    console.log('MyComponent created')
+    // console.log('MyComponent created')
   }
 
   mounted () {

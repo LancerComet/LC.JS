@@ -1,8 +1,10 @@
 /// <reference path="./ast.d.ts" />
 
-import { ASTNode } from './ast-node'
+import { ASTNode, ASTNodeComponent, ASTNodeElement, ASTNodeText } from './ast-node'
 
 class AST {
+  component: LC
+
   get element (): Element | Text | Comment {
     return this.nodes.length
       ? this.nodes[0].element
@@ -11,24 +13,27 @@ class AST {
 
   nodes: ASTNodes
 
-  addNode (node: ASTNode) {
+  addNode (node: ASTNodeTypes) {
     this.nodes.indexOf(node) < 0 &&
     this.nodes.push(node)
   }
 
-  notify (component: LC, keyName: string, newValue: any) {
+  notify (keyName: string, newValue: any) {
     this.nodes.forEach(astNode => {
-      astNode.update(component, keyName, newValue)
-      astNode.childAST.notify(component, keyName, newValue)
+      astNode.update(keyName, newValue)
+      if (astNode instanceof ASTNodeElement) {
+        astNode.childAST.notify(keyName, newValue)
+      }
     })
   }
 
-  updateNodes (component: LC, specificExpression?: string, newValue?: any) {
-    this.nodes.forEach(node => node.update(component, specificExpression, newValue))
+  updateNodes (specificExpression?: string, newValue?: any) {
+    this.nodes.forEach(node => node.update(specificExpression, newValue))
   }
 
-  constructor (nodes?: ASTNodes) {
-    this.nodes = nodes || []
+  constructor (component?: LC) {
+    this.nodes = []
+    this.component = component
   }
 }
 

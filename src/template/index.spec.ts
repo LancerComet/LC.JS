@@ -17,7 +17,7 @@ describe('Template testing.', () => {
       </div>
     `
 
-    const ast = parseHTMLtoAST(template, null)
+    const ast = parseHTMLtoAST(template)
     chai.expect(ast).to.be.a('array')
 
     const divNode = ast[1]

@@ -81,7 +81,7 @@ class LC {
    * @memberof LC
    */
   private $notify (keyName: string, newValue: any, oldValue: any) {
-    this.$ast && this.$ast.notify(this, keyName, newValue)
+    this.$ast && this.$ast.notify(keyName, newValue)
   }
 
   /**
@@ -137,8 +137,8 @@ class LC {
     const $template = this.$template
     if ($template) {
       const $components = this.$components
-      this.$ast = parseHTMLtoAST($template, $components)  // Create AST.
-      this.$elements = compileAstToElement(this.$ast, this, $components, this.$models)  // Create elements from AST.
+      this.$ast = parseHTMLtoAST(this)  // Create AST.
+      this.$elements = compileAstToElement(this.$ast, this)  // Create elements from AST.
     }
 
     nextTick(() => {
