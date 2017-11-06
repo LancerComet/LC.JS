@@ -6,6 +6,8 @@ class AST {
   component: LC
 
   get element (): Element | Text | Comment {
+    // Because only one root element is allowed when create a component,
+    // You can get component's element by finding first node in comopnent's AST.
     return this.nodes.length
       ? this.nodes[0].element
       : null

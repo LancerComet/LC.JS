@@ -92,11 +92,6 @@ class ASTNode {
         console.error(`[${process.env.NAME}] No AST is given when creating an ASTNode.`, param)
         return
       }
-
-      if (!param.tagName) {
-        console.error(`[${process.env.NAME}] No tagName is given when creating an ASTNode.`, param)
-        return
-      }
     }
 
     this.$if = true
@@ -139,8 +134,6 @@ class ASTNodeComponent extends ASTNode {
     }
 
     // Access to component's element.
-    // Because only one root element is allowed when create a component,
-    // You can get component's element by finding first node in comopnent's AST.
     const componentElements = (<AST> compInstance['$ast']).element
     if (!componentElements) {
       return
@@ -158,11 +151,6 @@ class ASTNodeComponent extends ASTNode {
     })
   }
 
-  /**
-   * Unmuont target component.
-   *
-   * @memberof ASTNodeComponent
-   */
   unMountComponent () {
     const compInstance = this.componentInstance
 
@@ -188,13 +176,6 @@ class ASTNodeComponent extends ASTNode {
     })
   }
 
-  /**
-   * Update node by using new value.
-   *
-   * @param {string} [specificExpression]
-   * @param {*} [newValue]
-   * @memberof ASTNodeComponent
-   */
   update (specificExpression?: string, newValue?: any) {
     const goContinue = super.preUpdate(specificExpression, newValue)
     if (!goContinue) { return }
@@ -218,12 +199,6 @@ class ASTNodeElement extends ASTNode {
   childAST: AST
   nodeType: ASTNodeType = NodeType.element
 
-  /**
-   * Create element for ASTNodeElement.
-   *
-   * @private
-   * @memberof ASTNodeElement
-   */
   private createElement () {
     const element: Element = document.createElement(this.tagName)
 
@@ -264,13 +239,6 @@ class ASTNodeElement extends ASTNode {
     this.element = element
   }
 
-  /**
-   * Update node by using new value.
-   *
-   * @param {string} [specificExpression]
-   * @param {*} [newValue]
-   * @memberof ASTNodeComponent
-   */
   update (specificExpression?: string, newValue?: any) {
     const dataObj = super.preUpdate(specificExpression, newValue)
     if (!dataObj) { return }
@@ -315,12 +283,6 @@ class ASTNodeText extends ASTNode {
   nodeType: ASTNodeType = NodeType.textNode
   textContent: string
 
-  /**
-   * Create element for ASTNodeText.
-   *
-   * @private
-   * @memberof ASTNodeText
-   */
   private createElement () {
     const element = document.createTextNode(this.textContent)
     this.element = element
