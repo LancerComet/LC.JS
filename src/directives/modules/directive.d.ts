@@ -129,12 +129,12 @@ declare class Directive {
   /**
    * Creates an instance of Directive.
    *
-   * @param {ASTNode} astNode
+   * @param {ASTNodeElement} astNode
    * @param {Element} element
    * @param {string} expression
    * @memberof Directive
    */
-  constructor (astNode: ASTNode, element: Element, expression: string)
+  constructor (astNode: ASTNodeElement, element: Element, expression: string)
 }
 
 /**

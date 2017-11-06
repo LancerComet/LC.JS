@@ -4,91 +4,137 @@ import { DirectiveConfig, NodeType } from '../config'
 import { createDirective, directives, isDirective } from '../../directives'
 import { matchExpression, nextTick, randomID } from '../../utils'
 
-/**
- * AST Node.
- *
- * @class ASTNode
- */
 class ASTNode {
-  $if: boolean = true
+  $if: boolean
+  ast: AST
   id: string
   attributes: ASTNodeElementAttribute
-  childAST: AST
-  ComponentCtor: ComponentClass
-  componentInstance: LC
   directives: Directive[]
   element: Element | Text | Comment
-  expression: string
-  isComponentAnchor: boolean
-  isSlotAnchor: boolean
   nodeType: ASTNodeType
   parentNode: ASTNode
-  props: ASTNodeProps
   tagName: string
-  textContent: string
 
-  createElement () {
-    let element: Element | Text | Comment = null
+  /**
+   * Find ancesstor for this node.
+   *
+   * @returns {ASTNode}
+   * @memberof ASTNode
+   */
+  findAncesstor (): ASTNode {
+    return this.parentNode
+      ? this.parentNode.findAncesstor()
+      : this
+  }
 
-    switch (this.nodeType) {
-      // Component anchor or html element.
-      case NodeType.element:
-        element = document.createElement(this.tagName)
+  /**
+   * Pre-update funciton.
+   * If a "true" is given, go continue to update.
+   *
+   * @param {string} [specificExpression] The expression that is given specifically.
+   * @param {*} [newValue] New value for specific expression.
+   * @returns {{component: LC, variables: string[], values: any[]}}  Necessary data for further updates.
+   * @memberof ASTNode
+   */
+  preUpdate (specificExpression?: string, newValue?: any): {
+    component: LC, variables: string[], values: any[]
+  } {
+    const component: LC = this.ast.component
+    const variables = Object.keys(component)
+    const values = variables.map(item => component[item])
 
-        // Add data-style for style scoping.
-        // Use parent's id if it has a parent.
-        element.setAttribute('data-style-' + getAncestorID(this), '')
+    // Deal with internal directives first.
+    // lc-if.
+    // TODO: Optimise processing.
+    const ifFlag = this.attributes[DirectiveConfig.flags.internal + 'if']
 
-        // Set attributes.
-        const attrNames = Object.keys(this.attributes)
-        for (let i = 0, length = attrNames.length; i < length; i++) {
-          const attrName = attrNames[i]
-          const { value: attrValue } = this.attributes[attrName]
+    if (ifFlag) {
+      const controlExpValue = !!evaluateExpression(variables, values, ifFlag.value)  // true or false.
+      if (!controlExpValue) {
+        this.$if = false
 
-          // If this attribute is a directive.
-          if (isDirective(attrName)) {
-            // Get Directive Constructor if this directive has been defined.
-            let DirectiveCtor = directives[attrName]
-
-            // A non-internal directive, create a directive for this one.
-            if (!DirectiveCtor) {
-              DirectiveCtor = createDirective({
-                name: attrName
-              })
-            }
-
-            // Create a directive object and let it to do all jobs such as compiling, updating, etc.
-            const directive = new DirectiveCtor(this, element, attrValue)
-            nextTick(() => directive.install())
-            this.directives.push(directive)
-            continue
-          }
-
-          // A normal html attribute.
-          element.setAttribute(attrName, attrValue)
+        // If this node isn't Component Node, don't go update further.
+        if (this.nodeType !== NodeType.comment) {
+          return null
         }
-
-        break
-
-      // TextNode.
-      case NodeType.textNode:
-        element = document.createTextNode(this.textContent)
-        break
-
-      // Comment.
-      // This might be a component anchor.
-      case NodeType.comment:
-        element = document.createComment(this.id)
-        break
+      } else if (controlExpValue && !this.$if) {
+        this.$if = true
+      }
     }
 
+    return {
+      component, variables, values
+    }
+  }
+
+  /**
+   * Update this ASTNode by given expression and new value.
+   * Then the element of this ASTNode will be updated.
+   * If a specific expression is given, update the element if it contains this expression.
+   *
+   * @param {string} [specificExpression] The expression that is given specifically.
+   * @param {*} [newValue] New value for specific expression.
+   * @return {boolean} Tell child class if go continue.
+   * @memberof ASTNode
+   */
+  update (specificExpression?: string, newValue?: any) {}
+
+  /**
+   * Creates an instance of ASTNode.
+   *
+   * @param {IASTNodeOption} param
+   * @memberof ASTNode
+   */
+  constructor (param: IASTNodeOption) {
+    // Param checking only in lib development.
+    if (process.env.LIB_IN_DEV) {
+      if (!param.ast) {
+        console.error(`[${process.env.NAME}] No AST is given when creating an ASTNode.`, param)
+        return
+      }
+
+      if (!param.tagName) {
+        console.error(`[${process.env.NAME}] No tagName is given when creating an ASTNode.`, param)
+        return
+      }
+    }
+
+    this.$if = true
+    this.id = randomID()
+    this.ast = param.ast
+    this.attributes = param.attributes || {}
+    this.directives = []
+    this.parentNode = param.parentNode
+    this.tagName = param.tagName || ''
+  }
+}
+
+class ASTNodeComponent extends ASTNode {
+  ComponentCtor: ComponentClass
+  componentInstance: LC
+  nodeType = NodeType.comment
+  props: ASTNodeProps
+
+  /**
+   * Create element for Component Node.
+   *
+   * @private
+   * @memberof ASTNodeComponent
+   */
+  private createElement () {
+    const element: Comment = document.createComment(this.id)
     this.element = element
   }
 
+  /**
+   * Mount target component.
+   *
+   * @memberof ASTNodeComponent
+   */
   mountComponent () {
     const compInstance = this.componentInstance
 
-    if (!this.$if || !this.isComponentAnchor || !compInstance) {
+    if (!this.$if || !compInstance) {
       return
     }
 
@@ -104,6 +150,7 @@ class ASTNode {
     nextTick(() => {
       const element = this.element
       const parent = element.parentElement
+      if (!parent) { return }
       parent.insertBefore(componentElements, element)
       parent.removeChild(element)
       typeof compInstance.mounted === 'function' &&
@@ -111,10 +158,15 @@ class ASTNode {
     })
   }
 
+  /**
+   * Unmuont target component.
+   *
+   * @memberof ASTNodeComponent
+   */
   unMountComponent () {
     const compInstance = this.componentInstance
 
-    if (!this.isComponentAnchor || !compInstance) {
+    if (!compInstance) {
       return
     }
 
@@ -136,55 +188,151 @@ class ASTNode {
     })
   }
 
-  update (component: LC, specificExpression?: string, newValue?: any) {
-    const variables = Object.keys(component)
-    const values = variables.map(item => component[item])
+  /**
+   * Update node by using new value.
+   *
+   * @param {string} [specificExpression]
+   * @param {*} [newValue]
+   * @memberof ASTNodeComponent
+   */
+  update (specificExpression?: string, newValue?: any) {
+    const goContinue = super.preUpdate(specificExpression, newValue)
+    if (!goContinue) { return }
 
-    // Deal with internal directives first.
-    // lc-if.
-    const ifFlag = this.attributes[DirectiveConfig.flags.internal + 'if']
-    // TODO: Optimise processing.
-    if (ifFlag) {
-      const controlExpValue = !!evaluateExpression(variables, values, ifFlag.value)  // true or false.
-      if (!controlExpValue) {
-        this.$if = false
-        this.isComponentAnchor && this.unMountComponent()
-        return
-      } else if (controlExpValue && !this.$if) {
-        this.$if = true
-        this.isComponentAnchor && this.mountComponent()
-      }
-    }
+    // Component node only need to check mounting status.
+    this.$if
+      ? this.mountComponent()
+      : this.unMountComponent()
+  }
 
-    // Element type.
-    // ========================
-    if (this.nodeType === NodeType.element) {
-      // Element only needs to update all directives.
-      for (let i = 0, length = this.directives.length; i < length; i++) {
-        const directive = this.directives[i]
-        const expression = directive.expression  // 'font-size:' +  size + 'px'
+  constructor (param: IASTNodeComponent) {
+    super(param)
+    this.ComponentCtor = param.ComponentCtor
+    this.componentInstance = param.componentInstance
+    this.props = param.props || {}
+    this.createElement()
+  }
+}
 
-        if (
-          specificExpression &&
-          !checkIfHasTargetExpression(expression, specificExpression)
-        ) {
-          continue
+class ASTNodeElement extends ASTNode {
+  childAST: AST
+  nodeType: ASTNodeType = NodeType.element
+
+  /**
+   * Create element for ASTNodeElement.
+   *
+   * @private
+   * @memberof ASTNodeElement
+   */
+  private createElement () {
+    const element: Element = document.createElement(this.tagName)
+
+    // Add data-style for style scoping.
+    // Use parent's id if it has a parent.
+    const styleAttr = 'data-style-' + this.findAncesstor().id
+    element.setAttribute(styleAttr, '')
+
+    // Set attributes.
+    const attrNames = Object.keys(this.attributes)
+    for (let i = 0, length = attrNames.length; i < length; i++) {
+      const attrName = attrNames[i]
+      const { value: attrValue } = this.attributes[attrName]
+
+      // If this attribute is a directive.
+      if (isDirective(attrName)) {
+        // Get Directive Constructor if this directive has been defined.
+        let DirectiveCtor = directives[attrName]
+
+        // A non-internal directive, create a directive for this one.
+        if (!DirectiveCtor) {
+          DirectiveCtor = createDirective({
+            name: attrName
+          })
         }
 
-        const value = typeof newValue !== 'undefined'
-          ? newValue
-          : evaluateExpression(variables, values, expression)
-
-        directive.update(value, component)
+        // Create a directive object and let it to do all jobs such as compiling, updating, etc.
+        const directive = new DirectiveCtor(this, element, attrValue)
+        nextTick(() => directive.install())
+        this.directives.push(directive)
+        continue
       }
 
-      return
+      // A normal html attribute.
+      element.setAttribute(attrName, attrValue)
     }
 
-    // TextNode type.
-    // ========================
+    this.element = element
+  }
 
-    // Update textContent.
+  /**
+   * Update node by using new value.
+   *
+   * @param {string} [specificExpression]
+   * @param {*} [newValue]
+   * @memberof ASTNodeComponent
+   */
+  update (specificExpression?: string, newValue?: any) {
+    const dataObj = super.preUpdate(specificExpression, newValue)
+    if (!dataObj) { return }
+
+    const { variables, values, component } = dataObj
+
+    // Element only needs to update all directives.
+    for (let i = 0, length = this.directives.length; i < length; i++) {
+      const directive = this.directives[i]
+      const expression = directive.expression  // 'font-size:' +  size + 'px'
+
+      if (
+        specificExpression &&
+        !checkIfHasTargetExpression(expression, specificExpression)
+      ) {
+        continue
+      }
+
+      const value = typeof newValue !== 'undefined'
+        ? newValue
+        : evaluateExpression(variables, values, expression)
+
+      directive.update(value, component)
+    }
+  }
+
+  constructor (param: IASTNodeElementOption) {
+    super(param)
+    this.childAST = param.childAST
+    this.createElement()
+  }
+}
+
+/**
+ * Class that represets a Text-type-ASTNode.
+ *
+ * @class ASTNodeText
+ * @extends {ASTNode}
+ */
+class ASTNodeText extends ASTNode {
+  expression: string
+  nodeType: ASTNodeType = NodeType.textNode
+  textContent: string
+
+  /**
+   * Create element for ASTNodeText.
+   *
+   * @private
+   * @memberof ASTNodeText
+   */
+  private createElement () {
+    const element = document.createTextNode(this.textContent)
+    this.element = element
+  }
+
+  update (specificExpression?: string, newValue?: any) {
+    const resultObj = super.preUpdate(specificExpression, newValue)
+    if (!resultObj) { return }
+
+    const { variables, values } = resultObj
+
+    // TextNode is going to update textContent.
     const expressions = matchExpression(this.expression)
 
     // No expression, go return.
@@ -236,39 +384,19 @@ class ASTNode {
     })
   }
 
-  constructor (params: IASTNodeOption) {
-    this.id = randomID()
-    this.attributes = params.attributes || {}
-    this.directives = []
-    this.childAST = params.childAST || null
-    this.expression = params.expression.trim() || ''
-    this.isComponentAnchor = !!params.isComponentAnchor
-    this.isSlotAnchor = !!params.isSlotAnchor
-    this.parentNode = params.parentNode
-    this.nodeType = params.nodeType || NodeType.element
-    this.tagName = params.tagName
-
-    switch (params.nodeType) {
-      case NodeType.textNode:
-        this.textContent = params.textContent || ''
-        this.tagName = ''  // Override tagName to empty.
-        break
-
-      case NodeType.element:
-        break
-
-      case NodeType.comment:
-        this.ComponentCtor = params.ComponentCtor || null
-        this.props = params.props || {}
-        break
-    }
-
+  constructor (param: IASTNodeTextOption) {
+    super(param)
+    this.expression = param.expression || ''
+    this.textContent = param.textContent || ''
     this.createElement()
   }
 }
 
 export {
-  ASTNode
+  ASTNode,
+  ASTNodeComponent,
+  ASTNodeElement,
+  ASTNodeText
 }
 
 /**
@@ -307,32 +435,4 @@ function checkIfHasTargetExpression (wholeExpression: string, specificExpression
  */
 function getPureExpression (expression: string): string {
   return expression.replace(/{|}/g, '')
-}
-
-/**
- * Normalize operators for regexp.
- *
- * @param {string} regExpStr
- * @returns {string}
- * @example
- *  {{a * b}} => {{a \* b}}
- */
-function normalizeOperators (regExpStr: string) {
-  (regExpStr.match(/\+|\*/g) || []).forEach(item => {
-    regExpStr = regExpStr.replace(item, '\\' + item)
-  })
-
-  return regExpStr
-}
-
-/**
- * Get ancestor's ID.
- *
- * @param {ASTNode} astNode
- * @returns
- */
-function getAncestorID (astNode: ASTNode) {
-  return astNode.parentNode
-    ? getAncestorID(astNode.parentNode)
-    : astNode.id
 }

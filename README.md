@@ -42,16 +42,16 @@ class AppRoot extends LC {
   appName: string = 'My App'
   color: string = '#2090e3'
   version: number = 10
-  
+
   onFocus () {
     this.version = 0
   }
-  
+
   showAppName () {
     alert(this.appName)
   }
 }
 
 const myApp = new AppRoot()
-myApp.mount('#my-app')
+myApp.$mount('#my-app')
 ```

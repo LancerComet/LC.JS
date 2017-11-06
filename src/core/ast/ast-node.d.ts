@@ -6,12 +6,20 @@
  */
 declare class ASTNode {
   /**
-   *
+   * lc-if flag.
    *
    * @type {boolean}
    * @memberof ASTNode
    */
   $if: boolean
+
+  /**
+   * AST that contains this node.
+   *
+   * @type {AST}
+   * @memberof ASTNode
+   */
+  ast: AST
 
   /**
    * ID.
@@ -22,7 +30,7 @@ declare class ASTNode {
   id: string
 
   /**
-   * HTML Attributes.
+   * Attributes of this node.
    *
    * @type {ASTNodeElementAttribute}
    * @memberof ASTNode
@@ -30,33 +38,7 @@ declare class ASTNode {
   attributes: ASTNodeElementAttribute
 
   /**
-   * Children in this node.
-   *
-   * @type {AST}
-   * @memberof ASTNode
-   */
-  childAST: AST
-
-  /**
-   * Componnet Constructor.
-   * Only available if this node is a component anchor.
-   *
-   * @type {ComponentClass}
-   * @memberof ASTNode
-   */
-  ComponentCtor: ComponentClass
-
-  /**
-   * Component instance reference.
-   * Only available if this node is a component anchor.
-   *
-   * @type {LC}
-   * @memberof ASTNode
-   */
-  componentInstance: LC
-
-  /**
-   * Directives in this node.
+   * Directives reference.
    *
    * @type {Directive[]}
    * @memberof ASTNode
@@ -64,42 +46,15 @@ declare class ASTNode {
   directives: Directive[]
 
   /**
-   * Element that refers to this ASTNode.
+   * Element of this node in view.
    *
-   * @type {(Element | Text)}
+   * @type {(Element | Text | Comment)}
    * @memberof ASTNode
    */
   element: Element | Text | Comment
 
   /**
-   * Expression of this ASTNode.
-   * Only available when it's a text node.
-   *
-   * @type {string}
-   * @memberof ASTNode
-   * @example
-   *   My name is {{name}} and I'm {{age}}-year-old.
-   */
-  expression: string
-
-  /**
-   * If this node is an anchor for component.
-   *
-   * @type {boolean}
-   * @memberof ASTNode
-   */
-  isComponentAnchor: boolean
-
-  /**
-   * If this node is an anchor for slot,
-   *
-   * @type {boolean}
-   * @memberof ASTNode
-   */
-  isSlotAnchor: boolean
-
-  /**
-   * Node type.
+   * ASTNode type.
    *
    * @type {ASTNodeType}
    * @memberof ASTNode
@@ -107,7 +62,7 @@ declare class ASTNode {
   nodeType: ASTNodeType
 
   /**
-   * Parent ASTNode.
+   * Parent ASTNode of this node.
    *
    * @type {ASTNode}
    * @memberof ASTNode
@@ -115,16 +70,7 @@ declare class ASTNode {
   parentNode: ASTNode
 
   /**
-   * Props' name collection.
-   * This property will only be available if this is component anchor.
-   *
-   * @type {ASTNodeProps}
-   * @memberof ASTNode
-   */
-  props: ASTNodeProps
-
-  /**
-   * TagName.
+   * TagName of this node in view.
    *
    * @type {string}
    * @memberof ASTNode
@@ -132,78 +78,252 @@ declare class ASTNode {
   tagName: string
 
   /**
-   * TextContent.
-   * Transformed from "this.expression" by giving values.
-   * Only available when it's a text node.
+   * Find ancesstor for this node.
    *
-   * @type {string}
+   * @returns {ASTNode}
    * @memberof ASTNode
    */
-  textContent: string
+  findAncesstor (): ASTNode
 
   /**
-   * Create HTML element.
+   * Pre-update funciton.
+   * If a "true" is given, go continue to update.
    *
+   * @param {string} [specificExpression] The expression that is given specifically.
+   * @param {*} [newValue] New value for specific expression.
+   * @returns {{component: LC, variables: string[], values: any[]}}  Necessary data for further updates.
    * @memberof ASTNode
    */
-  createElement (): void
-
-  /**
-   * Mount attached-component to this node's element.
-   * Will find elements through ASTNode in "componentInstance.$ast.nodes[0]".
-   * Only available when it's a component anchor.
-   *
-   * @memberof ASTNode
-   */
-  mountComponent (): void
-
-  /**
-   * Unmount attached-component to this node's element.
-   * Only available when it's a component anchor.
-   *
-   * @memberof ASTNode
-   */
-  unMountComponent (): void
+  preUpdate (specificExpression?: string, newValue?: any): {
+    component: LC, variables: string[], values: any[]
+  }
 
   /**
    * Update this ASTNode by given expression and new value.
    * Then the element of this ASTNode will be updated.
    * If a specific expression is given, update the element if it contains this expression.
    *
-   * @param {LC} component Component object.
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
+   * @return {boolean} Tell child class if go continue.
    * @memberof ASTNode
    */
-  update: (component: LC, specificExpression?: string, newValue?: any) => void
+  update (specificExpression?: string, newValue?: any): void
 
   /**
    * Creates an instance of ASTNode.
    *
-   * @param {IASTNodeOption} params
+   * @param {IASTNodeOption} param
    * @memberof ASTNode
    */
-  constructor (params: IASTNodeOption)
+  constructor (param: IASTNodeOption)
 }
 
 /**
- * AST Node constructor param.
+ * ASTNode constructor param.
  *
  * @interface IASTNodeOption
  */
 interface IASTNodeOption {
+  ast: AST
   attributes?: ASTNodeElementAttribute
-  childAST?: AST
-  ComponentCtor?: ComponentClass
-  expression: string
-  isComponentAnchor?: boolean
-  isSlotAnchor?: boolean
-  nodeType: ASTNodeType
   parentNode?: ASTNode
+  tagName?: string
+}
+
+/**
+ * Class that represets a Component-type-ASTNode.
+ *
+ * @class ASTNodeComponent
+ * @extends {ASTNode}
+ */
+declare class ASTNodeComponent extends ASTNode {
+  /**
+   * Component constructor.
+   *
+   * @type {ComponentClass}
+   * @memberof ASTNodeComponent
+   */
+  ComponentCtor: ComponentClass
+
+  /**
+   * Component instance reference.
+   *
+   * @type {LC}
+   * @memberof ASTNodeComponent
+   */
+  componentInstance: LC
+
+  /**
+   * Node type.
+   *
+   * @type {ASTNodeType}
+   * @memberof ASTNodeComponent
+   */
+  nodeType: ASTNodeType
+
+  /**
+   * Props.
+   *
+   * @type {ASTNodeProps}
+   * @memberof ASTNodeComponent
+   */
+  props: ASTNodeProps
+
+  /**
+   * Mount target component.
+   *
+   * @memberof ASTNodeComponent
+   */
+  mountComponent (): void
+
+  /**
+   * Unmuont target component.
+   *
+   * @memberof ASTNodeComponent
+   */
+  unMountComponent (): void
+
+  /**
+   * Update node by using new value.
+   *
+   * @param {string} [specificExpression]
+   * @param {*} [newValue]
+   * @memberof ASTNodeComponent
+   */
+  update (specificExpression?: string, newValue?: any): void
+
+  constructor (param: IASTNodeComponent)
+}
+
+/**
+ * ASTNodeComponent constructor param.
+ *
+ * @interface IASTNodeComponent
+ * @extends {IASTNodeOption}
+ */
+interface IASTNodeComponent extends IASTNodeOption {
+  ComponentCtor?: ComponentClass
+  componentInstance?: LC
   props?: ASTNodeProps
-  tagName: string
+}
+
+/**
+ * Class that represets a Element-type-ASTNode.
+ *
+ * @class ASTNodeElement
+ * @extends {ASTNode}
+ */
+declare class ASTNodeElement extends ASTNode {
+  /**
+   * Child AST.
+   *
+   * @type {AST}
+   * @memberof ASTNodeElement
+   */
+  childAST: AST
+
+  /**
+   * Node type.
+   *
+   * @type {ASTNodeType}
+   * @memberof ASTNodeElement
+   */
+  nodeType: ASTNodeType
+
+  /**
+   * Update node by using new value.
+   *
+   * @param {string} [specificExpression]
+   * @param {*} [newValue]
+   * @memberof ASTNodeComponent
+   */
+  update (specificExpression?: string, newValue?: any): void
+
+  /**
+   * Creates an instance of ASTNodeElement.
+   *
+   * @param {IASTNodeElementOption} param
+   * @memberof ASTNodeElement
+   */
+  constructor (param: IASTNodeElementOption)
+}
+
+/**
+ * ASTNodeElement constructor param.
+ *
+ * @interface IASTNodeElementOption
+ * @extends {IASTNodeOption}
+ */
+interface IASTNodeElementOption extends IASTNodeOption {
+  childAST?: AST
+}
+
+/**
+ * Class that represets a Text-type-ASTNode.
+ *
+ * @class ASTNodeText
+ * @extends {ASTNode}
+ */
+declare class ASTNodeText extends ASTNode {
+  /**
+   * Expression.
+   *
+   * @type {string}
+   * @memberof ASTNodeText
+   */
+  expression: string
+
+  /**
+   * Node type.
+   *
+   * @type {ASTNodeType}
+   * @memberof ASTNodeText
+   */
+  nodeType: ASTNodeType
+
+  /**
+   * Text content for this node.
+   * This prop will be written into element.
+   *
+   * @type {string}
+   * @memberof ASTNodeText
+   */
+  textContent: string
+
+  /**
+   * Update node with new value given.
+   *
+   * @param {string} [specificExpression]
+   * @param {*} [newValue]
+   * @memberof ASTNodeText
+   */
+  update (specificExpression?: string, newValue?: any): void
+
+  /**
+   * Creates an instance of ASTNodeText.
+   *
+   * @param {IASTNodeTextOption} param
+   * @memberof ASTNodeText
+   */
+  constructor (param: IASTNodeTextOption)
+}
+
+/**
+ * ASTNodeText constructor param.
+ *
+ * @interface IASTNodeTextOption
+ * @extends {IASTNodeOption}
+ */
+interface IASTNodeTextOption extends IASTNodeOption {
+  expression?: string
   textContent?: string
 }
+
+/**
+ * Type of ASTNode.
+ */
+type ASTNodeTypes = ASTNodeComponent | ASTNodeElement | ASTNodeText
 
 /**
  * AST Node Attribute.
