@@ -12,6 +12,13 @@ if (!isProd) {
 
 const rules = [
   {
+    test: /\.tsx?$/,
+    loader: 'tslint-loader',
+    enforce: 'pre',
+    exclude: /node_modules/,
+    options: require('./tslint.conf')
+  },
+  {
     test: /\.(png|jpe?g|gif)(\?.*)?$/,
     loader: 'url-loader',
     query: {

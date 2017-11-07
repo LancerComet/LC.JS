@@ -1,7 +1,7 @@
 module.exports = {
   'class-name': true,
   'completed-docs': [
-    true,
+    false,
     'classes', 'functions', 'enums', 'interfaces', 'namespaces'
   ],
   "curly": true,
@@ -15,7 +15,7 @@ module.exports = {
   'no-debugger': process.env.NODE_ENV === 'production',
   'no-duplicate-super': true,
   'no-duplicate-variable': [true, 'check-parameters'],
-  'no-empty': true,
+  'no-empty': false,
   'no-empty-interface': true,
   'no-floating-promises': true,
   'no-irregular-whitespace': true,

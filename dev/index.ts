@@ -13,7 +13,7 @@ console.time('createComponent')
   template: `
     <div class="lc-app" data-title="wow">
       <hello-world :app-name="appName"></hello-world>
-      <h1 class="title">{{appName}} demo page.</h1>
+      <h1 lc-if="showMyComponent" class="title">{{appName}} demo page.</h1>
       <div>{{appName}} is a light weight MVVM UI framework that written in TypeScript.</div>
       <div>Time: {{time}}, double time: {{time * 2}}</div>
       <button @click="toggleComponent">Toggle My Component</button>
@@ -49,6 +49,6 @@ class Root extends LC {
 const root = new Root()
 root.$mount('#lc-app')
 
-setInterval(() => {
-  root.time++
-}, 1000)
+// setInterval(() => {
+//   root.time++
+// }, 1000)

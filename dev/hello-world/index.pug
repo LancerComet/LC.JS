@@ -4,4 +4,6 @@ div.hello-world
     p This value is given via props:
     p Hello, {{appName || '--'}}
 
+  child(:app-name="appName")
+
   slot(name="wow")

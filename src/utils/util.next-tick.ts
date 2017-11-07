@@ -1,6 +1,11 @@
 let tickInExec = false
 let jobQueue = []
 
+/**
+ * Do something in next tick.
+ *
+ * @param {Function} callback
+ */
 function nextTick (callback: Function) {
   if (typeof callback === 'function') {
     jobQueue.push(callback)
@@ -24,5 +29,7 @@ function exec () {
     }
     jobQueue = []
     tickInExec = false
+  }).catch(error => {
+    console.error(error)
   })
 }

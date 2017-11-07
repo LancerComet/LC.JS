@@ -16,7 +16,7 @@ class MyComponent extends LC {
   }
 
   mounted () {
-    console.log('MyComponent mounted')
+    // console.log('MyComponent mounted', this)
   }
 }
 

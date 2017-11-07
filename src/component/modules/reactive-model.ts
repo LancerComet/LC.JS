@@ -7,20 +7,20 @@
  */
 class ReactiveModel {
   /**
+   * The AST that holds this model.
+   *
+   * @type {AST}
+   * @memberof ReactiveModel
+   */
+  $ast: AST
+
+  /**
    * Component that uses this ReactiveModel.
    *
    * @type {LC}
    * @memberof ReactiveModel
    */
   $component: LC
-
-  /**
-   * Components that use this ReactiveModel as prop.
-   *
-   * @type {LC[]}
-   * @memberof ReactiveModel
-   */
-  $propComponents: LC[] = []
 
   /**
    * Name of this reactive model.
@@ -68,39 +68,37 @@ class ReactiveModel {
 
     this._value = newValue
 
-    // Notify component.
+    // Tell its AST that some value has been updated.
     const name = this.name
-    this.$component && this.$component['$notify'](
-      name, newValue, oldValue
-    )
-
-    // Notify props components.
-    this.$propComponents.forEach(component => {
-      component['$notify'](name, newValue, oldValue)
-    })
+    this.$ast && this.$ast.notify(name, newValue)
   }
 
   /**
    * Creates an instance of ReactiveModel.
+   *
+   * @param {AST} ast
    * @param {string} name
-   * @param {IComponentModelItem} modelItem
+   * @param {IComponentModelItem} config
    * @memberof ReactiveModel
    */
-  constructor (name: string, modelItem: IComponentModelItem) {
+  constructor (ast: AST, name: string, config: IComponentModelItem) {
     // Keep component reference.
-    if (modelItem.$component) {
-      this.$component = modelItem.$component
+    if (config.$component) {
+      this.$component = config.$component
     }
+
+    // Set AST.
+    this.$ast = ast
 
     // Set name info.
     this.name = name
 
     // Set type info.
-    const type = modelItem.type
+    const type = config.type
     this.type = type
 
     // Set value data.
-    const defaultValue = modelItem.default
+    const defaultValue = config.default
     this.defaultValue = type === Array
       ? (<any[]> defaultValue).slice()
       : defaultValue
