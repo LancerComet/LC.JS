@@ -7,6 +7,24 @@
  */
 declare class AST {
   /**
+   * Key cache of Reactive Models.
+   * This is designed for expression evalutation.
+   *
+   * @type {string[]}
+   * @memberof AST
+   */
+  $keyCache: string[]
+
+  /**
+   * Value cache of Reactive Models.
+   * This is designed for expression evalutation.
+   *
+   * @type {any[]}
+   * @memberof AST
+   */
+  $valueCache: any[]
+
+  /**
    * Component that uses this AST.
    *
    * @type {LC}
@@ -22,6 +40,14 @@ declare class AST {
    * @memberof AST
    */
   element: Element | Text | Comment
+
+  /**
+   * Evaluate target expression and get result from this AST.
+   *
+   * @param {string} expression
+   * @memberof AST
+   */
+  evaluateValue (expression: string)
 
   /**
    * ASTNodes in this AST.
