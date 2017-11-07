@@ -14,6 +14,14 @@ declare class ASTNode {
   $if: boolean
 
   /**
+   * Anchor element for lc-if.
+   *
+   * @type {Comment}
+   * @memberof ASTNode
+   */
+  $ifAnchor: Comment
+
+  /**
    * AST that contains this node.
    *
    * @type {AST}
@@ -91,12 +99,10 @@ declare class ASTNode {
    *
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
-   * @returns {{component: LC, variables: string[], values: any[]}}  Necessary data for further updates.
+   * @returns {boolean} If do further updates.
    * @memberof ASTNode
    */
-  preUpdate (specificExpression?: string, newValue?: any): {
-    component: LC, variables: string[], values: any[]
-  }
+  preUpdate (specificExpression?: string, newValue?: any): boolean
 
   /**
    * Update this ASTNode by given expression and new value.

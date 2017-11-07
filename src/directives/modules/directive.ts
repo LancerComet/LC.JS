@@ -85,7 +85,12 @@ function createDirective (option: IDirectiveOptions) {
 
     install () {
       if (this.isCustom) {
-        isFunction(this.onInstall) && this.onInstall(this)
+        const ast = this.astNode.ast
+        let initValue = null
+        if (ast) {
+          initValue = ast.evaluateValue(this.expression)
+        }
+        isFunction(this.onInstall) && this.onInstall(this, initValue)
         return
       }
 

@@ -21,10 +21,12 @@ class ASTNodeText extends ASTNode {
   }
 
   update (specificExpression?: string, newValue?: any) {
-    const resultObj = super.preUpdate(specificExpression, newValue)
-    if (!resultObj) { return }
+    const goContinue = super.preUpdate(specificExpression, newValue)
+    if (!goContinue) { return }
 
-    const { variables, values } = resultObj
+    const ast = this.ast
+    const variables = ast.$keyCache
+    const values = ast.$valueCache
 
     // TextNode is going to update textContent.
     const expressions = matchExpression(this.expression)

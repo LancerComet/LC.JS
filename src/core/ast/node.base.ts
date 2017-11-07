@@ -1,10 +1,11 @@
 /// <reference path="./node.base.d.ts" />
 
-import { DirectiveConfig, NodeType } from '../config'
-import { evaluateExpression, randomID } from '../../utils'
+import { DirectiveConfig } from '../config'
+import { randomID } from '../../utils'
 
 class ASTNode {
   $if: boolean
+  $ifAnchor: Comment
   ast: AST
   id: string
   attributes: ASTNodeElementAttribute
@@ -35,34 +36,23 @@ class ASTNode {
    * @returns {{component: LC, variables: string[], values: any[]}}  Necessary data for further updates.
    * @memberof ASTNode
    */
-  preUpdate (specificExpression?: string, newValue?: any): {
-    component: LC, variables: string[], values: any[]
-  } {
-    const component: LC = this.ast.component
-    const variables = Object.keys(component)
-    const values = variables.map(item => component[item])
+  preUpdate (specificExpression?: string, newValue?: any): boolean {
+    const ast = this.ast
 
     // Deal with internal directives first.
     // lc-if.
     const ifFlag = this.attributes[DirectiveConfig.flags.internal + 'if']
 
     if (ifFlag) {
-      const controlExpValue = !!evaluateExpression(variables, values, ifFlag.value)  // true or false.
+      const controlExpValue = !!ast.evaluateValue(ifFlag.value)  // true or false.
       if (!controlExpValue) {
         this.$if = false
-
-        // If this node isn't Component Node, don't go update further.
-        if (this.nodeType !== NodeType.comment) {
-          return null
-        }
       } else if (controlExpValue && !this.$if) {
         this.$if = true
       }
     }
 
-    return {
-      component, variables, values
-    }
+    return true
   }
 
   /**
@@ -93,6 +83,7 @@ class ASTNode {
     }
 
     this.$if = true
+    this.$ifAnchor = document.createComment('')
     this.id = randomID()
     this.ast = param.ast
     this.attributes = param.attributes || {}

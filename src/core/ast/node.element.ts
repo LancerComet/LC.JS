@@ -3,7 +3,7 @@
 import { ASTNode } from './node.base'
 import { NodeType } from '../config'
 import { isDirective, createDirective, directives } from '../../directives'
-import { evaluateExpression, hasTargetExpression, nextTick } from '../../utils'
+import { hasTargetExpression, nextTick } from '../../utils'
 
 class ASTNodeElement extends ASTNode {
   childAST: AST
@@ -50,10 +50,11 @@ class ASTNodeElement extends ASTNode {
   }
 
   update (specificExpression?: string, newValue?: any) {
-    const dataObj = super.preUpdate(specificExpression, newValue)
-    if (!dataObj) { return }
+    const goContinue = super.preUpdate(specificExpression, newValue)
+    if (!goContinue) { return }
 
-    const { variables, values, component } = dataObj
+    const ast = this.ast
+    const component = ast.component
 
     // Element only needs to update all directives.
     for (let i = 0, length = this.directives.length; i < length; i++) {
@@ -69,7 +70,7 @@ class ASTNodeElement extends ASTNode {
 
       const value = typeof newValue !== 'undefined'
         ? newValue
-        : evaluateExpression(variables, values, expression)
+        : ast.evaluateValue(expression)
 
       directive.update(value, component)
     }
