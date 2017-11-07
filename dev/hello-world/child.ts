@@ -5,7 +5,7 @@ import { Component, LC } from '../../src'
 })
 class Child extends LC {
   mounted () {
-    console.log(this)
+    // console.log(this)
   }
 }
 

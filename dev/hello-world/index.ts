@@ -10,7 +10,7 @@ import { Child } from './child'
 class HelloWorld extends LC {
   img: string = require('../assets/logo.png')
   created () {
-    console.log('hello-world creatd', this)
+    // console.log('hello-world creatd', this)
   }
 }
 

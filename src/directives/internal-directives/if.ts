@@ -1,3 +1,9 @@
+/**
+ * If directive module.
+ * This is the directive for ASTElement.
+ * ASTNodeComponent is controlled by functions on itself.
+ */
+
 import { DirectiveConfig } from '../../core/config'
 import { createDirective } from '../modules/directive'
 
