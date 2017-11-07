@@ -136,7 +136,6 @@ class LC {
     // Compile HTML template if it is given.
     const $template = this.$template
     if ($template) {
-      const $components = this.$components
       this.$ast = parseHTMLtoAST(this)  // Create AST.
       this.$elements = compileAstToElement(this.$ast, this)  // Create elements from AST.
     }

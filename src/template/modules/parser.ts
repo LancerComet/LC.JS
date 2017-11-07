@@ -12,14 +12,12 @@ function parseHTMLtoAST (component: LC): AST
 function parseHTMLtoAST (param: string | LC): AST {
   let htmlString: string = ''
   let component: LC = null
-  let $components: $ComponentUsage = null
 
   if (typeof param === 'string') {
     htmlString = param
   } else if (typeof param === 'object') {
     component = param
-    $components = param.$components
-    htmlString = param.$template
+    htmlString = component.$template
   } else {
     return
   }
@@ -30,6 +28,14 @@ function parseHTMLtoAST (param: string | LC): AST {
 
   // Create AST.
   const ast = new AST(component)
+
+  // Assign AST to all of component's models.
+  if (component) {
+    Object.keys(component.$models).forEach(keyName => {
+      const $model = component.$models[keyName]
+      $model.$ast = ast
+    })
+  }
 
   // Generate elements and convert to AST.
   const $el = document.createElement('div')
@@ -45,7 +51,7 @@ function parseHTMLtoAST (param: string | LC): AST {
   for (let i = 0, length = $el.childNodes.length; i < length; i++) {
     const currentNode = $el.childNodes[i]
     ast.addNode(
-      elementToASTNode(ast, currentNode, $components)
+      elementToASTNode(ast, currentNode, component)
     )
   }
 
@@ -61,14 +67,16 @@ export {
  *
  * @param {AST} ast
  * @param {Node} node
- * @param {$ComponentUsage} [$components]
+ * @param {LC} component
  * @param {ASTNodeTypes} [parentNode]
  * @returns {ASTNode}
  */
-function elementToASTNode (ast: AST, node: Node, $components?: $ComponentUsage, parentNode?: ASTNodeTypes): ASTNodeTypes {
+function elementToASTNode (ast: AST, node: Node, component: LC, parentNode?: ASTNodeTypes): ASTNodeTypes {
+  const $components = component.$components
+
   let astNode: ASTNodeTypes = null
   const attributes: ASTNodeElementAttribute = {}
-  const childAST: AST = new AST()
+  const childAST: AST = new AST(component)
   let nodeType: number = node.nodeType
   let tagName: string = ''
 
@@ -154,7 +162,7 @@ function elementToASTNode (ast: AST, node: Node, $components?: $ComponentUsage, 
     let i = 0
     while (i < childrenLength){
       const childNode = node.childNodes[i]
-      childAST.addNode(elementToASTNode(ast, childNode, $components, astNode))
+      childAST.addNode(elementToASTNode(childAST, childNode, component, astNode))
       i++
     }
   }

@@ -33,9 +33,9 @@ function compileAstToElement (ast: AST, component: LC): DocumentFragment {
         if (propsKeys.length) {
           const $presetModels = {}
 
-          // Create new reactive model for child component for initial values.
+          // Create prop's reactive model for target component.
           propsKeys.forEach(propName => {
-            $presetModels[propName] = new ReactiveModel(propName, {
+            $presetModels[propName] = new ReactiveModel(ast, propName, {
               type: $models[propName].type,
               default: $models[propName].value
             })
@@ -44,7 +44,7 @@ function compileAstToElement (ast: AST, component: LC): DocumentFragment {
           // Combine props to Component's "$models".
           Object.defineProperty(componentNode.ComponentCtor.prototype, '$models', {
             value: Object.assign(
-              componentNode.ComponentCtor.prototype['$models'],
+              componentNode.ComponentCtor.prototype.$models,
               $presetModels
             )
           })
@@ -56,7 +56,6 @@ function compileAstToElement (ast: AST, component: LC): DocumentFragment {
         // Save child component "compInstance" to "$propComponents" in prop's model in this component.
         propsKeys.forEach(propName => {
           const $propModel = <ReactiveModel> $models[propName]
-          $propModel.$propComponents.push(compInstance)
         })
 
         // Mount component.

@@ -74,11 +74,14 @@ function Component (optionOrCtor: ComponentClass | IComponentOption) {
       }
 
       // Create reactive model.
-      $models[key] = new ReactiveModel(key, {
-        type: value.constructor,
-        default: value,
-        $component: null  // Will be written in class LC.
-      })
+      $models[key] = new ReactiveModel(
+        null,  // Will be written in Parser.
+        key,
+        {
+          type: value.constructor,
+          default: value,
+          $component: null  // Will be written in class LC.
+        })
     }
 
     // Rewrite prototype for inheritance.

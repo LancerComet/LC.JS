@@ -2,7 +2,7 @@
 
 import { ASTNode } from './node.base'
 import { NodeType } from '../config'
-import { nextTick } from '../../utils'
+import { hasTargetExpression, nextTick } from '../../utils'
 
 class ASTNodeComponent extends ASTNode {
   ComponentCtor: ComponentClass
@@ -84,6 +84,22 @@ class ASTNodeComponent extends ASTNode {
     this.$if
       ? this.mountComponent()
       : this.unMountComponent()
+
+    // Check whether updates props.
+    let goUpdateProps = false
+    Object.keys(this.props).some(propName => {
+      const propExpression = this.props[propName]
+      if (hasTargetExpression(propExpression, specificExpression)) {
+        goUpdateProps = true
+        return goUpdateProps
+      }
+    })
+
+    // Update compInstance's models.
+    const compInstance = this.componentInstance
+    if (goUpdateProps && compInstance) {
+      (<AST> compInstance['$ast']).notify(specificExpression, newValue)
+    }
   }
 
   constructor (param: IASTNodeComponent) {

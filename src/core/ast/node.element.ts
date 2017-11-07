@@ -3,7 +3,7 @@
 import { ASTNode } from './node.base'
 import { NodeType } from '../config'
 import { isDirective, createDirective, directives } from '../../directives'
-import { evaluateExpression, nextTick } from '../../utils'
+import { evaluateExpression, hasTargetExpression, nextTick } from '../../utils'
 
 class ASTNodeElement extends ASTNode {
   childAST: AST
@@ -62,7 +62,7 @@ class ASTNodeElement extends ASTNode {
 
       if (
         specificExpression &&
-        !checkIfHasTargetExpression(expression, specificExpression)
+        !hasTargetExpression(expression, specificExpression)
       ) {
         continue
       }
@@ -84,15 +84,4 @@ class ASTNodeElement extends ASTNode {
 
 export {
   ASTNodeElement
-}
-
-/**
- * Check if specificExpression is in wholeExpression.
- *
- * @param {string} wholeExpression
- * @param {string} specificExpression
- * @returns {boolean}
- */
-function checkIfHasTargetExpression (wholeExpression: string, specificExpression: string): boolean {
-  return !!wholeExpression.match(new RegExp('\\b' + specificExpression + '\\b'))
 }
