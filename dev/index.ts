@@ -49,6 +49,6 @@ class Root extends LC {
 const root = new Root()
 root.$mount('#lc-app')
 
-setInterval(() => {
-  root.time++
-}, 1000)
+// setInterval(() => {
+//   root.time++
+// }, 1000)

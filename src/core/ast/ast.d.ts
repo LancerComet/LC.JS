@@ -49,15 +49,6 @@ declare class AST {
   notify (keyName: string, newValue: any): void
 
   /**
-   * Update all ASTNodes.
-   *
-   * @param {string} [specificExpression]
-   * @param {*} [newValue]
-   * @memberof AST
-   */
-  updateNodes (specificExpression?: string, newValue?: any): void
-
-  /**
    * Creates an instance of AST.
    *
    * @param {ASTNodes} [nodes]

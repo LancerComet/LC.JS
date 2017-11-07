@@ -7,7 +7,6 @@ import { matchExpression } from './util.match-expression'
 import { nextTick } from './util.next-tick'
 import { randomID } from './util.random-id'
 import { strStartsWith } from './util.str-starts-with'
-import { uniqueArray } from './util.unique-array'
 
 export {
   evaluateExpression,
@@ -18,6 +17,5 @@ export {
   matchExpression,
   nextTick,
   randomID,
-  strStartsWith,
-  uniqueArray
+  strStartsWith
 }

@@ -68,13 +68,8 @@ class ReactiveModel {
 
     this._value = newValue
 
-    // Notify component.
-    const name = this.name
-    this.$component && this.$component['$notify'](
-      name, newValue, oldValue
-    )
-
     // Tell its AST that some value has been updated.
+    const name = this.name
     this.$ast && this.$ast.notify(name, newValue)
   }
 

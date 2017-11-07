@@ -5,6 +5,7 @@ import { isFunction, nextTick } from '../../utils'
 import { isEventDirective, isValueDirective } from './utils'
 
 import { initIf } from '../internal-directives/if'
+import { initShow } from '../internal-directives/show'
 import { initSlot } from '../internal-directives/slot'
 import { initText } from '../internal-directives/text'
 import { initModel } from '../internal-directives/@model'
@@ -20,6 +21,7 @@ const directives: {[directiveName: string]: typeof Directive} = {}
 // Create internal directives.
 initIf(directives)
 initText(directives)
+initShow(directives)
 initSlot(directives)
 initModel(directives)
 

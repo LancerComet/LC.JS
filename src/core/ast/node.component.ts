@@ -52,6 +52,7 @@ class ASTNodeComponent extends ASTNode {
   }
 
   unMountComponent () {
+    console.log('unMountComponent: ', this.tagName)
     const compInstance = this.componentInstance
 
     if (!compInstance) {

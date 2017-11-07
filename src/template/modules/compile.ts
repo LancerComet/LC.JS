@@ -1,7 +1,5 @@
 import { ASTNodeComponent, ASTNodeElement, ASTNodeText } from '../../core'
-import { isValueDirective, isEventDirective, isDirective } from '../../directives'
-import { DirectiveConfig, NodeType } from '../../core/config'
-import { nextTick } from '../../utils'
+import { DirectiveConfig } from '../../core/config'
 import { ReactiveModel } from '../../component/modules/reactive-model'
 
 /**
@@ -52,11 +50,6 @@ function compileAstToElement (ast: AST, component: LC): DocumentFragment {
 
         // TODO: Can't instantiate component in here.
         const compInstance: LC = new (<ASTNodeComponent> astNode).ComponentCtor()
-
-        // Save child component "compInstance" to "$propComponents" in prop's model in this component.
-        propsKeys.forEach(propName => {
-          const $propModel = <ReactiveModel> $models[propName]
-        })
 
         // Mount component.
         componentNode.componentInstance = compInstance

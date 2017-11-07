@@ -1,3 +1,9 @@
+/**
+ * Get all properties from an object, including all props from prototype.
+ *
+ * @param {*} object
+ * @returns
+ */
 function getAllProperties (object: any){
   const allProps = []
   let curr = object

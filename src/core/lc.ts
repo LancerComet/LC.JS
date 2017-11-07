@@ -1,6 +1,5 @@
 /// <reference path="./lc.d.ts" />
 
-import { ASTNode } from './ast/node.base'
 import { compileAstToElement, parseHTMLtoAST } from '../template'
 import { nextTick } from '../utils'
 
@@ -63,28 +62,6 @@ class LC {
   private $ast: AST
 
   /**
-   * Mouting element.
-   *
-   * @private
-   * @type {Element}
-   * @memberof LC
-   */
-  private $el: Element
-
-  /**
-   * Will be triggered when some model's value has been changed.
-   * Called in ReactiveModels.
-   *
-   * @param {string} keyName
-   * @param {*} newValue
-   * @param {*} oldValue
-   * @memberof LC
-   */
-  private $notify (keyName: string, newValue: any, oldValue: any) {
-    this.$ast && this.$ast.notify(keyName, newValue)
-  }
-
-  /**
    * Mount this component to target element.
    *
    * @param {string | Element | Node} element
@@ -114,17 +91,20 @@ class LC {
    *
    * @memberof LC
    */
-  created (): void {
-  }
+  created (): void {}
 
   /**
    * Lifecycle function executes after component has been mounted to HTML.
    *
    * @memberof LC
    */
-  mounted (): void {
-  }
+  mounted (): void {}
 
+  /**
+   * Creates an instance of LC.
+   *
+   * @memberof LC
+   */
   constructor () {
     // Move model to root level.
     // "$models" would be undefined when a new instance is created in decorator.
