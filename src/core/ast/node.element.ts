@@ -50,8 +50,7 @@ class ASTNodeElement extends ASTNode {
   }
 
   update (specificExpression?: string, newValue?: any) {
-    const goContinue = super.preUpdate(specificExpression, newValue)
-    if (!goContinue) { return }
+    super.preUpdate(specificExpression, newValue)
 
     const ast = this.ast
     const component = ast.component

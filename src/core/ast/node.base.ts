@@ -33,10 +33,9 @@ class ASTNode {
    *
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
-   * @returns {{component: LC, variables: string[], values: any[]}}  Necessary data for further updates.
    * @memberof ASTNode
    */
-  preUpdate (specificExpression?: string, newValue?: any): boolean {
+  preUpdate (specificExpression?: string, newValue?: any) {
     const ast = this.ast
 
     // Deal with internal directives first.
@@ -45,14 +44,8 @@ class ASTNode {
 
     if (ifFlag) {
       const controlExpValue = !!ast.evaluateValue(ifFlag.value)  // true or false.
-      if (!controlExpValue) {
-        this.$if = false
-      } else if (controlExpValue && !this.$if) {
-        this.$if = true
-      }
+      this.$if = controlExpValue
     }
-
-    return true
   }
 
   /**

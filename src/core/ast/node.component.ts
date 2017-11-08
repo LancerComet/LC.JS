@@ -77,8 +77,7 @@ class ASTNodeComponent extends ASTNode {
   }
 
   update (specificExpression?: string, newValue?: any) {
-    const goContinue = super.preUpdate(specificExpression, newValue)
-    if (!goContinue) { return }
+    super.preUpdate(specificExpression, newValue)
 
     // Component node only need to check mounting status.
     this.$if

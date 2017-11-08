@@ -21,8 +21,7 @@ class ASTNodeText extends ASTNode {
   }
 
   update (specificExpression?: string, newValue?: any) {
-    const goContinue = super.preUpdate(specificExpression, newValue)
-    if (!goContinue) { return }
+    super.preUpdate(specificExpression, newValue)
 
     const ast = this.ast
     const variables = ast.$keyCache

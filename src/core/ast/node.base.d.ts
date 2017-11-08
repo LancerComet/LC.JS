@@ -99,10 +99,9 @@ declare class ASTNode {
    *
    * @param {string} [specificExpression] The expression that is given specifically.
    * @param {*} [newValue] New value for specific expression.
-   * @returns {boolean} If do further updates.
    * @memberof ASTNode
    */
-  preUpdate (specificExpression?: string, newValue?: any): boolean
+  preUpdate (specificExpression?: string, newValue?: any)
 
   /**
    * Update this ASTNode by given expression and new value.
